@@ -10,11 +10,15 @@ const FIREBASE = "https://controlasistencia-d236e-default-rtdb.firebaseio.com";
 
 app.post("/webhook", async (req, res) => {
 
+ console.log("🔥 LLEGÓ MENSAJE:", JSON.stringify(req.body));
+
     const msg = req.body.message;
     if (!msg) return res.send();
 
     const chatId = msg.chat.id;
     const text = msg.text || "";
+
+console.log("📩 TEXTO:", text);
 
     if (text.startsWith("ASISTENCIA")) {
 
