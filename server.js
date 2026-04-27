@@ -1,10 +1,9 @@
 const express = require("express");
-const fetch = require("node-fetch");
 
 const app = express();
 app.use(express.json());
 
-const TOKEN = "TU_TOKEN";
+const TOKEN = "8761191809:AAG0Z_0wuLOdOevzGk9G8bz6BJh9e9NUL6w";
 const URL = `https://api.telegram.org/bot${TOKEN}`;
 
 const FIREBASE = "https://controlasistencia-d236e-default-rtdb.firebaseio.com";
@@ -15,7 +14,7 @@ app.post("/webhook", async (req, res) => {
     if (!msg) return res.send();
 
     const chatId = msg.chat.id;
-    const text = msg.text;
+    const text = msg.text || "";
 
     if (text.startsWith("ASISTENCIA")) {
 
@@ -61,4 +60,5 @@ function enviar(chatId, texto) {
     });
 }
 
-app.listen(3000, () => console.log("Bot corriendo"));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log("Bot corriendo"));
