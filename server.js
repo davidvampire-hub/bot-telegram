@@ -4,78 +4,69 @@ const fetch = require("node-fetch");
 const app = express();
 app.use(express.json());
 
-const TOKEN = "TU_TOKEN_AQUI";
+// 🔑 TOKEN DE TU BOT (CAMBIAR)
+const TOKEN = "8761191809:AAG0Z_0wuLOdOevzGk9G8bz6BJh9e9NUL6w";
 const URL = `https://api.telegram.org/bot${TOKEN}`;
-const FIREBASE = "https://controlasistencia-d236e-default-rtdb.firebaseio.com";
 
-// ✅ salud
+// ✅ Ruta de prueba
 app.get("/", (req, res) => {
-  res.send("OK");
+  res.send("OK FUNCIONANDO ✅");
 });
 
-// ✅ webhook
+// ✅ WEBHOOK TELEGRAM
 app.post("/webhook", async (req, res) => {
-  try {
-    console.log("🔥 WEBHOOK:", JSON.stringify(req.body));
 
-    const msg = req.body.message;
-    if (!msg) return res.sendStatus(200);
+  console.log("🔥 WEBHOOK:", JSON.stringify(req.body));
 
-    const chatId = msg.chat.id;
-    const text = msg.text;
+  const msg = req.body.message;
+  if (!msg) return res.sendStatus(200);
 
-    // 🔍 comando
-    if (text && text.startsWith("ASISTENCIA")) {
-      const id = text.split(" ")[1];
+  const chatId = msg.chat.id;
+  const text = msg.text;
 
-      const alumnoRes = await fetch(`${FIREBASE}/alumnos/${id}.json`);
-      const alumno = await alumnoRes.json();
+  // 🔍 COMANDO ASISTENCIA
+  if (text && text.startsWith("ASISTENCIA")) {
 
-      if (!alumno) {
-        await enviar(chatId, "❌ Alumno no encontrado");
-        return res.sendStatus(200);
-      }
+    const partes = text.split(" ");
+    const id = partes[1];
 
-      const fecha = new Date().toISOString().split("T")[0];
-
-      const regRes = await fetch(`${FIREBASE}/registros/${id}/${fecha}.json`);
-      const registros = await regRes.json();
-
-      let respuesta = `👤 ${alumno.nombre}\n`;
-
-      if (!registros) {
-        respuesta += "Sin registros hoy";
-      } else {
-        Object.values(registros).forEach(r => {
-          respuesta += `\n${r.tipo}: ${r.hora}`;
-        });
-      }
-
-      await enviar(chatId, respuesta);
+    if (!id) {
+      await enviar(chatId, "⚠️ Usa: ASISTENCIA 123");
+      return res.sendStatus(200);
     }
 
-    res.sendStatus(200);
-
-  } catch (error) {
-    console.error("💥 ERROR:", error);
-    res.sendStatus(200);
+    await enviar(chatId, `📋 Buscando alumno ${id}...`);
   }
+
+  // 💬 Respuesta por defecto
+  else {
+    await enviar(chatId, "👋 Hola, usa:\nASISTENCIA 123");
+  }
+
+  res.sendStatus(200);
 });
 
-// 📤 enviar mensaje
-function enviar(chatId, texto) {
-  return fetch(`${URL}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text: texto
-    })
-  });
+// 📤 FUNCIÓN PARA ENVIAR MENSAJE
+async function enviar(chatId, texto) {
+  try {
+    await fetch(`${URL}/sendMessage`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: texto
+      })
+    });
+  } catch (error) {
+    console.error("❌ Error enviando mensaje:", error);
+  }
 }
 
+// 🌐 PUERTO (IMPORTANTE PARA RAILWAY)
 const PORT = process.env.PORT || 8080;
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log("🚀 Servidor activo en puerto", PORT);
 });
