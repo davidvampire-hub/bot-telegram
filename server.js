@@ -3,39 +3,26 @@ const express = require("express");
 const app = express();
 app.use(express.json());
 
-// 👇 RUTA DE PRUEBA (MUY IMPORTANTE)
-app.get("/", (req, res) => {
-    res.send("Servidor activo ✅");
-});
-
-// 👇 WEBHOOK
-app.post("/webhook", (req, res) => {
-    console.log("🔥 MENSAJE:", req.body);
-    res.sendStatus(200);
-});
-
-
-const express = require("express");
-
-const app = express();
-app.use(express.json());
-
-const TOKEN = "8761191809:AAG0Z_0wuLOdOevzGk9G8bz6BJh9e9NUL6w";
+const TOKEN = "TU_TOKEN_REAL";
 const URL = `https://api.telegram.org/bot${TOKEN}`;
 
 const FIREBASE = "https://controlasistencia-d236e-default-rtdb.firebaseio.com";
 
+// 🔹 Ruta de prueba
+app.get("/", (req, res) => {
+    res.send("Servidor activo ✅");
+});
+
+// 🔹 Webhook de Telegram
 app.post("/webhook", async (req, res) => {
 
- console.log("🔥 LLEGÓ MENSAJE:", JSON.stringify(req.body));
+    console.log("🔥 MENSAJE:", JSON.stringify(req.body));
 
     const msg = req.body.message;
     if (!msg) return res.send();
 
     const chatId = msg.chat.id;
     const text = msg.text || "";
-
-console.log("📩 TEXTO:", text);
 
     if (text.startsWith("ASISTENCIA")) {
 
@@ -70,6 +57,7 @@ console.log("📩 TEXTO:", text);
     res.send();
 });
 
+// 🔹 Función enviar mensaje
 function enviar(chatId, texto) {
     fetch(`${URL}/sendMessage`, {
         method: "POST",
@@ -78,11 +66,14 @@ function enviar(chatId, texto) {
             chat_id: chatId,
             text: texto
         })
-    });
+    })
+    .then(res => res.json())
+    .then(data => console.log("📤 Enviado:", data))
+    .catch(err => console.error("❌ Error:", err));
 }
 
+// 🔹 Puerto Railway
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, "0.0.0.0", () => {
     console.log("🚀 Servidor corriendo en puerto", PORT);
 });
