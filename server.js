@@ -3,6 +3,23 @@ const express = require("express");
 const app = express();
 app.use(express.json());
 
+// 👇 RUTA DE PRUEBA (MUY IMPORTANTE)
+app.get("/", (req, res) => {
+    res.send("Servidor activo ✅");
+});
+
+// 👇 WEBHOOK
+app.post("/webhook", (req, res) => {
+    console.log("🔥 MENSAJE:", req.body);
+    res.sendStatus(200);
+});
+
+
+const express = require("express");
+
+const app = express();
+app.use(express.json());
+
 const TOKEN = "8761191809:AAG0Z_0wuLOdOevzGk9G8bz6BJh9e9NUL6w";
 const URL = `https://api.telegram.org/bot${TOKEN}`;
 
@@ -65,4 +82,7 @@ function enviar(chatId, texto) {
 }
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, "0.0.0.0", () => console.log("Bot corriendo"));
+
+app.listen(PORT, "0.0.0.0", () => {
+    console.log("🚀 Servidor corriendo en puerto", PORT);
+});
