@@ -2,35 +2,27 @@ const express = require("express");
 
 const app = express();
 
-// 🔥 necesario para JSON
 app.use(express.json());
 
-// 🔥 ruta base
+// 🔥 endpoint de salud (MUY IMPORTANTE)
 app.get("/", (req, res) => {
-  res.send("OK FUNCIONANDO ✅");
+  res.status(200).send("OK");
 });
 
-// 🔥 webhook seguro
+// 🔥 webhook
 app.post("/webhook", (req, res) => {
   try {
     console.log("🔥 LLEGÓ WEBHOOK");
-    console.log(JSON.stringify(req.body, null, 2));
-
     res.sendStatus(200);
-  } catch (error) {
-    console.error("💥 ERROR EN WEBHOOK:", error);
+  } catch (e) {
+    console.error(e);
     res.sendStatus(500);
   }
 });
 
-// 🔥 manejo de errores global (CLAVE)
-app.use((err, req, res, next) => {
-  console.error("💥 ERROR GLOBAL:", err.stack);
-  res.status(500).send("Error interno");
-});
-
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, "0.0.0.0", () => {
+// 🔥 IMPORTANTE: sin host explícito
+app.listen(PORT, () => {
   console.log("🚀 Servidor activo en puerto", PORT);
 });
