@@ -14,6 +14,8 @@ app.get("/", (req, res) => {
 });
 
 // ✅ WEBHOOK TELEGRAM
+const FIREBASE = "https://controlasistencia-d236e-default-rtdb.firebaseio.com";
+
 app.post("/webhook", async (req, res) => {
 
   console.log("🔥 WEBHOOK:", JSON.stringify(req.body));
@@ -24,7 +26,6 @@ app.post("/webhook", async (req, res) => {
   const chatId = msg.chat.id;
   const text = msg.text;
 
-  // 🔍 COMANDO ASISTENCIA
   if (text && text.startsWith("ASISTENCIA")) {
 
     const partes = text.split(" ");
@@ -36,11 +37,45 @@ app.post("/webhook", async (req, res) => {
     }
 
     await enviar(chatId, `📋 Buscando alumno ${id}...`);
+
+    try {
+
+      // 🔍 Buscar alumno
+      const alumnoRes = await fetch(`${FIREBASE}/alumnos/${id}.json`);
+      const alumno = await alumnoRes.json();
+
+      if (!alumno) {
+        await enviar(chatId, "❌ Alumno no encontrado");
+        return res.sendStatus(200);
+      }
+
+      // 📅 Fecha de hoy
+      const fecha = new Date().toISOString().split("T")[0];
+
+      // 📊 Buscar registros
+      const regRes = await fetch(`${FIREBASE}/registros/${id}/${fecha}.json`);
+      const registros = await regRes.json();
+
+      let respuesta = `👨‍🎓 ${alumno.nombre}\n📅 ${fecha}\n\n`;
+
+      if (!registros) {
+        respuesta += "Sin registros hoy";
+      } else {
+        Object.values(registros).forEach(r => {
+          respuesta += `✔ ${r.tipo} - ${r.hora}\n`;
+        });
+      }
+
+      await enviar(chatId, respuesta);
+
+    } catch (error) {
+      console.error("❌ Error:", error);
+      await enviar(chatId, "❌ Error al consultar datos");
+    }
   }
 
-  // 💬 Respuesta por defecto
   else {
-    await enviar(chatId, "👋 Hola, usa:\nASISTENCIA 123");
+    await enviar(chatId, "👋 Usa:\nASISTENCIA 123");
   }
 
   res.sendStatus(200);
