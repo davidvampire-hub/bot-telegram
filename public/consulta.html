@@ -101,20 +101,25 @@ const db = firebase.database();
 let datosGlobales = [];
 let nombreAlumno = "";
 
-function consultar() {
+function consultar(idDirecto = null) {
 
-    const id = document.getElementById("idAlumno").value;
+    const input = document.getElementById("idAlumno");
     const filtro = document.getElementById("filtro").value;
     const resultado = document.getElementById("resultado");
+
+    const id = idDirecto || input.value;
 
     if (!id) {
         resultado.innerHTML = "⚠️ Ingresa un ID";
         return;
     }
 
+    input.value = id; // 👈 rellena automáticamente
+
     resultado.innerHTML = "⏳ Buscando...";
 
-    db.ref("alumnos/" + id).once("value").then(snap => {
+    db.ref("alumnos/" + id).once("value")
+    .then(snap => {
 
         if (!snap.exists()) {
             resultado.innerHTML = "❌ Alumno no encontrado";
@@ -123,72 +128,78 @@ function consultar() {
 
         nombreAlumno = snap.val().nombre;
 
-        db.ref("registros/" + id).once("value").then(regSnap => {
+        return db.ref("registros/" + id).once("value");
 
-            datosGlobales = [];
-            let html = `<h3>${nombreAlumno}</h3>`;
+    })
+    .then(regSnap => {
 
-            if (!regSnap.exists()) {
-                resultado.innerHTML = html + "📭 Sin registros";
-                return;
+        if (!regSnap) return;
+
+        datosGlobales = [];
+        let html = `<h3>${nombreAlumno}</h3>`;
+
+        if (!regSnap.exists()) {
+            resultado.innerHTML = html + "📭 Sin registros";
+            return;
+        }
+
+        const hoy = new Date();
+
+        regSnap.forEach(dia => {
+
+            const fecha = new Date(dia.key);
+            let incluir = false;
+
+            if (filtro === "hoy") {
+                incluir = fecha.toDateString() === hoy.toDateString();
             }
 
-            const hoy = new Date();
-            
-            regSnap.forEach(dia => {
+            if (filtro === "semana") {
+                const hace7 = new Date();
+                hace7.setDate(hoy.getDate() - 7);
+                incluir = fecha >= hace7;
+            }
 
-                const fecha = new Date(dia.key);
-                let incluir = false;
+            if (filtro === "mes") {
+                incluir = fecha.getMonth() === hoy.getMonth();
+            }
 
-                if (filtro === "hoy") {
-                    incluir = fecha.toDateString() === hoy.toDateString();
-                }
+            if (filtro === "todo") {
+                incluir = true;
+            }
 
-                if (filtro === "semana") {
-                    const hace7 = new Date();
-                    hace7.setDate(hoy.getDate() - 7);
-                    incluir = fecha >= hace7;
-                }
+            if (incluir) {
 
-                if (filtro === "mes") {
-                    incluir = fecha.getMonth() === hoy.getMonth();
-                }
+                html += `<hr><b>📅 ${dia.key}</b>`;
 
-                if (filtro === "todo") {
-                    incluir = true;
-                }
+                dia.forEach(reg => {
+                    const r = reg.val();
 
-                if (incluir) {
-
-                    html += `<hr><b>📅 ${dia.key}</b>`;
-
-                    dia.forEach(reg => {
-                        const r = reg.val();
-
-                        datosGlobales.push({
-                            fecha: dia.key,
-                            tipo: r.tipo,
-                            hora: r.hora
-                        });
-
-                        html += `
-                        <div class="registro">
-                            <span class="${r.tipo}">
-                                ${r.tipo.toUpperCase()} - ${r.hora}
-                            </span>
-                        </div>`;
+                    datosGlobales.push({
+                        fecha: dia.key,
+                        tipo: r.tipo,
+                        hora: r.hora
                     });
 
-                }
+                    html += `
+                    <div class="registro">
+                        <span class="${r.tipo}">
+                            ${r.tipo.toUpperCase()} - ${r.hora}
+                        </span>
+                    </div>`;
+                });
 
-            });
-
-            resultado.innerHTML = html;
+            }
 
         });
 
-    });
+        resultado.innerHTML = html;
 
+    })
+    .catch(error => {
+        console.error("❌ Error:", error);
+        resultado.innerHTML = "❌ Error cargando datos";
+    });
 }
 
 function generarPDF() {
@@ -225,6 +236,15 @@ function generarPDF() {
 
     doc.save("asistencia.pdf");
 }
+window.onload = function() {
+
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+
+    if (id) {
+        consultar(id);
+    }
+};
 
 </script>
 
