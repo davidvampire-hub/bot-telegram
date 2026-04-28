@@ -108,6 +108,13 @@ app.post("/notificar", async (req, res) => {
 
   const { chat_id, nombre, tipo, hora } = req.body;
 
+  console.log("📩 Datos recibidos:", req.body); // 👈 AGREGA ESTO
+
+  if (!chat_id) {
+    console.log("❌ chat_id vacío");
+    return res.sendStatus(400);
+  }
+
   const mensaje = `
 📢 Notificación de Asistencia
 
@@ -117,7 +124,8 @@ app.post("/notificar", async (req, res) => {
   `;
 
   try {
-    await fetch(`${URL}/sendMessage`, {
+
+    const resp = await fetch(`${URL}/sendMessage`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -128,6 +136,9 @@ app.post("/notificar", async (req, res) => {
       })
     });
 
+    const data = await resp.json(); // 👈 AGREGA ESTO
+    console.log("📨 Respuesta Telegram:", data); // 👈 Y ESTO
+
     res.sendStatus(200);
 
   } catch (error) {
@@ -136,7 +147,6 @@ app.post("/notificar", async (req, res) => {
   }
 
 });
-
 
 const cors = require("cors");
 app.use(cors());
