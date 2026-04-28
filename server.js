@@ -2,7 +2,11 @@ const express = require("express");
 const fetch = require("node-fetch");
 
 const app = express();
+
+
 app.use(express.json());
+app.use(express.static("public"));
+
 
 // 🔑 TOKEN DE TU BOT (CAMBIAR)
 const TOKEN = "8761191809:AAG0Z_0wuLOdOevzGk9G8bz6BJh9e9NUL6w";

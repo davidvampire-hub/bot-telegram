@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Consulta de Asistencia</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      background: #f4f4f4;
+      padding: 40px;
+    }
+    .box {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    input {
+      padding: 10px;
+      width: 80%;
+      margin: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    #resultado {
+      margin-top: 20px;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>📋 Consulta de Asistencia</h2>
+
+  <input type="text" id="id" placeholder="ID del alumno">
+  <br>
+  <button onclick="consultar()">Consultar</button>
+
+  <div id="resultado"></div>
+</div>
+
+<script>
+const FIREBASE = "https://controlasistencia-d236e-default-rtdb.firebaseio.com";
+
+async function consultar() {
+
+  const id = document.getElementById("id").value.trim();
+  const resDiv = document.getElementById("resultado");
+
+  if (!id) {
+    resDiv.innerHTML = "⚠️ Ingresa un ID";
+    return;
+  }
+
+  resDiv.innerHTML = "⏳ Buscando...";
+
+  try {
+
+    // 🔍 Alumno
+    const alumnoRes = await fetch(`${FIREBASE}/alumnos/${id}.json`);
+    const alumno = await alumnoRes.json();
+
+    if (!alumno) {
+      resDiv.innerHTML = "❌ Alumno no encontrado";
+      return;
+    }
+
+    // 📅 Fecha hoy
+    const fecha = new Date().toISOString().split("T")[0];
+
+    // 📊 Registros
+    const regRes = await fetch(`${FIREBASE}/registros/${id}/${fecha}.json`);
+    const registros = await regRes.json();
+
+    let html = `<h3>👨‍🎓 ${alumno.nombre}</h3>`;
+    html += `<p>📅 ${fecha}</p>`;
+
+    if (!registros) {
+      html += "<p>Sin registros hoy</p>";
+    } else {
+      Object.values(registros).forEach(r => {
+        html += `<p>✔ ${r.tipo} - ${r.hora}</p>`;
+      });
+    }
+
+    resDiv.innerHTML = html;
+
+  } catch (error) {
+    resDiv.innerHTML = "❌ Error al consultar";
+    console.error(error);
+  }
+}
+</script>
+
+</body>
+</html>
