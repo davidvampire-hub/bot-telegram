@@ -138,7 +138,8 @@ app.post("/notificar", async (req, res) => {
 });
 
 
-
+const cors = require("cors");
+app.use(cors());
 
 
 // 🌐 PUERTO (IMPORTANTE PARA RAILWAY)
