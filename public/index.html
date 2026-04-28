@@ -165,7 +165,7 @@ function registrar(id) {
 }
 function notificar(chat_id, nombre, tipo, hora) {
 
-    fetch("https://bot-telegram-production-cb3d.up.railway.app/notificar", {
+/*    fetch("https://bot-telegram-production-cb3d.up.railway.app/notificar", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -178,7 +178,42 @@ function notificar(chat_id, nombre, tipo, hora) {
         })
     })
     .then(() => console.log("✅ Notificación enviada"))
-    .catch(err => console.error("❌ Error:", err));
+    .catch(err => console.error("❌ Error:", err));*/
+app.post("/notificar", async (req, res) => {
+
+  const { chat_id, nombre, tipo, hora } = req.body;
+
+  const mensaje = `
+📢 Notificación de Asistencia
+
+👤 ${nombre}
+📌 ${tipo.toUpperCase()}
+⏰ ${hora}
+  `;
+
+  try {
+    const respuesta = await fetch(`${URL}/sendMessage`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        chat_id: chat_id,
+        text: mensaje
+      })
+    });
+
+    const data = await respuesta.json();
+
+    console.log("📩 RESPUESTA TELEGRAM:", data);
+
+    res.sendStatus(200);
+
+  } catch (error) {
+    console.error("❌ Error notificando:", error);
+    res.sendStatus(500);
+  }
+});
 }
 </script>
 
