@@ -24,11 +24,11 @@ app.post("/webhook", async (req, res) => {
   if (!msg) return res.sendStatus(200);
 
   const chatId = msg.chat.id;
-  const text = msg.text;
-
+  const text = msg.text ? msg.text.toUpperCase() : "";
+  
   if (text && text.startsWith("ASISTENCIA")) {
 
-    const partes = text.split(" ");
+    const partes = text.trim().split(/\s+/);
     const id = partes[1];
 
     if (!id) {
