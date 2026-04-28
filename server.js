@@ -152,6 +152,22 @@ const cors = require("cors");
 app.use(cors());
 
 
+if (text === "/START") {
+
+  await enviar(chatId, "👋 Bienvenido\nEnvía tu ID de alumno para vincularte");
+
+  // Guardar temporalmente el chat_id
+  await fetch(`${FIREBASE}/padres/${chatId}.json`, {
+    method: "PUT",
+    body: JSON.stringify({
+      chat_id: chatId
+    })
+  });
+
+  return res.sendStatus(200);
+}
+
+
 // 🌐 PUERTO (IMPORTANTE PARA RAILWAY)
 const PORT = process.env.PORT || 8080;
 
