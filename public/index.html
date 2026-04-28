@@ -88,10 +88,10 @@ input.addEventListener("change", () => {
 
 function registrar(id) {
 
-    const fecha = new Date().toISOString().split('T')[0];
-    const hora = new Date().toLocaleTimeString();
-
-    const tipo = new Date().getHours() < 12 ? "entrada" : "salida";
+    const ahora = new Date();
+    const fecha = ahora.toISOString().split('T')[0];
+    const hora = ahora.toLocaleTimeString();
+    const ahoraMs = ahora.getTime();
 
     db.ref("alumnos/" + id).once("value").then(snapshot => {
 
@@ -102,17 +102,65 @@ function registrar(id) {
 
         const alumno = snapshot.val();
 
-        db.ref("registros/" + id + "/" + fecha).push({
-            hora: hora,
-            tipo: tipo
+        const refDia = db.ref("registros/" + id + "/" + fecha);
+
+        refDia.once("value").then(snap => {
+
+            let ultimo = null;
+
+            snap.forEach(child => {
+                ultimo = child.val(); // nos quedamos con el último
+            });
+
+            let tipo = "entrada"; // por defecto
+
+            if (ultimo) {
+
+                const ultimaHora = new Date(`${fecha} ${ultimo.hora}`).getTime();
+                const minutos = (ahoraMs - ultimaHora) / 60000;
+                const horas = minutos / 60;
+
+                // 🚫 BLOQUEO POR DOBLE ESCANEO (10 min)
+                if (minutos < 10) {
+                    mensaje.innerHTML = "⏳ Ya registraste hace unos minutos";
+                    return;
+                }
+
+                // 🔁 LÓGICA NORMAL
+                if (ultimo.tipo === "entrada") {
+                    tipo = "salida";
+
+                    // ⚠️ ALERTA si pasan más de 8 horas sin salida
+                    if (horas > 8) {
+                        mensaje.innerHTML += "<br>⚠️ No registró salida a tiempo";
+                    }
+
+                } else {
+                    // si última fue salida
+                    if (horas >= 2) {
+                        tipo = "entrada"; // puede volver a entrar
+                    } else {
+                        mensaje.innerHTML = "⛔ Deben pasar al menos 2 horas para volver a entrar";
+                        return;
+                    }
+                }
+            }
+
+            // ✅ GUARDAR REGISTRO
+            refDia.push({
+                hora: hora,
+                tipo: tipo,
+                timestamp: ahoraMs
+            });
+
+            mensaje.innerHTML = `✅ ${tipo.toUpperCase()} registrada<br>${alumno.nombre}`;
+
+            notificar(alumno.telefono, alumno.nombre, tipo, hora);
+
         });
 
-        mensaje.innerHTML = `✅ ${tipo.toUpperCase()} registrada<br>${alumno.nombre}`;
-
-        notificar(alumno.telefono, alumno.nombre, tipo, hora);
     });
 }
-
 function notificar(telefono, nombre, tipo, hora) {
 
     const mensaje = `Tu hijo ${nombre} registró ${tipo} a las ${hora}`;
