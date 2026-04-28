@@ -137,7 +137,7 @@ function registrar(id) {
 
                 } else {
                     // si última fue salida
-                    if (horas >= 0) {
+                    if (horas <= 0) {
                         tipo = "entrada"; // puede volver a entrar
                     } else {
                         mensaje.innerHTML = "⛔ Deben pasar al menos 2 horas para volver a entrar";
