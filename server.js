@@ -103,6 +103,44 @@ async function enviar(chatId, texto) {
   }
 }
 
+//NOTIFICACIONES
+app.post("/notificar", async (req, res) => {
+
+  const { chat_id, nombre, tipo, hora } = req.body;
+
+  const mensaje = `
+📢 Notificación de Asistencia
+
+👤 ${nombre}
+📌 ${tipo.toUpperCase()}
+⏰ ${hora}
+  `;
+
+  try {
+    await fetch(`${URL}/sendMessage`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        chat_id: chat_id,
+        text: mensaje
+      })
+    });
+
+    res.sendStatus(200);
+
+  } catch (error) {
+    console.error("❌ Error notificando:", error);
+    res.sendStatus(500);
+  }
+
+});
+
+
+
+
+
 // 🌐 PUERTO (IMPORTANTE PARA RAILWAY)
 const PORT = process.env.PORT || 8080;
 

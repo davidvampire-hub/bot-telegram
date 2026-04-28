@@ -155,17 +155,30 @@ function registrar(id) {
 
             mensaje.innerHTML = `✅ ${tipo.toUpperCase()} registrada<br>${alumno.nombre}`;
 
-            notificar(alumno.telefono, alumno.nombre, tipo, hora);
+         if (alumno.chat_id) {
+    notificar(alumno.chat_id, alumno.nombre, tipo, hora);
+}
 
         });
 
     });
 }
-function notificar(telefono, nombre, tipo, hora) {
+function notificar(chat_id, nombre, tipo, hora) {
 
-    const mensaje = `Tu hijo ${nombre} registró ${tipo} a las ${hora}`;
-
-    fetch(`https://api.callmebot.com/whatsapp.php?phone=${telefono}&text=${encodeURIComponent(mensaje)}&apikey=TU_API_KEY`);
+    fetch("https://bot-telegram-production-cb3d.up.railway.app/notificar", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            chat_id: chat_id,
+            nombre: nombre,
+            tipo: tipo,
+            hora: hora
+        })
+    })
+    .then(() => console.log("✅ Notificación enviada"))
+    .catch(err => console.error("❌ Error:", err));
 }
 </script>
 
