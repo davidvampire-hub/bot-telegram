@@ -106,24 +106,18 @@ async function enviar(chatId, texto) {
 //NOTIFICACIONES
 app.post("/notificar", async (req, res) => {
 
-  const { chat_id, nombre, tipo, hora } = req.body;
-
-  console.log("📩 Datos recibidos:", req.body); // 👈 AGREGA ESTO
-
-  if (!chat_id) {
-    console.log("❌ chat_id vacío");
-    return res.sendStatus(400);
-  }
-
-  const mensaje = `
-📢 Notificación de Asistencia
-
-👤 ${nombre}
-📌 ${tipo.toUpperCase()}
-⏰ ${hora}
-  `;
-
   try {
+
+    const { chat_id, nombre, tipo, hora } = req.body;
+
+    console.log("📩 Datos recibidos:", req.body);
+
+    if (!chat_id) {
+      console.log("❌ chat_id vacío");
+      return res.sendStatus(400);
+    }
+
+    const mensaje = `📢 Notificación\n👤 ${nombre}\n📌 ${tipo}\n⏰ ${hora}`;
 
     const resp = await fetch(`${URL}/sendMessage`, {
       method: "POST",
@@ -136,14 +130,14 @@ app.post("/notificar", async (req, res) => {
       })
     });
 
-    const data = await resp.json(); // 👈 AGREGA ESTO
-    console.log("📨 Respuesta Telegram:", data); // 👈 Y ESTO
+    const data = await resp.json();
+    console.log("📨 Telegram:", data);
 
-    res.sendStatus(200);
+    return res.sendStatus(200); // 👈 SIEMPRE responder
 
   } catch (error) {
-    console.error("❌ Error notificando:", error);
-    res.sendStatus(500);
+    console.error("❌ ERROR CRÍTICO:", error);
+    return res.sendStatus(500); // 👈 evita que muera el server
   }
 
 });
@@ -168,9 +162,20 @@ if (text === "/START") {
 }
 
 
+
+
+
 // 🌐 PUERTO (IMPORTANTE PARA RAILWAY)
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log("🚀 Servidor activo en puerto", PORT);
+});
+
+process.on("uncaughtException", err => {
+  console.error("💥 Error no controlado:", err);
+});
+
+process.on("unhandledRejection", err => {
+  console.error("💥 Promesa no manejada:", err);
 });
