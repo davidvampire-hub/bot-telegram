@@ -135,15 +135,15 @@ function registrar(id) {
                         mensaje.innerHTML += "<br>⚠️ No registró salida a tiempo";
                     }
 
-                } else {
+                }/* else {
                     // si última fue salida
-                    if (horas <= 2) {
+                    if (horas >= 2) {
                         tipo = "entrada"; // puede volver a entrar
                     } else {
                         mensaje.innerHTML = "⛔ Deben pasar al menos 2 horas para volver a entrar";
                         return;
                     }
-                }
+                }*/
             }
 
             // ✅ GUARDAR REGISTRO
