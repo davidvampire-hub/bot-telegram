@@ -1,104 +1,232 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Consulta de Asistencia</title>
-  <style>
-    body {
-      font-family: Arial;
-      text-align: center;
-      background: #f4f4f4;
-      padding: 40px;
-    }
-    .box {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 400px;
-      margin: auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    }
-    input {
-      padding: 10px;
-      width: 80%;
-      margin: 10px;
-    }
-    button {
-      padding: 10px 20px;
-      background: #4CAF50;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    #resultado {
-      margin-top: 20px;
-      text-align: left;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Consulta de Asistencia PRO</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+body {
+    font-family: Arial;
+    background: #f4f6f9;
+    text-align: center;
+}
+
+.container {
+    background: white;
+    padding: 20px;
+    margin: 30px auto;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 10px;
+}
+
+input, select {
+    padding: 10px;
+    margin: 5px;
+    width: 80%;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.buscar { background: #007bff; color: white; }
+.pdf { background: #dc3545; color: white; }
+
+.registro {
+    text-align: left;
+    margin: 5px 0;
+}
+
+.entrada { color: green; }
+.salida { color: red; }
+</style>
 </head>
+
 <body>
 
-<div class="box">
-  <h2>📋 Consulta de Asistencia</h2>
+<div class="container">
 
-  <input type="text" id="id" placeholder="ID del alumno">
-  <br>
-  <button onclick="consultar()">Consultar</button>
+<h2>📋 Consulta de Asistencia</h2>
 
-  <div id="resultado"></div>
+<input type="text" id="idAlumno" placeholder="ID del alumno">
+
+<select id="filtro">
+    <option value="hoy">Hoy</option>
+    <option value="semana">Semana</option>
+    <option value="mes">Mes</option>
+    <option value="todo">Todo</option>
+</select>
+
+<br>
+
+<button class="buscar" onclick="consultar()">Consultar</button>
+<button class="pdf" onclick="generarPDF()">Descargar PDF</button>
+
+<div id="resultado"></div>
+
 </div>
 
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
+
 <script>
-const FIREBASE = "https://controlasistencia-d236e-default-rtdb.firebaseio.com";
 
-async function consultar() {
+const firebaseConfig = {
+ apiKey: "AIzaSyCWQAmB9cMI4Y0YBPC_iV6p1YGgZTSNFQ0",
 
-  const id = document.getElementById("id").value.trim();
-  const resDiv = document.getElementById("resultado");
+  authDomain: "controlasistencia-d236e.firebaseapp.com",
 
-  if (!id) {
-    resDiv.innerHTML = "⚠️ Ingresa un ID";
-    return;
-  }
+  databaseURL: "https://controlasistencia-d236e-default-rtdb.firebaseio.com",
 
-  resDiv.innerHTML = "⏳ Buscando...";
+  projectId: "controlasistencia-d236e",
 
-  try {
+  storageBucket: "controlasistencia-d236e.firebasestorage.app",
 
-    // 🔍 Alumno
-    const alumnoRes = await fetch(`${FIREBASE}/alumnos/${id}.json`);
-    const alumno = await alumnoRes.json();
+  messagingSenderId: "3052247103",
 
-    if (!alumno) {
-      resDiv.innerHTML = "❌ Alumno no encontrado";
-      return;
+  appId: "1:3052247103:web:eaed021913fa765427808a",
+
+  measurementId: "G-H9EKB1F7ZW"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+let datosGlobales = [];
+let nombreAlumno = "";
+
+function consultar() {
+
+    const id = document.getElementById("idAlumno").value;
+    const filtro = document.getElementById("filtro").value;
+    const resultado = document.getElementById("resultado");
+
+    if (!id) {
+        resultado.innerHTML = "⚠️ Ingresa un ID";
+        return;
     }
 
-    // 📅 Fecha hoy
-    const fecha = new Date().toISOString().split("T")[0];
+    resultado.innerHTML = "⏳ Buscando...";
 
-    // 📊 Registros
-    const regRes = await fetch(`${FIREBASE}/registros/${id}/${fecha}.json`);
-    const registros = await regRes.json();
+    db.ref("alumnos/" + id).once("value").then(snap => {
 
-    let html = `<h3>👨‍🎓 ${alumno.nombre}</h3>`;
-    html += `<p>📅 ${fecha}</p>`;
+        if (!snap.exists()) {
+            resultado.innerHTML = "❌ Alumno no encontrado";
+            return;
+        }
 
-    if (!registros) {
-      html += "<p>Sin registros hoy</p>";
-    } else {
-      Object.values(registros).forEach(r => {
-        html += `<p>✔ ${r.tipo} - ${r.hora}</p>`;
-      });
-    }
+        nombreAlumno = snap.val().nombre;
 
-    resDiv.innerHTML = html;
+        db.ref("registros/" + id).once("value").then(regSnap => {
 
-  } catch (error) {
-    resDiv.innerHTML = "❌ Error al consultar";
-    console.error(error);
-  }
+            datosGlobales = [];
+            let html = `<h3>${nombreAlumno}</h3>`;
+
+            if (!regSnap.exists()) {
+                resultado.innerHTML = html + "📭 Sin registros";
+                return;
+            }
+
+            const hoy = new Date();
+            
+            regSnap.forEach(dia => {
+
+                const fecha = new Date(dia.key);
+                let incluir = false;
+
+                if (filtro === "hoy") {
+                    incluir = fecha.toDateString() === hoy.toDateString();
+                }
+
+                if (filtro === "semana") {
+                    const hace7 = new Date();
+                    hace7.setDate(hoy.getDate() - 7);
+                    incluir = fecha >= hace7;
+                }
+
+                if (filtro === "mes") {
+                    incluir = fecha.getMonth() === hoy.getMonth();
+                }
+
+                if (filtro === "todo") {
+                    incluir = true;
+                }
+
+                if (incluir) {
+
+                    html += `<hr><b>📅 ${dia.key}</b>`;
+
+                    dia.forEach(reg => {
+                        const r = reg.val();
+
+                        datosGlobales.push({
+                            fecha: dia.key,
+                            tipo: r.tipo,
+                            hora: r.hora
+                        });
+
+                        html += `
+                        <div class="registro">
+                            <span class="${r.tipo}">
+                                ${r.tipo.toUpperCase()} - ${r.hora}
+                            </span>
+                        </div>`;
+                    });
+
+                }
+
+            });
+
+            resultado.innerHTML = html;
+
+        });
+
+    });
+
 }
+
+function generarPDF() {
+
+    if (datosGlobales.length === 0) {
+        alert("Primero consulta datos");
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    let y = 10;
+
+    doc.setFontSize(14);
+    doc.text("Reporte de Asistencia", 10, y);
+    y += 10;
+
+    doc.setFontSize(12);
+    doc.text("Alumno: " + nombreAlumno, 10, y);
+    y += 10;
+
+    datosGlobales.forEach(r => {
+
+        doc.text(`${r.fecha} - ${r.tipo.toUpperCase()} - ${r.hora}`, 10, y);
+        y += 7;
+
+        if (y > 270) {
+            doc.addPage();
+            y = 10;
+        }
+
+    });
+
+    doc.save("asistencia.pdf");
+}
+
 </script>
 
 </body>
