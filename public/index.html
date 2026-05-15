@@ -112,94 +112,114 @@ function registrar(id) {
         const alumno = snapshot.val();
 
         // 🔥 REVISAR SI YA ESTÁ ACTIVO
-        db.ref("activos/" + id).once("value").then(activoSnap => {
+       db.ref("activos/" + id).transaction((actual) => {
 
-            // =====================================
-            // ✅ YA ESTÁ EN UN TALLER
-            // =====================================
+    // =========================================
+    // ✅ SI NO EXISTE → CREAR ENTRADA
+    // =========================================
 
-            if (activoSnap.exists()) {
+    if (actual === null) {
 
-                const activo = activoSnap.val();
+        return {
+            taller: TALLER,
+            hora: hora
+        };
+    }
 
-                // 🔥 SI ES EL MISMO TALLER = SALIDA
-                if (activo.taller === TALLER) {
+    // =========================================
+    // ✅ SI YA EXISTE
+    // =========================================
 
-                    // ✅ GUARDAR SALIDA
-                    db.ref("registros/" + id + "/" + fecha).push({
-                        tipo: "salida",
-                        hora: hora,
-                        taller: TALLER
-                    });
+    return actual;
 
-                    // ❌ ELIMINAR ACTIVO
-                    db.ref("activos/" + id).remove();
+}, (error, committed, snapshotActivo) => {
 
-                    mensaje.innerHTML =
-                        `👋 SALIDA REGISTRADA<br>
-                         ${alumno.nombre}<br>
-                         ${TALLER}`;
+    if (error) {
 
-                    // 🔔 TELEGRAM
-                    if (alumno.chat_id) {
-                        notificar(
-                            alumno.chat_id,
-                            alumno.nombre,
-                            "salida",
-                            hora
-                        );
-                    }
+        mensaje.innerHTML = "❌ Error de conexión";
+        return;
+    }
 
-                }
+    const activo = snapshotActivo.val();
 
-                // ❌ ESTÁ EN OTRO TALLER
-                else {
+    // =========================================
+    // ✅ SI ENTRÓ CORRECTAMENTE
+    // =========================================
 
-                    mensaje.innerHTML =
-                        `⛔ Alumno activo en:<br>
-                         ${activo.taller}`;
+    if (committed && activo.taller === TALLER) {
 
-                }
-
-            }
-
-            // =====================================
-            // ✅ NO ESTÁ ACTIVO = ENTRADA
-            // =====================================
-
-            else {
-
-                // ✅ GUARDAR ENTRADA
-                db.ref("registros/" + id + "/" + fecha).push({
-                    tipo: "entrada",
-                    hora: hora,
-                    taller: TALLER
-                });
-
-                // 🔥 CREAR ACTIVO
-                db.ref("activos/" + id).set({
-                    taller: TALLER,
-                    hora: hora
-                });
-
-                mensaje.innerHTML =
-                    `✅ ENTRADA REGISTRADA<br>
-                     ${alumno.nombre}<br>
-                     ${TALLER}`;
-
-                // 🔔 TELEGRAM
-                if (alumno.chat_id) {
-                    notificar(
-                        alumno.chat_id,
-                        alumno.nombre,
-                        "entrada",
-                        hora
-                    );
-                }
-
-            }
-
+        // 🔥 REGISTRAR ENTRADA
+        db.ref("registros/" + id + "/" + fecha).push({
+            tipo: "entrada",
+            hora: hora,
+            taller: TALLER
         });
+
+        mensaje.innerHTML =
+            `✅ ENTRADA REGISTRADA<br>
+             ${alumno.nombre}<br>
+             ${TALLER}`;
+
+        // 🔔 TELEGRAM
+        if (alumno.chat_id) {
+
+            notificar(
+                alumno.chat_id,
+                alumno.nombre,
+                "entrada",
+                hora
+            );
+        }
+
+        return;
+    }
+
+    // =========================================
+    // ✅ SI YA ESTÁ EN EL MISMO TALLER
+    // =========================================
+
+    if (activo.taller === TALLER) {
+
+        // 🔥 REGISTRAR SALIDA
+        db.ref("registros/" + id + "/" + fecha).push({
+            tipo: "salida",
+            hora: hora,
+            taller: TALLER
+        });
+
+        // ❌ LIBERAR ACTIVO
+        db.ref("activos/" + id).remove();
+
+        mensaje.innerHTML =
+            `👋 SALIDA REGISTRADA<br>
+             ${alumno.nombre}<br>
+             ${TALLER}`;
+
+        // 🔔 TELEGRAM
+        if (alumno.chat_id) {
+
+            notificar(
+                alumno.chat_id,
+                alumno.nombre,
+                "salida",
+                hora
+            );
+        }
+
+    }
+
+    // =========================================
+    // ❌ YA ESTÁ EN OTRO TALLER
+    // =========================================
+
+    else {
+
+        mensaje.innerHTML =
+            `⛔ Alumno activo en:<br>
+             ${activo.taller}`;
+    }
+
+});
 
     });
 
