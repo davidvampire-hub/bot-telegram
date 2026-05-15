@@ -165,7 +165,7 @@ app.post("/notificar", async (req, res) => {
 
   try {
 
-    const { chat_id, nombre, tipo, hora } = req.body;
+   const { chat_id, nombre, tipo, hora, taller } = req.body;
 
     console.log("📩 Datos recibidos:", req.body);
 
@@ -174,11 +174,18 @@ app.post("/notificar", async (req, res) => {
       return res.sendStatus(400);
     }
 
-    const mensaje = `📢 Notificación de Asistencia
+    const mensaje = `
+🎓 Congreso Escolar
 
-👤 ${nombre}
-📌 ${tipo.toUpperCase()}
-⏰ ${hora}`;
+👨‍🎓 ${nombre}
+
+📍 Taller:
+${taller}
+
+✅ ${tipo.toUpperCase()}
+
+⏰ ${hora}
+`;
 
     const resp = await fetch(`${URL}/sendMessage`, {
       method: "POST",
