@@ -159,14 +159,17 @@ async function registrar(id){
 
     let tipo = "entrada";
 
-    let ultimo = null;
+   let ultimo = null;
 
+regSnap.forEach(child => {
 
-    regSnap.forEach(child => {
+    const dato = child.val();
 
-        ultimo = child.val();
+    if (!ultimo || dato.timestamp > ultimo.timestamp) {
+        ultimo = dato;
+    }
 
-    });
+});
 
 
     // 🔥 LÓGICA INTELIGENTE
