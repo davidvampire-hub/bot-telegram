@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Congreso Escolar</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+
+        body{
+            font-family: Arial;
+            text-align:center;
+            background:#0f172a;
+            color:white;
+            padding:20px;
+        }
+
+        #reader{
+            width:100%;
+            max-width:500px;
+            margin:auto;
+        }
+
+        #mensaje{
+            margin-top:30px;
+            font-size:28px;
+        }
+
+        h1{
+            color:#38bdf8;
+        }
+
+        .taller{
+            font-size:22px;
+            margin-bottom:20px;
+            color:#facc15;
+        }
+
+    </style>
+</head>
+<body>
+
+<h1>🎓 Congreso Escolar</h1>
+
+<div class="taller" id="nombreTaller"></div>
+
+<div id="reader"></div>
+
+<div id="mensaje">
+    Esperando escaneo...
+</div>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+
+const firebaseConfig = {
+
+  apiKey: "TU_APIKEY",
+  authDomain: "TU_AUTH",
+  databaseURL: "TU_DATABASE",
+  projectId: "TU_PROJECT",
+  storageBucket: "TU_BUCKET",
+  messagingSenderId: "TU_SENDER",
+  appId: "TU_APP"
+
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.database();
+
+const mensaje = document.getElementById("mensaje");
+
+
+// 🔥 OBTENER TALLER DESDE URL
+const params = new URLSearchParams(window.location.search);
+
+const taller = params.get("taller") || "general";
+
+document.getElementById("nombreTaller").innerHTML =
+"📍 Taller: " + taller.toUpperCase();
+
+
+// 🔥 EVITAR DOBLE LECTURA
+let ultimoCodigo = "";
+
+
+// 🔥 INICIAR CÁMARA
+const qr = new Html5Qrcode("reader");
+
+qr.start(
+    { facingMode: "environment" },
+
+    {
+        fps: 10,
+        qrbox: 250
+    },
+
+    async (codigo) => {
+
+        if(codigo === ultimoCodigo) return;
+
+        ultimoCodigo = codigo;
+
+        setTimeout(()=>{
+            ultimoCodigo = "";
+        },3000);
+
+        registrar(codigo);
+
+    }
+
+);
+
+
+// 🔥 REGISTRAR
+async function registrar(id){
+
+    const ahora = new Date();
+
+    const fecha = ahora.toISOString().split('T')[0];
+
+    const hora = ahora.toLocaleTimeString();
+
+    const timestamp = ahora.getTime();
+
+    mensaje.innerHTML = "🔍 Buscando alumno...";
+
+
+    // 🔥 BUSCAR ALUMNO
+    const snap = await db.ref("alumnos/" + id).once("value");
+
+    if(!snap.exists()){
+
+        mensaje.innerHTML = "❌ Alumno no encontrado";
+
+        return;
+    }
+
+    const alumno = snap.val();
+
+
+    // 🔥 REGISTROS DEL DÍA
+    const refDia = db.ref("congreso/" + taller + "/" + fecha + "/" + id);
+
+    const regSnap = await refDia.once("value");
+
+    let tipo = "entrada";
+
+    let ultimo = null;
+
+
+    regSnap.forEach(child => {
+
+        ultimo = child.val();
+
+    });
+
+
+    // 🔥 LÓGICA ENTRADA/SALIDA
+    if(ultimo){
+
+        if(ultimo.tipo === "entrada"){
+            tipo = "salida";
+        }else{
+            tipo = "entrada";
+        }
+
+    }
+
+
+    // 🔥 GUARDAR
+    await refDia.push({
+
+        alumno:id,
+        nombre:alumno.nombre,
+        tipo:tipo,
+        hora:hora,
+        fecha:fecha,
+        taller:taller,
+        dispositivo:navigator.userAgent,
+        timestamp:timestamp
+
+    });
+
+
+    // 🔥 MENSAJE
+    mensaje.innerHTML = `
+        ✅ ${tipo.toUpperCase()}<br>
+        👨‍🎓 ${alumno.nombre}<br>
+        📍 ${taller}
+    `;
+
+
+    // 🔥 TELEGRAM
+    if(alumno.chat_id){
+
+        fetch("/notificar", {
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+
+                chat_id:alumno.chat_id,
+
+                nombre:alumno.nombre,
+
+                tipo:tipo,
+
+                hora:hora,
+
+                taller:taller
+
+            })
+
+        });
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
