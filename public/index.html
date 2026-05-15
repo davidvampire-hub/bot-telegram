@@ -66,6 +66,16 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+// 🔥 NOMBRE DEL TALLER
+const TALLER = "ARDUINO";
+const TALLER = "IMPRESION";
+const TALLER = "PCB";
+const TALLER = "RASPBERRY";
+const TALLER = "IMPRESION2";
+const TALLER = "ESCANEO";
+
+
+
 
 const input = document.getElementById("scanner");
 const mensaje = document.getElementById("mensaje");
@@ -91,7 +101,6 @@ function registrar(id) {
     const ahora = new Date();
     const fecha = ahora.toISOString().split('T')[0];
     const hora = ahora.toLocaleTimeString();
-    const ahoraMs = ahora.getTime();
 
     db.ref("alumnos/" + id).once("value").then(snapshot => {
 
@@ -102,66 +111,98 @@ function registrar(id) {
 
         const alumno = snapshot.val();
 
-        const refDia = db.ref("registros/" + id + "/" + fecha);
+        // 🔥 REVISAR SI YA ESTÁ ACTIVO
+        db.ref("activos/" + id).once("value").then(activoSnap => {
 
-        refDia.once("value").then(snap => {
+            // =====================================
+            // ✅ YA ESTÁ EN UN TALLER
+            // =====================================
 
-            let ultimo = null;
+            if (activoSnap.exists()) {
 
-            snap.forEach(child => {
-                ultimo = child.val(); // nos quedamos con el último
-            });
+                const activo = activoSnap.val();
 
-            let tipo = "entrada"; // por defecto
+                // 🔥 SI ES EL MISMO TALLER = SALIDA
+                if (activo.taller === TALLER) {
 
-            if (ultimo) {
+                    // ✅ GUARDAR SALIDA
+                    db.ref("registros/" + id + "/" + fecha).push({
+                        tipo: "salida",
+                        hora: hora,
+                        taller: TALLER
+                    });
 
-                const ultimaHora = new Date(`${fecha} ${ultimo.hora}`).getTime();
-                const minutos = (ahoraMs - ultimaHora) / 60000;
-                const horas = minutos / 60;
+                    // ❌ ELIMINAR ACTIVO
+                    db.ref("activos/" + id).remove();
 
-                // 🚫 BLOQUEO POR DOBLE ESCANEO (10 min)
-                if (minutos < 10) {
-                    mensaje.innerHTML = "⏳ Ya registraste hace unos minutos";
-                    return;
-                }
+                    mensaje.innerHTML =
+                        `👋 SALIDA REGISTRADA<br>
+                         ${alumno.nombre}<br>
+                         ${TALLER}`;
 
-                // 🔁 LÓGICA NORMAL
-                if (ultimo.tipo === "entrada") {
-                    tipo = "salida";
-
-                    // ⚠️ ALERTA si pasan más de 8 horas sin salida
-                    if (horas > 8) {
-                        mensaje.innerHTML += "<br>⚠️ No registró salida a tiempo";
+                    // 🔔 TELEGRAM
+                    if (alumno.chat_id) {
+                        notificar(
+                            alumno.chat_id,
+                            alumno.nombre,
+                            "salida",
+                            hora
+                        );
                     }
 
-                } else {
-                    // si última fue salida
-                    if (horas >= 2) {
-                        tipo = "entrada"; // puede volver a entrar
-                    } else {
-                        mensaje.innerHTML = "⛔ Deben pasar al menos 2 horas para volver a entrar";
-                        return;
-                    }
                 }
+
+                // ❌ ESTÁ EN OTRO TALLER
+                else {
+
+                    mensaje.innerHTML =
+                        `⛔ Alumno activo en:<br>
+                         ${activo.taller}`;
+
+                }
+
             }
 
-            // ✅ GUARDAR REGISTRO
-            refDia.push({
-                hora: hora,
-                tipo: tipo,
-                timestamp: ahoraMs
-            });
+            // =====================================
+            // ✅ NO ESTÁ ACTIVO = ENTRADA
+            // =====================================
 
-            mensaje.innerHTML = `✅ ${tipo.toUpperCase()} registrada<br>${alumno.nombre}`;
+            else {
 
-         if (alumno.chat_id) {
-    notificar(alumno.chat_id, alumno.nombre, tipo, hora);
-}
+                // ✅ GUARDAR ENTRADA
+                db.ref("registros/" + id + "/" + fecha).push({
+                    tipo: "entrada",
+                    hora: hora,
+                    taller: TALLER
+                });
+
+                // 🔥 CREAR ACTIVO
+                db.ref("activos/" + id).set({
+                    taller: TALLER,
+                    hora: hora
+                });
+
+                mensaje.innerHTML =
+                    `✅ ENTRADA REGISTRADA<br>
+                     ${alumno.nombre}<br>
+                     ${TALLER}`;
+
+                // 🔔 TELEGRAM
+                if (alumno.chat_id) {
+                    notificar(
+                        alumno.chat_id,
+                        alumno.nombre,
+                        "entrada",
+                        hora
+                    );
+                }
+
+            }
 
         });
 
     });
+
 }
 function notificar(chat_id, nombre, tipo, hora) {
 
