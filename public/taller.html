@@ -169,16 +169,50 @@ async function registrar(id){
     });
 
 
-    // 🔥 LÓGICA ENTRADA/SALIDA
-    if(ultimo){
+    // 🔥 LÓGICA INTELIGENTE
+if (ultimo) {
 
-        if(ultimo.tipo === "entrada"){
-            tipo = "salida";
-        }else{
-            tipo = "entrada";
+    const ultimoTiempo = ultimo.timestamp || 0;
+
+    const minutos = (timestamp - ultimoTiempo) / 60000;
+
+    const horas = minutos / 60;
+
+    // ✅ SI LA ÚLTIMA FUE ENTRADA
+    if (ultimo.tipo === "entrada") {
+
+        // 🚫 NO PERMITIR SALIDA ANTES DE 10 MIN
+        if (minutos < 10) {
+
+            mensaje.innerHTML = `
+                ⏳ Deben pasar al menos 10 minutos<br>
+                👨‍🎓 ${alumno.nombre}
+            `;
+
+            return;
         }
 
+        tipo = "salida";
+
     }
+
+    // ✅ SI LA ÚLTIMA FUE SALIDA
+    else {
+
+        // 🚫 NO REINGRESAR ANTES DE 2 HORAS
+        if (horas < 2) {
+
+            mensaje.innerHTML = `
+                ⛔ Deben pasar 2 horas para nueva entrada<br>
+                👨‍🎓 ${alumno.nombre}
+            `;
+
+            return;
+        }
+
+        tipo = "entrada";
+    }
+}
 
 
     // 🔥 GUARDAR
