@@ -132,7 +132,7 @@ const db = firebase.database();
 const TALLER = "ESCANEO";
 
 // 🔥 TU APPS SCRIPT
-const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxRn2cN3BKSxItgfPaLYzq8JTjCBcAtM4WBMvIDg7Dg8FySax0j3vqELWJUqE-KujF_/exec";
+const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxUFBiWYGSBCFLAe8LVhffmYYfF1eBl9Dr0T2seIuICV_q58RH7Z7kTZ6iIgZiY2ZUn/exec";
 
 const mensaje = document.getElementById("mensaje");
 
@@ -369,15 +369,15 @@ function guardarEnSheets(id, nombre, taller, tipo, hora){
 
         method:"POST",
 
+        mode:"no-cors",
+
         body:datos
 
     })
 
-    .then(r=>r.text())
+    .then(()=>{
 
-    .then(data=>{
-
-        console.log("✅ Sheets:", data);
+        console.log("✅ Sheets enviado");
 
     })
 
