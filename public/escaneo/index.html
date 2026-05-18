@@ -6,39 +6,65 @@
 
 <title>Congreso Escolar</title>
 
-<!-- LECTOR -->
+<!-- 🔥 LECTOR -->
 <script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
 
 body{
-            font-family: Arial;
-            text-align:center;
-            background:#0f172a;
-            color:white;
-            padding:20px;
-        }
+    margin:0;
+    padding:0;
+    background:#08112b;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+}
 
-        #reader{
-            width:100%;
-            max-width:500px;
-            margin:auto;
-        }
+h1{
+    margin-top:15px;
+    font-size:42px;
+    color:#3bb3ff;
+}
 
-        #mensaje{
-            margin-top:30px;
-            font-size:28px;
-        }
+h2{
+    font-size:34px;
+    color:#ffd43b;
+}
 
-        h1{
-            color:#38bdf8;
-        }
+#reader{
+    width:95vw;
+    max-width:900px;
+    margin:auto;
+}
 
-        .taller{
-            font-size:22px;
-            margin-bottom:20px;
-            color:#facc15;
-        }
+#reader video{
+    border-radius:20px;
+    object-fit:cover !important;
+}
+
+#mensaje{
+    margin-top:20px;
+    font-size:30px;
+    font-weight:bold;
+    padding:15px;
+}
+
+.html5-qrcode-element{
+    display:none !important;
+}
+
+#reader__dashboard{
+    display:none !important;
+}
+
+#reader__scan_region{
+    border:none !important;
+}
+
+#reader__scan_region img{
+    display:none !important;
+}
+
 </style>
 </head>
 <body>
@@ -52,14 +78,14 @@ body{
 Esperando escaneo...
 </div>
 
-<!-- FIREBASE -->
+<!-- 🔥 FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
 
 // ======================================
-// FIREBASE
+// 🔥 FIREBASE
 // ======================================
 
 const firebaseConfig = {
@@ -87,10 +113,13 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 // ======================================
-// CONFIG
+// 🔥 CONFIG
 // ======================================
 
 const TALLER = "ESCANEO";
+
+// 🔥 TU APPS SCRIPT
+const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwtOyzzLDykWKM59I78KykpQpRaHX7xNT47jCAYKFkB2cd6ig9qlWWZuOuiIK17bfP0/exec";
 
 const mensaje = document.getElementById("mensaje");
 
@@ -98,7 +127,7 @@ let ultimoCodigo = "";
 let bloqueado = false;
 
 // ======================================
-// REGISTRAR
+// 🔥 REGISTRAR
 // ======================================
 
 function registrar(id){
@@ -109,7 +138,7 @@ function registrar(id){
 
     setTimeout(()=>{
         bloqueado = false;
-    },2500);
+    },2000);
 
     const ahora = new Date();
 
@@ -119,12 +148,13 @@ function registrar(id){
 
     db.ref("alumnos/" + id).once("value").then(snapshot=>{
 
-        // NO EXISTE
+        // ❌ NO EXISTE
         if(!snapshot.exists()){
 
             navigator.vibrate(500);
 
-            mensaje.innerHTML = "❌ Alumno no registrado";
+            mensaje.innerHTML =
+            "❌ Alumno no registrado";
 
             return;
         }
@@ -132,17 +162,19 @@ function registrar(id){
         const alumno = snapshot.val();
 
         // ======================================
-        // VALIDAR ACTIVO
+        // 🔥 VALIDAR ACTIVO
         // ======================================
 
         db.ref("activos/" + id).transaction((actual)=>{
 
-            // ENTRADA
+            // ✅ ENTRADA
             if(actual === null){
 
                 return {
+
                     taller:TALLER,
                     hora:hora
+
                 };
             }
 
@@ -157,7 +189,7 @@ function registrar(id){
             }
 
             // ======================================
-            // ENTRADA
+            // ✅ ENTRADA
             // ======================================
 
             if(committed){
@@ -170,6 +202,15 @@ function registrar(id){
 
                 });
 
+                // 🔥 SHEETS
+                guardarEnSheets(
+                    id,
+                    alumno.nombre,
+                    TALLER,
+                    "entrada",
+                    hora
+                );
+
                 navigator.vibrate(200);
 
                 mensaje.innerHTML = `
@@ -179,7 +220,7 @@ function registrar(id){
                 <br><br>
                 📍 ${TALLER}`;
 
-                // TELEGRAM
+                // 🔔 TELEGRAM
                 if(alumno.chat_id){
 
                     notificar(
@@ -194,12 +235,12 @@ function registrar(id){
             }
 
             // ======================================
-            // YA EXISTE ACTIVO
+            // 🔥 YA EXISTE ACTIVO
             // ======================================
 
             const activo = snapshotActivo.val();
 
-            // SALIDA
+            // ✅ SALIDA
             if(activo && activo.taller === TALLER){
 
                 await db.ref("registros/" + id + "/" + fecha).push({
@@ -209,6 +250,15 @@ function registrar(id){
                     taller:TALLER
 
                 });
+
+                // 🔥 SHEETS
+                guardarEnSheets(
+                    id,
+                    alumno.nombre,
+                    TALLER,
+                    "salida",
+                    hora
+                );
 
                 await db.ref("activos/" + id).remove();
 
@@ -221,7 +271,7 @@ function registrar(id){
                 <br><br>
                 📍 ${TALLER}`;
 
-                // TELEGRAM
+                // 🔔 TELEGRAM
                 if(alumno.chat_id){
 
                     notificar(
@@ -234,7 +284,7 @@ function registrar(id){
 
             }
 
-            // ACTIVO EN OTRO TALLER
+            // ❌ OTRO TALLER
             else if(activo){
 
                 navigator.vibrate(700);
@@ -252,7 +302,7 @@ function registrar(id){
 }
 
 // ======================================
-// TELEGRAM
+// 🔥 TELEGRAM
 // ======================================
 
 function notificar(chat_id, nombre, tipo, hora){
@@ -277,74 +327,117 @@ function notificar(chat_id, nombre, tipo, hora){
     })
 
     .then(()=>{
-        console.log("✅ Notificación enviada");
+        console.log("✅ Telegram OK");
     })
 
     .catch(err=>{
-        console.error("❌ Error:", err);
+        console.error("❌ Telegram:", err);
     });
 
 }
 
 // ======================================
-// CAMARA
+// 🔥 GOOGLE SHEETS
 // ======================================
 
+function guardarEnSheets(id, nombre, taller, tipo, hora){
 
+    fetch(URL_SCRIPT, {
 
-// ======================================
-// 📷 CAMARA SIMPLE Y ESTABLE
-// ======================================
-function iniciarCamara(){
+        method:"POST",
 
-    const html5QrCode = new Html5Qrcode("reader");
+        headers:{
+            "Content-Type":"application/json"
+        },
 
-    Html5Qrcode.getCameras()
+        body:JSON.stringify({
 
-    .then(devices => {
+            fecha:new Date().toISOString(),
 
-        if(devices && devices.length){
+            id:id,
+            nombre:nombre,
+            taller:taller,
+            tipo:tipo,
+            hora:hora,
 
-            html5QrCode.start(
+            dispositivo:navigator.userAgent
 
-                { facingMode: "environment" },
-
-                {
-
-                    fps: 15,
-
-                    qrbox: {
-
-                        width: 280,
-                        height: 120
-
-                    }
-
-                },
-
-                (decodedText) => {
-
-                    if(decodedText === ultimoCodigo) return;
-
-                    ultimoCodigo = decodedText;
-
-                    setTimeout(()=>{
-
-                        ultimoCodigo = "";
-
-                    },2500);
-
-                    registrar(decodedText);
-
-                }
-
-            );
-
-        }
+        })
 
     })
 
-    .catch(err => {
+    .then(()=>{
+        console.log("✅ Sheets OK");
+    })
+
+    .catch(err=>{
+        console.error("❌ Sheets:", err);
+    });
+
+}
+
+// ======================================
+// 📷 CAMARA RAPIDA
+// ======================================
+
+function iniciarCamara(){
+
+    const html5QrCode = new Html5Qrcode(
+
+        "reader",
+
+        {
+
+            formatsToSupport:[
+                Html5QrcodeSupportedFormats.CODE_128
+            ]
+
+        }
+
+    );
+
+    html5QrCode.start(
+
+        { facingMode:"environment" },
+
+        {
+
+            fps:8,
+
+            qrbox:{
+                width:900,
+                height:250
+            },
+
+            rememberLastUsedCamera:true,
+
+            supportedScanTypes:[
+                Html5QrcodeScanType.SCAN_TYPE_CAMERA
+            ]
+
+        },
+
+        (decodedText)=>{
+
+            if(decodedText === ultimoCodigo) return;
+
+            ultimoCodigo = decodedText;
+
+            setTimeout(()=>{
+                ultimoCodigo = "";
+            },2000);
+
+            registrar(decodedText);
+
+        },
+
+        (errorMessage)=>{
+            // ignorar
+        }
+
+    )
+
+    .catch(err=>{
 
         console.error(err);
 
