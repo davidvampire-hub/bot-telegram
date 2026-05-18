@@ -226,6 +226,25 @@ qr.start(
 
 );
 
+
+// =====================================
+// 🔊 SONIDOS
+// =====================================
+
+const sonidoEntrada = new Audio(
+    "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
+);
+
+const sonidoSalida = new Audio(
+    "https://actions.google.com/sounds/v1/cartoon/pop.ogg"
+);
+
+const sonidoError = new Audio(
+    "https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
+);
+
+
+
 // =====================================
 // 🔥 REGISTRAR
 // =====================================
@@ -301,6 +320,25 @@ async function registrar(id){
 
             });
 
+// 🔥 VALIDAR TIEMPO MÍNIMO
+
+const minutos =
+(timestamp - activo.timestamp) / 60000;
+
+if(minutos < 10){
+
+    sonidoError.play();
+
+    mensaje.innerHTML = `
+        ⏳ Deben pasar 10 minutos
+        <br><br>
+        👨‍🎓 ${alumno.nombre}
+    `;
+
+    return;
+}
+
+
             // ❌ ELIMINAR ACTIVO
             await refActivo.remove();
 
@@ -323,8 +361,11 @@ async function registrar(id){
                 );
             }
 
-            navigator.vibrate(200);
 
+
+
+            navigator.vibrate(200);
+sonidoSalida.play();
             mensaje.innerHTML = `
                 👋 SALIDA REGISTRADA
                 <br><br>
@@ -343,7 +384,7 @@ async function registrar(id){
         else{
 
             navigator.vibrate(700);
-
+sonidoError.play();
             mensaje.innerHTML = `
                 ⛔ YA ESTÁ EN:
                 <br><br>
@@ -408,7 +449,7 @@ async function registrar(id){
     }
 
     navigator.vibrate(200);
-
+sonidoEntrada.play();
     mensaje.innerHTML = `
         ✅ ENTRADA REGISTRADA
         <br><br>
