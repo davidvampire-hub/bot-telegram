@@ -318,81 +318,73 @@ function notificar(chat_id, nombre, tipo, hora){
 // CAMARA
 // ======================================
 
+
+
+// ======================================
+// 📷 CAMARA SIMPLE Y ESTABLE
+// ======================================
 function iniciarCamara(){
 
-    const html5QrCode = new Html5Qrcode(
+    const html5QrCode = new Html5Qrcode("reader");
 
-        "reader",
+    Html5Qrcode.getCameras()
 
-        {
-            formatsToSupport:[
-                Html5QrcodeSupportedFormats.CODE_128
-            ]
+    .then(devices => {
+
+        if(devices && devices.length){
+
+            html5QrCode.start(
+
+                { facingMode: "environment" },
+
+                {
+
+                    fps: 15,
+
+                    qrbox: {
+
+                        width: 280,
+                        height: 120
+
+                    }
+
+                },
+
+                (decodedText) => {
+
+                    if(decodedText === ultimoCodigo) return;
+
+                    ultimoCodigo = decodedText;
+
+                    setTimeout(()=>{
+
+                        ultimoCodigo = "";
+
+                    },2500);
+
+                    registrar(decodedText);
+
+                }
+
+            );
+
         }
 
-    );
+    })
 
-    html5QrCode.start(
-
-        { facingMode:"environment" },
-
-        {
-
-            fps:20,
-
-            qrbox:{
-                width:900,
-                height:350
-            },
-
-            aspectRatio:1.777,
-
-            disableFlip:true,
-
-            videoConstraints:{
-
-                facingMode:"environment",
-
-                width:{ ideal:1280 },
-                height:{ ideal:720 }
-
-            }
-
-        },
-
-        (decodedText)=>{
-
-            if(decodedText === ultimoCodigo) return;
-
-            ultimoCodigo = decodedText;
-
-            setTimeout(()=>{
-                ultimoCodigo = "";
-            },2500);
-
-            registrar(decodedText);
-
-        },
-
-        (errorMessage)=>{
-            // ignorar errores
-        }
-
-    )
-
-    .catch(err=>{
+    .catch(err => {
 
         console.error(err);
 
         mensaje.innerHTML =
-        "❌ Debes permitir acceso a la cámara";
+        "❌ No se pudo abrir la cámara";
 
     });
 
 }
 
 // ======================================
-// INICIAR
+// 🚀 INICIAR
 // ======================================
 
 iniciarCamara();
