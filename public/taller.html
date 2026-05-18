@@ -96,7 +96,7 @@ const db = firebase.database();
 // =====================================
 
 const URL_SCRIPT =
-"https://script.google.com/macros/s/AKfycbzzxhYYu6ZRu_syIC3NcJCAwekPgdGb5NIJaEqpSbXkbWzjqNnxGH18TUg8tfgrk-UA/exec";
+"https://script.google.com/macros/s/AKfycbynZVN1eZ52UsM7x-11k8D6m2l8K0r5n3mtgL15WIjkGW6BnL31Ipu3YkEi9jLLUfgl/exec";
 
 // =====================================
 // 🔥 ELEMENTOS
@@ -170,7 +170,10 @@ function guardarEnSheets(id, nombre, taller, tipo){
     + "?id=" + encodeURIComponent(id)
     + "&nombre=" + encodeURIComponent(nombre)
     + "&taller=" + encodeURIComponent(taller)
-    + "&tipo=" + encodeURIComponent(tipo);
+    + "&tipo=" + encodeURIComponent(tipo)
+    + "&dispositivo=" + encodeURIComponent(
+        navigator.platform
+      );
 
     const iframe = document.createElement("iframe");
 
