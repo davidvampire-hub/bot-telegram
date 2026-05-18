@@ -46,6 +46,22 @@ h1{
     border:none !important;
 }
 
+#reader__scan_region{
+
+    background: transparent !important;
+    border: none !important;
+}
+
+#reader__scan_region img{
+
+    display:none !important;
+}
+
+#reader__dashboard_section{
+
+    display:none !important;
+}
+
 #mensaje{
 
     margin-top:20px;
@@ -321,15 +337,11 @@ function iniciarCamara(){
 
         {
 
-            formatsToSupport:[
+           formatsToSupport:[
 
-                Html5QrcodeSupportedFormats.CODE_128,
-                Html5QrcodeSupportedFormats.CODE_39,
-                Html5QrcodeSupportedFormats.EAN_13,
-                Html5QrcodeSupportedFormats.EAN_8,
-                Html5QrcodeSupportedFormats.QR_CODE
+    Html5QrcodeSupportedFormats.CODE_128
 
-            ]
+]
 
         }
 
@@ -343,7 +355,10 @@ function iniciarCamara(){
 
             fps:25,
 
-            qrbox:false,
+           qrbox: {
+    width: window.innerWidth,
+    height: 350
+},
 
             aspectRatio:1.777,
 
