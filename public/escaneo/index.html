@@ -68,7 +68,7 @@ h2{
 
 <h1>🎓 Congreso Escolar</h1>
 
-<h2>📍 Taller: ESCANEO</h2>
+<h2>📍 Taller: ESCANEO V1.0</h2>
 
 <div id="reader"></div>
 
@@ -346,12 +346,17 @@ function guardarEnSheets(id, nombre, taller, tipo){
     + "&taller=" + encodeURIComponent(taller)
     + "&tipo=" + encodeURIComponent(tipo);
 
-    new Image().src = url;
+    const iframe = document.createElement("iframe");
+
+    iframe.style.display = "none";
+
+    iframe.src = url;
+
+    document.body.appendChild(iframe);
 
     console.log("✅ Sheets enviado");
 
 }
-
 // ======================================
 // CAMARA RAPIDA
 // ======================================
