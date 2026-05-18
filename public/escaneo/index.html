@@ -355,31 +355,21 @@ function notificar(chat_id, nombre, tipo, hora){
 
 function guardarEnSheets(id, nombre, taller, tipo, hora){
 
+    const datos = new URLSearchParams();
+
+    datos.append("fecha", new Date().toISOString());
+    datos.append("hora", hora);
+    datos.append("id", id);
+    datos.append("nombre", nombre);
+    datos.append("taller", taller);
+    datos.append("tipo", tipo);
+    datos.append("dispositivo", navigator.platform);
+
     fetch(URL_SCRIPT, {
 
         method:"POST",
 
-        headers:{
-            "Content-Type":"application/json"
-        },
-
-        body:JSON.stringify({
-
-            fecha:new Date().toISOString(),
-
-            hora:hora,
-
-            id:id,
-
-            nombre:nombre,
-
-            taller:taller,
-
-            tipo:tipo,
-
-            dispositivo:navigator.platform
-
-        })
+        body:datos
 
     })
 
