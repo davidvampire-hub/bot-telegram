@@ -362,27 +362,12 @@ function guardarEnSheets(id, nombre, taller, tipo){
     datos.append("taller", taller);
     datos.append("tipo", tipo);
 
-    fetch(URL_SCRIPT, {
+    navigator.sendBeacon(
+        URL_SCRIPT,
+        datos
+    );
 
-        method:"POST",
-
-        mode:"no-cors",
-
-        body:datos
-
-    })
-
-    .then(()=>{
-
-        console.log("✅ Sheets enviado");
-
-    })
-
-    .catch(err=>{
-
-        console.error("❌ Error:", err);
-
-    });
+    console.log("✅ Sheets enviado");
 
 }
 
