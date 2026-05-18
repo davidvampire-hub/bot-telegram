@@ -36,6 +36,10 @@
             color:#facc15;
         }
 
+        #reader video{
+            border-radius:20px;
+        }
+
     </style>
 </head>
 <body>
@@ -50,12 +54,18 @@
     Esperando escaneo...
 </div>
 
+<!-- QR -->
 <script src="https://unpkg.com/html5-qrcode"></script>
 
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
+
+// =====================================
+// 🔥 FIREBASE
+// =====================================
 
 const firebaseConfig = {
 
@@ -81,10 +91,23 @@ firebase.initializeApp(firebaseConfig);
 
 const db = firebase.database();
 
+// =====================================
+// 🔥 GOOGLE SHEETS
+// =====================================
+
+const URL_SCRIPT =
+"https://script.google.com/macros/s/TU_ID/exec";
+
+// =====================================
+// 🔥 ELEMENTOS
+// =====================================
+
 const mensaje = document.getElementById("mensaje");
 
+// =====================================
+// 🔥 OBTENER TALLER
+// =====================================
 
-// 🔥 OBTENER TALLER DESDE URL
 const params = new URLSearchParams(window.location.search);
 
 const taller = params.get("taller") || "general";
@@ -92,20 +115,94 @@ const taller = params.get("taller") || "general";
 document.getElementById("nombreTaller").innerHTML =
 "📍 Taller: " + taller.toUpperCase();
 
-
+// =====================================
 // 🔥 EVITAR DOBLE LECTURA
+// =====================================
+
 let ultimoCodigo = "";
 
+// =====================================
+// 🔔 TELEGRAM
+// =====================================
 
-// 🔥 INICIAR CÁMARA
+function notificar(chat_id, nombre, tipo, hora){
+
+    fetch(
+        "https://bot-telegram-production-cb3d.up.railway.app/notificar",
+        {
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+
+                chat_id:chat_id,
+                nombre:nombre,
+                tipo:tipo,
+                hora:hora
+
+            })
+
+        }
+    )
+
+    .then(()=>{
+        console.log("✅ Telegram enviado");
+    })
+
+    .catch(err=>{
+        console.error("❌ Telegram:", err);
+    });
+
+}
+
+// =====================================
+// 📄 GOOGLE SHEETS
+// =====================================
+
+function guardarEnSheets(id, nombre, taller, tipo){
+
+    const url =
+    URL_SCRIPT
+    + "?id=" + encodeURIComponent(id)
+    + "&nombre=" + encodeURIComponent(nombre)
+    + "&taller=" + encodeURIComponent(taller)
+    + "&tipo=" + encodeURIComponent(tipo);
+
+    const iframe = document.createElement("iframe");
+
+    iframe.style.display = "none";
+
+    iframe.src = url;
+
+    document.body.appendChild(iframe);
+
+    console.log("✅ Sheets enviado");
+
+}
+
+// =====================================
+// 📷 INICIAR CAMARA
+// =====================================
+
 const qr = new Html5Qrcode("reader");
 
 qr.start(
+
     { facingMode: "environment" },
 
     {
+
         fps: 10,
-        qrbox: 250
+
+        qrbox: {
+            width: 280,
+            height: 120
+        }
+
     },
 
     async (codigo) => {
@@ -115,7 +212,9 @@ qr.start(
         ultimoCodigo = codigo;
 
         setTimeout(()=>{
+
             ultimoCodigo = "";
+
         },3000);
 
         registrar(codigo);
@@ -124,8 +223,10 @@ qr.start(
 
 );
 
-
+// =====================================
 // 🔥 REGISTRAR
+// =====================================
+
 async function registrar(id){
 
     const ahora = new Date();
@@ -138,92 +239,135 @@ async function registrar(id){
 
     mensaje.innerHTML = "🔍 Buscando alumno...";
 
-
+    // =====================================
     // 🔥 BUSCAR ALUMNO
+    // =====================================
+
     const snap = await db.ref("alumnos/" + id).once("value");
 
     if(!snap.exists()){
 
         mensaje.innerHTML = "❌ Alumno no encontrado";
 
+        navigator.vibrate(500);
+
         return;
     }
 
     const alumno = snap.val();
 
+    // =====================================
+    // 🔥 VALIDAR ACTIVO GLOBAL
+    // =====================================
 
-    // 🔥 REGISTROS DEL DÍA
-    const refDia = db.ref("congreso/" + taller + "/" + fecha + "/" + id);
+    const refActivo = db.ref("activos/" + id);
 
-    const regSnap = await refDia.once("value");
+    const activoSnap = await refActivo.once("value");
 
-    let tipo = "entrada";
+    const activo = activoSnap.val();
 
-   let ultimo = null;
+    // =====================================
+    // 🔥 YA EXISTE ACTIVO
+    // =====================================
 
-regSnap.forEach(child => {
+    if(activo){
 
-    const dato = child.val();
+        // =====================================
+        // ✅ MISMO TALLER = SALIDA
+        // =====================================
 
-    if (!ultimo || dato.timestamp > ultimo.timestamp) {
-        ultimo = dato;
-    }
+        if(activo.taller === taller){
 
-});
+            await db.ref(
 
+                "congreso/" +
+                taller + "/" +
+                fecha + "/" +
+                id
 
-    // 🔥 LÓGICA INTELIGENTE
-if (ultimo) {
+            ).push({
 
-    const ultimoTiempo = ultimo.timestamp || 0;
+                alumno:id,
+                nombre:alumno.nombre,
+                tipo:"salida",
+                hora:hora,
+                fecha:fecha,
+                taller:taller,
+                dispositivo:navigator.userAgent,
+                timestamp:timestamp
 
-    const minutos = (timestamp - ultimoTiempo) / 60000;
+            });
 
-    const horas = minutos / 60;
+            // ❌ ELIMINAR ACTIVO
+            await refActivo.remove();
 
-    // ✅ SI LA ÚLTIMA FUE ENTRADA
-    if (ultimo.tipo === "entrada") {
+            // 📄 SHEETS
+            guardarEnSheets(
+                id,
+                alumno.nombre,
+                taller,
+                "salida"
+            );
 
-        // 🚫 NO PERMITIR SALIDA ANTES DE 10 MIN
-        if (minutos < 10) {
+            // 🔔 TELEGRAM
+            if(alumno.chat_id){
+
+                notificar(
+                    alumno.chat_id,
+                    alumno.nombre,
+                    "salida",
+                    hora
+                );
+            }
+
+            navigator.vibrate(200);
 
             mensaje.innerHTML = `
-                ⏳ Deben pasar al menos 10 minutos<br>
+                👋 SALIDA REGISTRADA
+                <br><br>
                 👨‍🎓 ${alumno.nombre}
+                <br>
+                📍 ${taller}
             `;
 
             return;
         }
 
-        tipo = "salida";
+        // =====================================
+        // ❌ ACTIVO EN OTRO TALLER
+        // =====================================
 
-    }
+        else{
 
-    // ✅ SI LA ÚLTIMA FUE SALIDA
-    else {
-
-        // 🚫 NO REINGRESAR ANTES DE 2 HORAS
-        if (horas < 2) {
+            navigator.vibrate(700);
 
             mensaje.innerHTML = `
-                ⛔ Deben pasar 2 horas para nueva entrada<br>
-                👨‍🎓 ${alumno.nombre}
+                ⛔ YA ESTÁ EN:
+                <br><br>
+                📍 ${activo.taller}
             `;
 
             return;
         }
 
-        tipo = "entrada";
     }
-}
 
+    // =====================================
+    // ✅ NUEVA ENTRADA
+    // =====================================
 
-    // 🔥 GUARDAR
-    await refDia.push({
+    await db.ref(
+
+        "congreso/" +
+        taller + "/" +
+        fecha + "/" +
+        id
+
+    ).push({
 
         alumno:id,
         nombre:alumno.nombre,
-        tipo:tipo,
+        tipo:"entrada",
         hora:hora,
         fecha:fecha,
         taller:taller,
@@ -232,64 +376,43 @@ if (ultimo) {
 
     });
 
-// 🔥 GOOGLE SHEETS
-fetch("https://script.google.com/macros/s/AKfycbwtOyzzLDykWKM59I78KykpQpRaHX7xNT47jCAYKFkB2cd6ig9qlWWZuOuiIK17bfP0/exec", {
+    // ✅ MARCAR ACTIVO
+    await refActivo.set({
 
-    method:"POST",
-
-    body:JSON.stringify({
-
-        fecha:fecha,
-        hora:hora,
-        id:id,
-        nombre:alumno.nombre,
         taller:taller,
-        tipo:tipo,
-       dispositivo:navigator.platform
+        hora:hora,
+        timestamp:timestamp
 
-    })
+    });
 
-});
+    // 📄 SHEETS
+    guardarEnSheets(
+        id,
+        alumno.nombre,
+        taller,
+        "entrada"
+    );
 
-
-
-
-    // 🔥 MENSAJE
-    mensaje.innerHTML = `
-        ✅ ${tipo.toUpperCase()}<br>
-        👨‍🎓 ${alumno.nombre}<br>
-        📍 ${taller}
-    `;
-
-
-    // 🔥 TELEGRAM
+    // 🔔 TELEGRAM
     if(alumno.chat_id){
 
-        fetch("/notificar", {
-
-            method:"POST",
-
-            headers:{
-                "Content-Type":"application/json"
-            },
-
-            body:JSON.stringify({
-
-                chat_id:alumno.chat_id,
-
-                nombre:alumno.nombre,
-
-                tipo:tipo,
-
-                hora:hora,
-
-                taller:taller
-
-            })
-
-        });
-
+        notificar(
+            alumno.chat_id,
+            alumno.nombre,
+            "entrada",
+            hora
+        );
     }
+
+    navigator.vibrate(200);
+
+    mensaje.innerHTML = `
+        ✅ ENTRADA REGISTRADA
+        <br><br>
+        👨‍🎓 ${alumno.nombre}
+        <br>
+        📍 ${taller}
+    `;
 
 }
 
