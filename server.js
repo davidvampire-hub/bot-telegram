@@ -39,7 +39,7 @@ app.post("/webhook", async (req, res) => {
     // ===============================
     if (text === "/START") {
 
-      await enviar(chatId, "👋 Bienvenido(a)\nEnvía el Numero de control de alumno(a) para vincularte");
+      await enviar(chatId, "👋 Bienvenido(a)\nEnvía el Numero de control de tu hijo(a) para vincularte");
 
       // Guardar padre temporal
       await fetch(`${FIREBASE}/padres/${chatId}.json`, {
@@ -125,7 +125,7 @@ app.post("/webhook", async (req, res) => {
     // ===============================
     // 💬 DEFAULT
     // ===============================
-    await enviar(chatId, "👋 Usa:\n/start\nASISTENCIA NUMERO DE CONTROL DE TU HIJO(A)");
+    await enviar(chatId, "👋 Usa:\n/start\nESCRIBE LA PALABRA ASISTENCIA SEGUIDO DEL NUMERO DE CONTROL DE TU HIJO(A)");
 
     res.sendStatus(200);
 
