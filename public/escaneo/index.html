@@ -370,6 +370,18 @@ function guardarEnSheets(id, nombre, taller, tipo){
 
         body:datos
 
+    })
+
+    .then(()=>{
+
+        console.log("✅ Sheets enviado");
+
+    })
+
+    .catch(err=>{
+
+        console.error("❌ Error:", err);
+
     });
 
 }
