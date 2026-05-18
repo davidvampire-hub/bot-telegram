@@ -22,7 +22,8 @@
         }
 
         #reader{
-            width:320px;
+            width:95vw;
+             max-width:900px;
             margin:auto;
             margin-top:20px;
             border-radius:10px;
@@ -41,7 +42,7 @@
 
 <h1>🎓 Taller Arduino</h1>
 
-<div id="reader"></div>
+<div id="reader" style="width:95vw;max-width:900px;margin:auto;"></div>
 
 <div id="mensaje">
 Esperando escaneo...
@@ -286,7 +287,18 @@ function notificar(chat_id, nombre, tipo, hora){
 
 function iniciarCamara(){
 
-    const html5QrCode = new Html5Qrcode("reader");
+    const html5QrCode = new new Html5Qrcode(
+    "reader",
+    {
+        formatsToSupport: [
+            Html5QrcodeSupportedFormats.CODE_128,
+            Html5QrcodeSupportedFormats.CODE_39,
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.EAN_8,
+            Html5QrcodeSupportedFormats.QR_CODE
+        ]
+    }
+);
 
     Html5Qrcode.getCameras()
 
@@ -305,12 +317,30 @@ function iniciarCamara(){
 
         html5QrCode.start(
 
-            camara,
+    camara,
 
-            {
-                fps:10,
-                qrbox:250
-            },
+    {
+
+        fps: 30,
+
+        qrbox: {
+            width: 500,
+            height: 250
+        },
+
+        aspectRatio: 1.777778,
+
+        disableFlip: true,
+
+        videoConstraints: {
+
+            facingMode: "environment",
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+
+        }
+
+    },
 
             (decodedText)=>{
 
