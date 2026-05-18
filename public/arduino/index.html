@@ -1,48 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Control de Asistencia</title>
+    <title>Control Taller</title>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
 
     <style>
-        body {
+
+        body{
             font-family: Arial;
-            text-align: center;
-            background: #0f172a;
-            color: white;
+            background:#0f172a;
+            color:white;
+            text-align:center;
         }
 
-        h1 {
-            margin-top: 40px;
+        #reader{
+            width:300px;
+            margin:auto;
+            margin-top:20px;
         }
 
-        #mensaje {
-            margin-top: 50px;
-            font-size: 30px;
+        #mensaje{
+            margin-top:30px;
+            font-size:25px;
         }
-
-        /*input {
-            opacity: 0;
-        }*/
-
-input {
-    opacity: 1;
-    font-size: 20px;
-}
 
     </style>
 </head>
 <body>
 
-<h1>🎓 Control de Asistencia</h1>
-<p>Pase su tarjeta...</p>
+<h1>🎓 Taller Arduino</h1>
 
-<input type="text" id="scanner" autofocus>
+<div id="reader"></div>
 
-<div id="mensaje">Esperando escaneo...</div>
+<div id="mensaje">
+Esperando escaneo...
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
 <script>
+
 const firebaseConfig = {
 
   apiKey: "AIzaSyCWQAmB9cMI4Y0YBPC_iV6p1YGgZTSNFQ0",
@@ -63,174 +62,151 @@ const firebaseConfig = {
 
 };
 
-
 firebase.initializeApp(firebaseConfig);
+
 const db = firebase.database();
-// 🔥 NOMBRE DEL TALLER
-const TALLER = "ARDUINO";
 
-
-
-
-
-const input = document.getElementById("scanner");
 const mensaje = document.getElementById("mensaje");
 
+const TALLER = "ARDUINO";
+
 let ultimo = "";
+let bloqueo = false;
 
-input.focus();
+function registrar(id){
 
-input.addEventListener("change", () => {
-    const id = input.value.trim();
-    input.value = "";
+    if(bloqueo) return;
 
-    if (!id || id === ultimo) return;
-    ultimo = id;
+    bloqueo = true;
 
-    setTimeout(() => ultimo = "", 3000);
-
-    registrar(id);
-});
-
-const BLOQUEO_MS = 3000;
-
-function registrar(id) {
+    setTimeout(()=>{
+        bloqueo = false;
+    },3000);
 
     const ahora = new Date();
+
     const fecha = ahora.toISOString().split('T')[0];
+
     const hora = ahora.toLocaleTimeString();
 
-    db.ref("alumnos/" + id).once("value").then(snapshot => {
+    db.ref("alumnos/" + id).once("value").then(snapshot=>{
 
-        if (!snapshot.exists()) {
+        if(!snapshot.exists()){
+
             mensaje.innerHTML = "❌ Alumno no registrado";
+
             return;
         }
 
         const alumno = snapshot.val();
 
-        // 🔥 REVISAR SI YA ESTÁ ACTIVO
-       db.ref("activos/" + id).transaction((actual) => {
+        db.ref("activos/" + id).transaction((actual)=>{
 
-    // ✅ SI NO EXISTE → CREAR ACTIVO
-    if (actual === null) {
+            if(actual === null){
 
-        return {
-            taller: TALLER,
-            hora: hora
-        };
-    }
+                return {
+                    taller:TALLER,
+                    hora:hora
+                };
+            }
 
-    // ❌ YA EXISTE
-    return;
+            return;
 
-}, async (error, committed, snapshotActivo) => {
+        }, async(error, committed, snapActivo)=>{
 
-    if (error) {
+            if(error){
 
-        mensaje.innerHTML = "❌ Error";
-        return;
-    }
+                mensaje.innerHTML = "❌ Error";
 
-    // =========================================
-    // ✅ ENTRADA NUEVA EXITOSA
-    // =========================================
+                return;
+            }
 
-    if (committed) {
+            // ✅ ENTRADA
+            if(committed){
 
-        // ✅ GUARDAR REGISTRO
-        await db.ref("registros/" + id + "/" + fecha).push({
-            tipo: "entrada",
-            hora: hora,
-            taller: TALLER
+                await db.ref("registros/" + id + "/" + fecha).push({
+
+                    tipo:"entrada",
+                    hora:hora,
+                    taller:TALLER
+
+                });
+
+                mensaje.innerHTML =
+                `✅ ENTRADA<br>
+                ${alumno.nombre}`;
+
+                return;
+            }
+
+            // 🔥 ACTIVO
+            const activo = snapActivo.val();
+
+            // ✅ SALIDA
+            if(activo && activo.taller === TALLER){
+
+                await db.ref("registros/" + id + "/" + fecha).push({
+
+                    tipo:"salida",
+                    hora:hora,
+                    taller:TALLER
+
+                });
+
+                await db.ref("activos/" + id).remove();
+
+                mensaje.innerHTML =
+                `👋 SALIDA<br>
+                ${alumno.nombre}`;
+
+            }else{
+
+                mensaje.innerHTML =
+                `⛔ Activo en:<br>
+                ${activo.taller}`;
+            }
+
         });
-
-        mensaje.innerHTML =
-            `✅ ENTRADA REGISTRADA<br>
-             ${alumno.nombre}<br>
-             ${TALLER}`;
-
-        // 🔔 TELEGRAM
-        if (alumno.chat_id) {
-
-            notificar(
-                alumno.chat_id,
-                alumno.nombre,
-                "entrada",
-                hora
-            );
-        }
-
-        return;
-    }
-
-    // =========================================
-    // 🔥 SI NO SE CREÓ → YA EXISTE ACTIVO
-    // =========================================
-
-    const activo = snapshotActivo.val();
-
-    // ✅ MISMO TALLER = SALIDA
-    if (activo && activo.taller === TALLER) {
-
-        // 🔥 REGISTRAR SALIDA
-        await db.ref("registros/" + id + "/" + fecha).push({
-            tipo: "salida",
-            hora: hora,
-            taller: TALLER
-        });
-
-        // ❌ ELIMINAR ACTIVO
-        await db.ref("activos/" + id).remove();
-
-        mensaje.innerHTML =
-            `👋 SALIDA REGISTRADA<br>
-             ${alumno.nombre}<br>
-             ${TALLER}`;
-
-        // 🔔 TELEGRAM
-        if (alumno.chat_id) {
-
-            notificar(
-                alumno.chat_id,
-                alumno.nombre,
-                "salida",
-                hora
-            );
-        }
-
-    }
-
-    // ❌ OTRO TALLER
-    else if (activo) {
-
-        mensaje.innerHTML =
-            `⛔ Alumno activo en:<br>
-             ${activo.taller}`;
-    }
-
-});
 
     });
 
 }
-function notificar(chat_id, nombre, tipo, hora) {
 
-    fetch("https://bot-telegram-production-cb3d.up.railway.app/notificar", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            chat_id: chat_id,
-            nombre: nombre,
-            tipo: tipo,
-            hora: hora
-        })
-    })
-    .then(() => console.log("✅ Notificación enviada"))
-    .catch(err => console.error("❌ Error:", err));
+// 🔥 ESCANER QR / BARRAS
+
+function onScanSuccess(decodedText){
+
+    if(decodedText === ultimo) return;
+
+    ultimo = decodedText;
+
+    setTimeout(()=>{
+        ultimo = "";
+    },3000);
+
+    registrar(decodedText);
+
 }
+
+const html5QrCode = new Html5Qrcode("reader");
+
+Html5Qrcode.getCameras().then(devices => {
+
+    if(devices && devices.length){
+
+        html5QrCode.start(
+            devices[0].id,
+            {
+                fps:10,
+                qrbox:250
+            },
+            onScanSuccess
+        );
+
+    }
+
+});
+
 </script>
 
 </body>
