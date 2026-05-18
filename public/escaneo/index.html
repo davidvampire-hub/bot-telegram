@@ -320,65 +320,31 @@ function notificar(chat_id, nombre, tipo, hora){
 
 function iniciarCamara(){
 
-    const html5QrCode = new Html5Qrcode(
+    const qr = new Html5Qrcode("reader");
 
-        "reader",
+qr.start(
+    { facingMode: "environment" },
 
-        {
-            formatsToSupport:[
-                Html5QrcodeSupportedFormats.CODE_128
-            ]
-        }
+    {
+        fps: 10,
+        qrbox: 250
+    },
 
-    );
+    async (codigo) => {
 
-    html5QrCode.start(
+        if(codigo === ultimoCodigo) return;
 
-        { facingMode:"environment" },
+        ultimoCodigo = codigo;
 
-        {
+        setTimeout(()=>{
+            ultimoCodigo = "";
+        },3000);
 
-            fps:20,
+        registrar(codigo);
 
-            qrbox:{
-                width:900,
-                height:350
-            },
+    }
 
-            aspectRatio:1.777,
-
-            disableFlip:true,
-
-            videoConstraints:{
-
-                facingMode:"environment",
-
-                width:{ ideal:1280 },
-                height:{ ideal:720 }
-
-            }
-
-        },
-
-        (decodedText)=>{
-
-            if(decodedText === ultimoCodigo) return;
-
-            ultimoCodigo = decodedText;
-
-            setTimeout(()=>{
-                ultimoCodigo = "";
-            },2500);
-
-            registrar(decodedText);
-
-        },
-
-        (errorMessage)=>{
-            // ignorar errores
-        }
-
-    )
+)
 
     .catch(err=>{
 
