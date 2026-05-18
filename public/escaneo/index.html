@@ -1,48 +1,74 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Control Taller</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- 🔥 LECTOR QR / BARRAS -->
-    <script src="https://unpkg.com/html5-qrcode"></script>
+<title>Taller Arduino</title>
 
-    <style>
+<!-- 🔥 LECTOR -->
+<script src="https://unpkg.com/html5-qrcode"></script>
 
-        body{
-            font-family: Arial;
-            background:#0f172a;
-            color:white;
-            text-align:center;
-            margin:0;
-            padding:20px;
-        }
+<style>
 
-        h1{
-            margin-top:20px;
-        }
+body{
+    margin:0;
+    padding:0;
+    background:#0f172a;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+}
 
-        #reader{
-            width:95vw;
-             max-width:900px;
-            margin:auto;
-            margin-top:20px;
-            border-radius:10px;
-            overflow:hidden;
-        }
+h1{
+    margin-top:15px;
+    margin-bottom:10px;
+    font-size:32px;
+}
 
-        #mensaje{
-            margin-top:30px;
-            font-size:25px;
-            padding:20px;
-        }
+#reader{
 
-    </style>
+    width:100vw !important;
+    height:70vh !important;
+
+    margin:auto;
+
+    border:none !important;
+}
+
+#reader video{
+
+    width:100% !important;
+    height:70vh !important;
+
+    object-fit:cover;
+
+    border:none !important;
+}
+
+#mensaje{
+
+    margin-top:20px;
+    font-size:30px;
+    font-weight:bold;
+    padding:10px;
+}
+
+.html5-qrcode-element{
+    display:none !important;
+}
+
+#reader__dashboard{
+    display:none !important;
+}
+
+</style>
 </head>
 <body>
 
 <h1>🎓 Taller Arduino</h1>
 
-<div id="reader" style="width:95vw;max-width:900px;margin:auto;"></div>
+<div id="reader"></div>
 
 <div id="mensaje">
 Esperando escaneo...
@@ -54,9 +80,9 @@ Esperando escaneo...
 
 <script>
 
-// =====================================
+// =======================================
 // 🔥 FIREBASE CONFIG
-// =====================================
+// =======================================
 
 const firebaseConfig = {
 
@@ -82,22 +108,20 @@ firebase.initializeApp(firebaseConfig);
 
 const db = firebase.database();
 
-// =====================================
-// 🔥 CONFIG TALLER
-// =====================================
+// =======================================
+// 🔥 CONFIG
+// =======================================
 
 const TALLER = "ESCANEO";
-
-// =====================================
 
 const mensaje = document.getElementById("mensaje");
 
 let ultimo = "";
 let bloqueo = false;
 
-// =====================================
+// =======================================
 // 🔥 REGISTRAR
-// =====================================
+// =======================================
 
 function registrar(id){
 
@@ -117,7 +141,10 @@ function registrar(id){
 
     db.ref("alumnos/" + id).once("value").then(snapshot=>{
 
+        // ❌ NO EXISTE
         if(!snapshot.exists()){
+
+            navigator.vibrate(500);
 
             mensaje.innerHTML =
                 "❌ Alumno no registrado";
@@ -127,13 +154,13 @@ function registrar(id){
 
         const alumno = snapshot.val();
 
-        // =====================================
-        // 🔥 VALIDAR SI YA ESTÁ ACTIVO
-        // =====================================
+        // =======================================
+        // 🔥 VALIDAR ACTIVO
+        // =======================================
 
         db.ref("activos/" + id).transaction((actual)=>{
 
-            // ✅ SI NO EXISTE → ENTRADA
+            // ✅ ENTRADA
             if(actual === null){
 
                 return {
@@ -144,22 +171,20 @@ function registrar(id){
                 };
             }
 
-            // ❌ YA EXISTE
             return;
 
         }, async(error, committed, snapActivo)=>{
 
             if(error){
 
-                mensaje.innerHTML =
-                    "❌ Error";
+                mensaje.innerHTML = "❌ Error";
 
                 return;
             }
 
-            // =====================================
+            // =======================================
             // ✅ ENTRADA
-            // =====================================
+            // =======================================
 
             if(committed){
 
@@ -171,10 +196,11 @@ function registrar(id){
 
                 });
 
+                navigator.vibrate(200);
+
                 mensaje.innerHTML =
-                `✅ ENTRADA REGISTRADA<br><br>
-                👨‍🎓 ${alumno.nombre}<br>
-                📌 ${TALLER}`;
+                `✅ ENTRADA<br><br>
+                👨‍🎓 ${alumno.nombre}`;
 
                 // 🔔 TELEGRAM
                 if(alumno.chat_id){
@@ -190,13 +216,13 @@ function registrar(id){
                 return;
             }
 
-            // =====================================
+            // =======================================
             // 🔥 YA EXISTE ACTIVO
-            // =====================================
+            // =======================================
 
             const activo = snapActivo.val();
 
-            // ✅ MISMO TALLER = SALIDA
+            // ✅ SALIDA
             if(activo && activo.taller === TALLER){
 
                 await db.ref("registros/" + id + "/" + fecha).push({
@@ -207,13 +233,13 @@ function registrar(id){
 
                 });
 
-                // ❌ ELIMINAR ACTIVO
                 await db.ref("activos/" + id).remove();
 
+                navigator.vibrate(200);
+
                 mensaje.innerHTML =
-                `👋 SALIDA REGISTRADA<br><br>
-                👨‍🎓 ${alumno.nombre}<br>
-                📌 ${TALLER}`;
+                `👋 SALIDA<br><br>
+                👨‍🎓 ${alumno.nombre}`;
 
                 // 🔔 TELEGRAM
                 if(alumno.chat_id){
@@ -228,11 +254,13 @@ function registrar(id){
 
             }
 
-            // ❌ OTRO TALLER
+            // ❌ ACTIVO EN OTRO TALLER
             else if(activo){
 
+                navigator.vibrate(700);
+
                 mensaje.innerHTML =
-                `⛔ EL ALUMNO YA ESTÁ EN:<br><br>
+                `⛔ YA ESTÁ EN:<br><br>
                 📌 ${activo.taller}`;
             }
 
@@ -242,9 +270,9 @@ function registrar(id){
 
 }
 
-// =====================================
+// =======================================
 // 🔔 TELEGRAM
-// =====================================
+// =======================================
 
 function notificar(chat_id, nombre, tipo, hora){
 
@@ -281,103 +309,93 @@ function notificar(chat_id, nombre, tipo, hora){
 
 }
 
-// =====================================
-// 📷 INICIAR CÁMARA
-// =====================================
+// =======================================
+// 📷 CÁMARA
+// =======================================
 
 function iniciarCamara(){
 
-    const html5QrCode = new new Html5Qrcode(
-    "reader",
-    {
-        formatsToSupport: [
-            Html5QrcodeSupportedFormats.CODE_128,
-            Html5QrcodeSupportedFormats.CODE_39,
-            Html5QrcodeSupportedFormats.EAN_13,
-            Html5QrcodeSupportedFormats.EAN_8,
-            Html5QrcodeSupportedFormats.QR_CODE
-        ]
-    }
-);
+    const html5QrCode = new Html5Qrcode(
 
-    Html5Qrcode.getCameras()
+        "reader",
 
-    .then(cameras=>{
+        {
 
-        if(!cameras || cameras.length === 0){
+            formatsToSupport:[
 
-            mensaje.innerHTML =
-                "❌ No hay cámara";
+                Html5QrcodeSupportedFormats.CODE_128,
+                Html5QrcodeSupportedFormats.CODE_39,
+                Html5QrcodeSupportedFormats.EAN_13,
+                Html5QrcodeSupportedFormats.EAN_8,
+                Html5QrcodeSupportedFormats.QR_CODE
 
-            return;
-        }
-
-        // 🔥 usar cámara trasera
-        const camara = cameras[cameras.length - 1].id;
-
-        html5QrCode.start(
-
-    camara,
-
-    {
-
-        fps: 30,
-
-        qrbox: {
-            width: 500,
-            height: 250
-        },
-
-        aspectRatio: 1.777778,
-
-        disableFlip: true,
-
-        videoConstraints: {
-
-            facingMode: "environment",
-            width: { ideal: 1920 },
-            height: { ideal: 1080 }
+            ]
 
         }
 
-    },
+    );
 
-            (decodedText)=>{
+    html5QrCode.start(
 
-                if(decodedText === ultimo) return;
+        { facingMode:"environment" },
 
-                ultimo = decodedText;
+        {
 
-                setTimeout(()=>{
-                    ultimo = "";
-                },3000);
+            fps:60,
 
-                registrar(decodedText);
+            qrbox:false,
 
-            },
+            aspectRatio:1.777,
 
-            (errorMessage)=>{
-                // ignorar errores de lectura
+            disableFlip:true,
+
+            videoConstraints:{
+
+                facingMode:{
+                    exact:"environment"
+                },
+
+                width:{ ideal:1920 },
+                height:{ ideal:1080 }
+
             }
 
-        );
+        },
 
-    })
+        (decodedText)=>{
+
+            if(decodedText === ultimo) return;
+
+            ultimo = decodedText;
+
+            setTimeout(()=>{
+                ultimo = "";
+            },3000);
+
+            registrar(decodedText);
+
+        },
+
+        (errorMessage)=>{
+            // ignorar errores
+        }
+
+    )
 
     .catch(err=>{
 
         console.error(err);
 
         mensaje.innerHTML =
-            "❌ Debes permitir acceso a la cámara";
+        "❌ Debes permitir acceso a la cámara";
 
     });
 
 }
 
-// =====================================
+// =======================================
 // 🚀 INICIAR
-// =====================================
+// =======================================
 
 iniciarCamara();
 
