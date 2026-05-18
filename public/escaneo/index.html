@@ -132,7 +132,7 @@ const db = firebase.database();
 const TALLER = "ESCANEO";
 
 // 🔥 TU APPS SCRIPT
-const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxUFBiWYGSBCFLAe8LVhffmYYfF1eBl9Dr0T2seIuICV_q58RH7Z7kTZ6iIgZiY2ZUn/exec";
+const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbyVyCTA45difycAuEvG0J7-U-8wBPyR55irJOV1vIf8wmahxRJGRjVT1elSfd9dkKyQtA/exec";
 
 const mensaje = document.getElementById("mensaje");
 
@@ -353,17 +353,14 @@ function notificar(chat_id, nombre, tipo, hora){
 // 🔥 GOOGLE SHEETS
 // ======================================
 
-function guardarEnSheets(id, nombre, taller, tipo, hora){
+function guardarEnSheets(id, nombre, taller, tipo){
 
     const datos = new URLSearchParams();
 
-    datos.append("fecha", new Date().toISOString());
-    datos.append("hora", hora);
     datos.append("id", id);
     datos.append("nombre", nombre);
     datos.append("taller", taller);
     datos.append("tipo", tipo);
-    datos.append("dispositivo", navigator.platform);
 
     fetch(URL_SCRIPT, {
 
@@ -372,18 +369,6 @@ function guardarEnSheets(id, nombre, taller, tipo, hora){
         mode:"no-cors",
 
         body:datos
-
-    })
-
-    .then(()=>{
-
-        console.log("✅ Sheets enviado");
-
-    })
-
-    .catch(err=>{
-
-        console.error("❌ Sheets:", err);
 
     });
 
