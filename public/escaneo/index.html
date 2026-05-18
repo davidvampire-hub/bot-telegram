@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Taller Arduino</title>
+<title>Congreso Escolar</title>
 
-<!-- 🔥 LECTOR -->
+<!-- LECTOR -->
 <script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
@@ -14,60 +14,41 @@
 body{
     margin:0;
     padding:0;
-    background:#0f172a;
+    background:#08112b;
     color:white;
     font-family:Arial;
     text-align:center;
 }
 
 h1{
-    margin-top:15px;
-    margin-bottom:10px;
-    font-size:32px;
+    margin-top:20px;
+    font-size:52px;
+    color:#3bb3ff;
+}
+
+h2{
+    color:#ffd43b;
+    font-size:42px;
+    margin-bottom:20px;
 }
 
 #reader{
-
-    width:100vw !important;
-    height:70vh !important;
-
+    width:95vw;
+    max-width:900px;
     margin:auto;
-
     border:none !important;
 }
 
 #reader video{
-
-    width:100% !important;
-    height:70vh !important;
-
-    object-fit:cover;
-
-    border:none !important;
-}
-
-#reader__scan_region{
-
-    background: transparent !important;
-    border: none !important;
-}
-
-#reader__scan_region img{
-
-    display:none !important;
-}
-
-#reader__dashboard_section{
-
-    display:none !important;
+    border-radius:20px;
+    object-fit:cover !important;
 }
 
 #mensaje{
-
-    margin-top:20px;
-    font-size:30px;
+    margin-top:25px;
+    font-size:34px;
     font-weight:bold;
-    padding:10px;
+    padding:20px;
 }
 
 .html5-qrcode-element{
@@ -78,11 +59,20 @@ h1{
     display:none !important;
 }
 
+#reader__scan_region{
+    border:none !important;
+}
+
+#reader__scan_region img{
+    display:none !important;
+}
+
 </style>
 </head>
 <body>
 
-<h1>🎓 Taller Arduino</h1>
+<h1>🎓 Congreso Escolar</h1>
+<h2>📍 Taller: ARDUINO</h2>
 
 <div id="reader"></div>
 
@@ -90,15 +80,15 @@ h1{
 Esperando escaneo...
 </div>
 
-<!-- 🔥 FIREBASE -->
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
 
-// =======================================
-// 🔥 FIREBASE CONFIG
-// =======================================
+// ======================================
+// FIREBASE
+// ======================================
 
 const firebaseConfig = {
 
@@ -124,30 +114,30 @@ firebase.initializeApp(firebaseConfig);
 
 const db = firebase.database();
 
-// =======================================
-// 🔥 CONFIG
-// =======================================
+// ======================================
+// CONFIG
+// ======================================
 
-const TALLER = "escaneo";
+const TALLER = "ESCANEO";
 
 const mensaje = document.getElementById("mensaje");
 
-let ultimo = "";
-let bloqueo = false;
+let ultimoCodigo = "";
+let bloqueado = false;
 
-// =======================================
-// 🔥 REGISTRAR
-// =======================================
+// ======================================
+// REGISTRAR
+// ======================================
 
 function registrar(id){
 
-    if(bloqueo) return;
+    if(bloqueado) return;
 
-    bloqueo = true;
+    bloqueado = true;
 
     setTimeout(()=>{
-        bloqueo = false;
-    },3000);
+        bloqueado = false;
+    },2500);
 
     const ahora = new Date();
 
@@ -157,50 +147,46 @@ function registrar(id){
 
     db.ref("alumnos/" + id).once("value").then(snapshot=>{
 
-        // ❌ NO EXISTE
+        // NO EXISTE
         if(!snapshot.exists()){
 
             navigator.vibrate(500);
 
-            mensaje.innerHTML =
-                "❌ Alumno no registrado";
+            mensaje.innerHTML = "❌ Alumno no registrado";
 
             return;
         }
 
         const alumno = snapshot.val();
 
-        // =======================================
-        // 🔥 VALIDAR ACTIVO
-        // =======================================
+        // ======================================
+        // VALIDAR ACTIVO
+        // ======================================
 
         db.ref("activos/" + id).transaction((actual)=>{
 
-            // ✅ ENTRADA
+            // ENTRADA
             if(actual === null){
 
                 return {
-
                     taller:TALLER,
                     hora:hora
-
                 };
             }
 
             return;
 
-        }, async(error, committed, snapActivo)=>{
+        }, async(error, committed, snapshotActivo)=>{
 
             if(error){
 
                 mensaje.innerHTML = "❌ Error";
-
                 return;
             }
 
-            // =======================================
-            // ✅ ENTRADA
-            // =======================================
+            // ======================================
+            // ENTRADA
+            // ======================================
 
             if(committed){
 
@@ -214,11 +200,14 @@ function registrar(id){
 
                 navigator.vibrate(200);
 
-                mensaje.innerHTML =
-                `✅ ENTRADA<br><br>
-                👨‍🎓 ${alumno.nombre}`;
+                mensaje.innerHTML = `
+                ✅ ENTRADA REGISTRADA
+                <br><br>
+                👨‍🎓 ${alumno.nombre}
+                <br><br>
+                📍 ${TALLER}`;
 
-                // 🔔 TELEGRAM
+                // TELEGRAM
                 if(alumno.chat_id){
 
                     notificar(
@@ -232,13 +221,13 @@ function registrar(id){
                 return;
             }
 
-            // =======================================
-            // 🔥 YA EXISTE ACTIVO
-            // =======================================
+            // ======================================
+            // YA EXISTE ACTIVO
+            // ======================================
 
-            const activo = snapActivo.val();
+            const activo = snapshotActivo.val();
 
-            // ✅ SALIDA
+            // SALIDA
             if(activo && activo.taller === TALLER){
 
                 await db.ref("registros/" + id + "/" + fecha).push({
@@ -253,11 +242,14 @@ function registrar(id){
 
                 navigator.vibrate(200);
 
-                mensaje.innerHTML =
-                `👋 SALIDA<br><br>
-                👨‍🎓 ${alumno.nombre}`;
+                mensaje.innerHTML = `
+                👋 SALIDA REGISTRADA
+                <br><br>
+                👨‍🎓 ${alumno.nombre}
+                <br><br>
+                📍 ${TALLER}`;
 
-                // 🔔 TELEGRAM
+                // TELEGRAM
                 if(alumno.chat_id){
 
                     notificar(
@@ -270,14 +262,15 @@ function registrar(id){
 
             }
 
-            // ❌ ACTIVO EN OTRO TALLER
+            // ACTIVO EN OTRO TALLER
             else if(activo){
 
                 navigator.vibrate(700);
 
-                mensaje.innerHTML =
-                `⛔ YA ESTÁ EN:<br><br>
-                📌 ${activo.taller}`;
+                mensaje.innerHTML = `
+                ⛔ YA ESTÁ EN:
+                <br><br>
+                📍 ${activo.taller}`;
             }
 
         });
@@ -286,9 +279,9 @@ function registrar(id){
 
 }
 
-// =======================================
-// 🔔 TELEGRAM
-// =======================================
+// ======================================
+// TELEGRAM
+// ======================================
 
 function notificar(chat_id, nombre, tipo, hora){
 
@@ -312,22 +305,18 @@ function notificar(chat_id, nombre, tipo, hora){
     })
 
     .then(()=>{
-
         console.log("✅ Notificación enviada");
-
     })
 
     .catch(err=>{
-
         console.error("❌ Error:", err);
-
     });
 
 }
 
-// =======================================
-// 📷 CÁMARA
-// =======================================
+// ======================================
+// CAMARA
+// ======================================
 
 function iniciarCamara(){
 
@@ -336,13 +325,9 @@ function iniciarCamara(){
         "reader",
 
         {
-
-           formatsToSupport:[
-
-    Html5QrcodeSupportedFormats.CODE_128
-
-]
-
+            formatsToSupport:[
+                Html5QrcodeSupportedFormats.CODE_128
+            ]
         }
 
     );
@@ -353,37 +338,37 @@ function iniciarCamara(){
 
         {
 
-            fps:25,
+            fps:20,
 
-           qrbox: {
-    width: window.innerWidth,
-    height: 350
-},
+            qrbox:{
+                width:900,
+                height:350
+            },
 
             aspectRatio:1.777,
 
             disableFlip:true,
 
-           videoConstraints:{
+            videoConstraints:{
 
-    facingMode:"environment",
+                facingMode:"environment",
 
-    width:{ ideal:1280 },
-    height:{ ideal:720 }
+                width:{ ideal:1280 },
+                height:{ ideal:720 }
 
-}
+            }
 
         },
 
         (decodedText)=>{
 
-            if(decodedText === ultimo) return;
+            if(decodedText === ultimoCodigo) return;
 
-            ultimo = decodedText;
+            ultimoCodigo = decodedText;
 
             setTimeout(()=>{
-                ultimo = "";
-            },3000);
+                ultimoCodigo = "";
+            },2500);
 
             registrar(decodedText);
 
@@ -406,9 +391,9 @@ function iniciarCamara(){
 
 }
 
-// =======================================
-// 🚀 INICIAR
-// =======================================
+// ======================================
+// INICIAR
+// ======================================
 
 iniciarCamara();
 
