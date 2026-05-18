@@ -341,7 +341,7 @@ function iniciarCamara(){
 
         {
 
-            fps:60,
+            fps:25,
 
             qrbox:false,
 
@@ -349,16 +349,14 @@ function iniciarCamara(){
 
             disableFlip:true,
 
-            videoConstraints:{
+           videoConstraints:{
 
-                facingMode:{
-                    exact:"environment"
-                },
+    facingMode:"environment",
 
-                width:{ ideal:1920 },
-                height:{ ideal:1080 }
+    width:{ ideal:1280 },
+    height:{ ideal:720 }
 
-            }
+}
 
         },
 
