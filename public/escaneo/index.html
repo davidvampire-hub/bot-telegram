@@ -81,6 +81,13 @@ h2{
 <div id="reader"></div>
 
 <div id="mensaje">
+
+    <button onclick="pruebaSheets()">
+
+PROBAR SHEETS
+
+</button>
+
 Esperando escaneo...
 </div>
 
@@ -391,6 +398,57 @@ function guardarEnSheets(id, nombre, taller, tipo, hora){
     });
 
 }
+
+function pruebaSheets(){
+
+    fetch(URL_SCRIPT, {
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+
+            fecha:"TEST",
+
+            hora:"TEST",
+
+            id:"123",
+
+            nombre:"PRUEBA",
+
+            taller:"ESCANEO",
+
+            tipo:"entrada",
+
+            dispositivo:"ANDROID"
+
+        })
+
+    })
+
+    .then(r=>r.text())
+
+    .then(data=>{
+
+        console.log(data);
+
+        alert(data);
+
+    })
+
+    .catch(err=>{
+
+        console.error(err);
+
+        alert(err);
+
+    });
+
+}
+
 // ======================================
 // 📷 CAMARA RAPIDA
 // ======================================
