@@ -6,7 +6,7 @@
 
 <title>Congreso Escolar</title>
 
-<!-- 🔥 LECTOR -->
+<!-- LECTOR -->
 <script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
@@ -42,10 +42,6 @@ h2{
     object-fit:cover !important;
 }
 
-#reader{
-    position:relative;
-}
-
 #reader__scan_region{
     border:4px solid #00ff88 !important;
     border-radius:20px;
@@ -66,58 +62,45 @@ h2{
     display:none !important;
 }
 
-#reader__scan_region{
-    border:none !important;
-}
-
-
 </style>
 </head>
 <body>
 
 <h1>🎓 Congreso Escolar</h1>
+
 <h2>📍 Taller: ESCANEO</h2>
 
 <div id="reader"></div>
 
 <div id="mensaje">
-
-    <button onclick="pruebaSheets()">
-
-PROBAR SHEETS
-
-</button>
-
 Esperando escaneo...
 </div>
 
-<!-- 🔥 FIREBASE -->
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
 
 // ======================================
-// 🔥 FIREBASE
+// FIREBASE
 // ======================================
 
 const firebaseConfig = {
 
-  apiKey: "AIzaSyCWQAmB9cMI4Y0YBPC_iV6p1YGgZTSNFQ0",
+  apiKey: "TU_API_KEY",
 
-  authDomain: "controlasistencia-d236e.firebaseapp.com",
+  authDomain: "TU_AUTH_DOMAIN",
 
-  databaseURL: "https://controlasistencia-d236e-default-rtdb.firebaseio.com",
+  databaseURL: "TU_DATABASE_URL",
 
-  projectId: "controlasistencia-d236e",
+  projectId: "TU_PROJECT_ID",
 
-  storageBucket: "controlasistencia-d236e.firebasestorage.app",
+  storageBucket: "TU_STORAGE_BUCKET",
 
-  messagingSenderId: "3052247103",
+  messagingSenderId: "TU_MESSAGING_SENDER_ID",
 
-  appId: "1:3052247103:web:eaed021913fa765427808a",
-
-  measurementId: "G-H9EKB1F7ZW"
+  appId: "TU_APP_ID"
 
 };
 
@@ -126,13 +109,14 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 // ======================================
-// 🔥 CONFIG
+// CONFIG
 // ======================================
 
 const TALLER = "ESCANEO";
 
-// 🔥 TU APPS SCRIPT
-const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxCd8JOaMU5UeaA8bsVzoMRdd3rMmpodLt9JI1tyRST16OO_CZ19k7nc1PSSR9MPfqYsA/exec";
+// 🔥 URL NUEVA DE APPS SCRIPT
+const URL_SCRIPT =
+"https://script.google.com/a/macros/dgeti.sep.gob.mx/s/AKfycbxZhyCuJVnkdE8YrpTmUfJN-ugGfro83F7wQXkNwTMjGHkutJaOfS9rcc6FyAR3XgabGw/exec";
 
 const mensaje = document.getElementById("mensaje");
 
@@ -140,7 +124,7 @@ let ultimoCodigo = "";
 let bloqueado = false;
 
 // ======================================
-// 🔥 REGISTRAR
+// REGISTRAR
 // ======================================
 
 function registrar(id){
@@ -175,7 +159,7 @@ function registrar(id){
         const alumno = snapshot.val();
 
         // ======================================
-        // 🔥 VALIDAR ACTIVO
+        // VALIDAR ACTIVO
         // ======================================
 
         db.ref("activos/" + id).transaction((actual)=>{
@@ -202,7 +186,7 @@ function registrar(id){
             }
 
             // ======================================
-            // ✅ ENTRADA
+            // ENTRADA
             // ======================================
 
             if(committed){
@@ -215,13 +199,12 @@ function registrar(id){
 
                 });
 
-                // 🔥 SHEETS
+                // 🔥 GUARDAR EN SHEETS
                 guardarEnSheets(
                     id,
                     alumno.nombre,
                     TALLER,
-                    "entrada",
-                    hora
+                    "entrada"
                 );
 
                 navigator.vibrate(200);
@@ -248,7 +231,7 @@ function registrar(id){
             }
 
             // ======================================
-            // 🔥 YA EXISTE ACTIVO
+            // YA EXISTE ACTIVO
             // ======================================
 
             const activo = snapshotActivo.val();
@@ -264,13 +247,12 @@ function registrar(id){
 
                 });
 
-                // 🔥 SHEETS
+                // 🔥 GUARDAR EN SHEETS
                 guardarEnSheets(
                     id,
                     alumno.nombre,
                     TALLER,
-                    "salida",
-                    hora
+                    "salida"
                 );
 
                 await db.ref("activos/" + id).remove();
@@ -297,7 +279,7 @@ function registrar(id){
 
             }
 
-            // ❌ OTRO TALLER
+            // ❌ ACTIVO EN OTRO TALLER
             else if(activo){
 
                 navigator.vibrate(700);
@@ -315,7 +297,7 @@ function registrar(id){
 }
 
 // ======================================
-// 🔥 TELEGRAM
+// TELEGRAM
 // ======================================
 
 function notificar(chat_id, nombre, tipo, hora){
@@ -350,79 +332,26 @@ function notificar(chat_id, nombre, tipo, hora){
 }
 
 // ======================================
-// 🔥 GOOGLE SHEETS
+// GOOGLE SHEETS
 // ======================================
 
 function guardarEnSheets(id, nombre, taller, tipo){
 
-    const datos = new URLSearchParams();
+    const url =
+    URL_SCRIPT
+    + "?id=" + encodeURIComponent(id)
+    + "&nombre=" + encodeURIComponent(nombre)
+    + "&taller=" + encodeURIComponent(taller)
+    + "&tipo=" + encodeURIComponent(tipo);
 
-    datos.append("id", id);
-    datos.append("nombre", nombre);
-    datos.append("taller", taller);
-    datos.append("tipo", tipo);
-
-    navigator.sendBeacon(
-        URL_SCRIPT,
-        datos
-    );
+    new Image().src = url;
 
     console.log("✅ Sheets enviado");
 
 }
 
-function pruebaSheets(){
-
-    fetch(URL_SCRIPT, {
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":"application/json"
-        },
-
-        body:JSON.stringify({
-
-            fecha:"TEST",
-
-            hora:"TEST",
-
-            id:"123",
-
-            nombre:"PRUEBA",
-
-            taller:"ESCANEO",
-
-            tipo:"entrada",
-
-            dispositivo:"ANDROID"
-
-        })
-
-    })
-
-    .then(r=>r.text())
-
-    .then(data=>{
-
-        console.log(data);
-
-        alert(data);
-
-    })
-
-    .catch(err=>{
-
-        console.error(err);
-
-        alert(err);
-
-    });
-
-}
-
 // ======================================
-// 📷 CAMARA RAPIDA
+// CAMARA RAPIDA
 // ======================================
 
 function iniciarCamara(){
@@ -447,18 +376,14 @@ function iniciarCamara(){
 
         {
 
-            fps:8,
+            fps:10,
 
-           qrbox:{
-    width:320,
-    height:140
-},
+            qrbox:{
+                width:320,
+                height:140
+            },
 
-            rememberLastUsedCamera:true,
-
-            supportedScanTypes:[
-                Html5QrcodeScanType.SCAN_TYPE_CAMERA
-            ]
+            rememberLastUsedCamera:true
 
         },
 
@@ -494,7 +419,7 @@ function iniciarCamara(){
 }
 
 // ======================================
-// 🚀 INICIAR
+// INICIAR
 // ======================================
 
 iniciarCamara();
