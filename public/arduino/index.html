@@ -3,6 +3,7 @@
 <head>
     <title>Control Taller</title>
 
+    <!-- 🔥 LECTOR QR / BARRAS -->
     <script src="https://unpkg.com/html5-qrcode"></script>
 
     <style>
@@ -12,17 +13,26 @@
             background:#0f172a;
             color:white;
             text-align:center;
+            margin:0;
+            padding:20px;
+        }
+
+        h1{
+            margin-top:20px;
         }
 
         #reader{
-            width:300px;
+            width:320px;
             margin:auto;
             margin-top:20px;
+            border-radius:10px;
+            overflow:hidden;
         }
 
         #mensaje{
             margin-top:30px;
             font-size:25px;
+            padding:20px;
         }
 
     </style>
@@ -37,10 +47,15 @@
 Esperando escaneo...
 </div>
 
+<!-- 🔥 FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
+
+// =====================================
+// 🔥 FIREBASE CONFIG
+// =====================================
 
 const firebaseConfig = {
 
@@ -66,12 +81,22 @@ firebase.initializeApp(firebaseConfig);
 
 const db = firebase.database();
 
-const mensaje = document.getElementById("mensaje");
+// =====================================
+// 🔥 CONFIG TALLER
+// =====================================
 
 const TALLER = "ARDUINO";
 
+// =====================================
+
+const mensaje = document.getElementById("mensaje");
+
 let ultimo = "";
 let bloqueo = false;
+
+// =====================================
+// 🔥 REGISTRAR
+// =====================================
 
 function registrar(id){
 
@@ -93,35 +118,48 @@ function registrar(id){
 
         if(!snapshot.exists()){
 
-            mensaje.innerHTML = "❌ Alumno no registrado";
+            mensaje.innerHTML =
+                "❌ Alumno no registrado";
 
             return;
         }
 
         const alumno = snapshot.val();
 
+        // =====================================
+        // 🔥 VALIDAR SI YA ESTÁ ACTIVO
+        // =====================================
+
         db.ref("activos/" + id).transaction((actual)=>{
 
+            // ✅ SI NO EXISTE → ENTRADA
             if(actual === null){
 
                 return {
+
                     taller:TALLER,
                     hora:hora
+
                 };
             }
 
+            // ❌ YA EXISTE
             return;
 
         }, async(error, committed, snapActivo)=>{
 
             if(error){
 
-                mensaje.innerHTML = "❌ Error";
+                mensaje.innerHTML =
+                    "❌ Error";
 
                 return;
             }
 
+            // =====================================
             // ✅ ENTRADA
+            // =====================================
+
             if(committed){
 
                 await db.ref("registros/" + id + "/" + fecha).push({
@@ -133,16 +171,31 @@ function registrar(id){
                 });
 
                 mensaje.innerHTML =
-                `✅ ENTRADA<br>
-                ${alumno.nombre}`;
+                `✅ ENTRADA REGISTRADA<br><br>
+                👨‍🎓 ${alumno.nombre}<br>
+                📌 ${TALLER}`;
+
+                // 🔔 TELEGRAM
+                if(alumno.chat_id){
+
+                    notificar(
+                        alumno.chat_id,
+                        alumno.nombre,
+                        "entrada",
+                        hora
+                    );
+                }
 
                 return;
             }
 
-            // 🔥 ACTIVO
+            // =====================================
+            // 🔥 YA EXISTE ACTIVO
+            // =====================================
+
             const activo = snapActivo.val();
 
-            // ✅ SALIDA
+            // ✅ MISMO TALLER = SALIDA
             if(activo && activo.taller === TALLER){
 
                 await db.ref("registros/" + id + "/" + fecha).push({
@@ -153,17 +206,33 @@ function registrar(id){
 
                 });
 
+                // ❌ ELIMINAR ACTIVO
                 await db.ref("activos/" + id).remove();
 
                 mensaje.innerHTML =
-                `👋 SALIDA<br>
-                ${alumno.nombre}`;
+                `👋 SALIDA REGISTRADA<br><br>
+                👨‍🎓 ${alumno.nombre}<br>
+                📌 ${TALLER}`;
 
-            }else{
+                // 🔔 TELEGRAM
+                if(alumno.chat_id){
+
+                    notificar(
+                        alumno.chat_id,
+                        alumno.nombre,
+                        "salida",
+                        hora
+                    );
+                }
+
+            }
+
+            // ❌ OTRO TALLER
+            else if(activo){
 
                 mensaje.innerHTML =
-                `⛔ Activo en:<br>
-                ${activo.taller}`;
+                `⛔ EL ALUMNO YA ESTÁ EN:<br><br>
+                📌 ${activo.taller}`;
             }
 
         });
@@ -172,40 +241,115 @@ function registrar(id){
 
 }
 
-// 🔥 ESCANER QR / BARRAS
+// =====================================
+// 🔔 TELEGRAM
+// =====================================
 
-function onScanSuccess(decodedText){
+function notificar(chat_id, nombre, tipo, hora){
 
-    if(decodedText === ultimo) return;
+    fetch("https://bot-telegram-production-cb3d.up.railway.app/notificar", {
 
-    ultimo = decodedText;
+        method:"POST",
 
-    setTimeout(()=>{
-        ultimo = "";
-    },3000);
+        headers:{
+            "Content-Type":"application/json"
+        },
 
-    registrar(decodedText);
+        body:JSON.stringify({
+
+            chat_id:chat_id,
+            nombre:nombre,
+            tipo:tipo,
+            hora:hora
+
+        })
+
+    })
+
+    .then(()=>{
+
+        console.log("✅ Notificación enviada");
+
+    })
+
+    .catch(err=>{
+
+        console.error("❌ Error:", err);
+
+    });
 
 }
 
-const html5QrCode = new Html5Qrcode("reader");
+// =====================================
+// 📷 INICIAR CÁMARA
+// =====================================
 
-Html5Qrcode.getCameras().then(devices => {
+function iniciarCamara(){
 
-    if(devices && devices.length){
+    const html5QrCode = new Html5Qrcode("reader");
+
+    Html5Qrcode.getCameras()
+
+    .then(cameras=>{
+
+        if(!cameras || cameras.length === 0){
+
+            mensaje.innerHTML =
+                "❌ No hay cámara";
+
+            return;
+        }
+
+        // 🔥 usar cámara trasera
+        const camara = cameras[cameras.length - 1].id;
 
         html5QrCode.start(
-            devices[0].id,
+
+            camara,
+
             {
                 fps:10,
                 qrbox:250
             },
-            onScanSuccess
+
+            (decodedText)=>{
+
+                if(decodedText === ultimo) return;
+
+                ultimo = decodedText;
+
+                setTimeout(()=>{
+                    ultimo = "";
+                },3000);
+
+                registrar(decodedText);
+
+            },
+
+            (errorMessage)=>{
+                // ignorar errores de lectura
+            }
+
         );
 
-    }
+    })
 
-});
+    .catch(err=>{
+
+        console.error(err);
+
+        mensaje.innerHTML =
+            "❌ Debes permitir acceso a la cámara";
+
+    });
+
+}
+
+// =====================================
+// 🚀 INICIAR
+// =====================================
+
+iniciarCamara();
 
 </script>
 
