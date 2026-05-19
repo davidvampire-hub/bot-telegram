@@ -144,47 +144,119 @@ Ejemplo:
       return res.sendStatus(200);
     }
 
-    // =====================================
-    // 📋 CONSULTA DE ASISTENCIA
-    // =====================================
+   // =====================================
+// 📋 CONSULTA DE ASISTENCIA
+// =====================================
 
-    if (text.startsWith("ASISTENCIA")) {
+if (text.startsWith("ASISTENCIA")) {
 
-      const partes = text.split(" ");
+  try {
 
-      const id = partes[1];
+    const partes = text.split(" ");
 
-      if (!id) {
+    const id = partes[1];
 
-        await enviar(
-          chatId,
-          "⚠️ Usa:\nASISTENCIA NUMERO_CONTROL"
-        );
+    if (!id) {
 
-        return res.sendStatus(200);
-      }
-
-      const alumnoRes = await fetch(
-        `${FIREBASE}/alumnos/${id}.json`
+      await enviar(
+        chatId,
+        "⚠️ Usa:\nASISTENCIA 23318050270088"
       );
 
-      const alumno = await alumnoRes.json();
+      return res.sendStatus(200);
+    }
 
-      if (!alumno) {
+    // 🔥 BUSCAR ALUMNO
+    const alumnoRes = await fetch(
+      `${FIREBASE}/alumnos/${id}.json`
+    );
 
-        await enviar(
-          chatId,
-          "❌ Alumno no encontrado"
-        );
+    const alumno = await alumnoRes.json();
 
-        return res.sendStatus(200);
+    if (!alumno) {
+
+      await enviar(
+        chatId,
+        "❌ Alumno no encontrado"
+      );
+
+      return res.sendStatus(200);
+    }
+
+    const fecha =
+      new Date()
+      .toISOString()
+      .split("T")[0];
+
+    // 🔥 LEER TODO CONGRESO
+    const congresosRes = await fetch(
+      `${FIREBASE}/congreso.json`
+    );
+
+    const congresos = await congresosRes.json();
+
+    let mensaje =
+`🎓 CONGRESO ESCOLAR
+
+👨‍🎓 ${alumno.nombre}
+
+📅 ${fecha}
+
+`;
+
+    let encontrados = 0;
+
+    if (congresos) {
+
+      for (const taller in congresos) {
+
+        const registrosAlumno =
+          congresos?.[taller]?.[fecha]?.[id];
+
+        if (registrosAlumno) {
+
+          Object.values(registrosAlumno)
+          .forEach(r => {
+
+            encontrados++;
+
+            mensaje +=
+`📍 ${r.taller}
+${r.tipo.toUpperCase()}
+⏰ ${r.hora}
+
+`;
+
+          });
+
+        }
+
       }
 
-      const fecha =
-        new Date()
-        .toISOString()
-        .split("T")[0];
+    }
 
+    if (encontrados === 0) {
+
+      mensaje += "❌ Sin registros hoy";
+    }
+
+    await enviar(chatId, mensaje);
+
+    return res.sendStatus(200);
+
+  } catch (err) {
+
+    console.error("❌ ERROR ASISTENCIA:", err);
+
+    await enviar(
+      chatId,
+      "❌ Error consultando asistencia"
+    );
+
+    return res.sendStatus(200);
+  }
+
+}
       // =====================================
       // 🔥 BUSCAR REGISTROS
       // =====================================
