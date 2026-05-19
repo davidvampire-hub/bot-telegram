@@ -9,7 +9,7 @@ content="width=device-width, initial-scale=1.0">
 
 <title>Congreso Escolar CBTis 27</title>
 
-<!-- 🔥 LECTOR QR -->
+<!-- 🔥 QR -->
 <script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
@@ -26,153 +26,161 @@ body{
     background:
     linear-gradient(
         180deg,
-        #5e000f 0%,
-        #7b0013 40%,
-        #a4001a 100%
+        #3d0008 0%,
+        #6b0010 40%,
+        #7c0013 100%
     );
 
     min-height:100vh;
 
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
-    padding:20px;
-
-    overflow-x:hidden;
-}
-
-/* 🔥 TARJETA PRINCIPAL */
-
-.container{
-
-    width:100%;
-    max-width:520px;
-
-    background:white;
-
-    border-radius:35px;
-
-    padding:30px 25px;
-
-    box-shadow:
-    0 15px 40px rgba(0,0,0,.35);
-
-    position:relative;
+    color:white;
 
     overflow:hidden;
 }
 
-/* 🔥 CÍRCULOS DECORATIVOS */
+/* 🔥 FONDO TECNOLOGICO */
 
-.container::before{
-
-    content:"";
-
-    position:absolute;
-
-    width:220px;
-    height:220px;
-
-    background:rgba(122,0,18,.08);
-
-    border-radius:50%;
-
-    top:-80px;
-    right:-80px;
-}
-
-.container::after{
+body::before{
 
     content:"";
 
-    position:absolute;
+    position:fixed;
 
-    width:180px;
-    height:180px;
+    inset:0;
 
-    background:rgba(122,0,18,.05);
+    background:
+    url("https://www.transparenttextures.com/patterns/circuit-board.png");
 
-    border-radius:50%;
+    opacity:.12;
 
-    bottom:-60px;
-    left:-60px;
+    pointer-events:none;
 }
 
-/* 🔥 LOGO */
+/* 🔥 CONTENEDOR */
 
-.logo{
+.container{
 
-    width:170px;
+    width:100%;
 
-    display:block;
+    max-width:480px;
 
     margin:auto;
 
-    margin-bottom:15px;
+    padding:10px;
 
-    position:relative;
-    z-index:5;
 }
 
-/* 🔥 TITULOS */
+/* 🔥 HEADER */
 
-h1{
+.header{
 
     text-align:center;
 
+    margin-bottom:8px;
+}
+
+.logo{
+
+    width:110px;
+
+    margin:auto;
+
+    display:block;
+
+    margin-bottom:5px;
+}
+
+.titulo{
+
     font-size:42px;
 
-    color:#7a0012;
+    font-weight:900;
 
-    margin-bottom:8px;
-
-    position:relative;
-    z-index:5;
+    letter-spacing:1px;
 }
 
 .subtitulo{
 
-    text-align:center;
+    color:#ffd8d8;
 
-    color:#666;
+    font-size:17px;
 
-    font-size:18px;
-
-    margin-bottom:25px;
-
-    position:relative;
-    z-index:5;
+    margin-top:2px;
 }
 
-/* 🔥 TALLER */
+/* 🔥 TARJETAS */
 
-.taller{
+.card{
+
+    background:white;
+
+    border-radius:18px;
+
+    margin-top:10px;
+
+    overflow:hidden;
+
+    box-shadow:
+    0 8px 25px rgba(0,0,0,.25);
+}
+
+/* 🔥 ENCABEZADO TARJETA */
+
+.card-header{
 
     background:
     linear-gradient(
         90deg,
         #7a0012,
-        #b3001b
+        #9f0018
     );
 
     color:white;
 
-    padding:16px;
+    padding:8px 15px;
 
-    border-radius:18px;
-
-    font-size:26px;
+    font-size:18px;
 
     font-weight:bold;
+}
 
-    margin-bottom:25px;
+/* 🔥 TALLER */
 
-    box-shadow:
-    0 8px 20px rgba(122,0,18,.25);
+.taller-body{
 
-    position:relative;
-    z-index:5;
+    display:flex;
+
+    align-items:center;
+
+    gap:18px;
+
+    padding:20px;
+}
+
+.icono{
+
+    font-size:60px;
+
+    color:#7a0012;
+}
+
+.taller-texto{
+
+    color:#7a0012;
+}
+
+.taller-texto span{
+
+    display:block;
+
+    font-size:22px;
+}
+
+.taller-texto strong{
+
+    font-size:52px;
+
+    line-height:1;
 }
 
 /* 🔥 CAMARA */
@@ -183,27 +191,15 @@ h1{
 
     overflow:hidden;
 
-    border-radius:28px;
-
-    border:8px solid #7a0012;
-
-    background:black;
-
-    box-shadow:
-    0 10px 30px rgba(0,0,0,.25);
-
-    position:relative;
-    z-index:5;
+    border-radius:0 0 18px 18px;
 }
 
 #reader video{
 
-    border-radius:20px;
-
     object-fit:cover !important;
 }
 
-/* 🔥 OCULTAR BOTONES FEOS */
+/* 🔥 OCULTAR BOTONES */
 
 .html5-qrcode-element{
     display:none !important;
@@ -221,70 +217,145 @@ h1{
     display:none !important;
 }
 
-/* 🔥 MENSAJES */
+/* 🔥 ESTADO */
 
-#mensaje{
+.estado{
 
-    margin-top:25px;
+    display:flex;
 
-    padding:20px;
+    align-items:center;
 
-    border-radius:22px;
+    gap:18px;
 
-    background:#f5f5f5;
+    padding:18px;
+}
 
-    color:#111;
+.estado-icono{
 
-    font-size:28px;
+    width:75px;
+    height:75px;
 
-    font-weight:bold;
+    border-radius:50%;
 
-    min-height:120px;
+    background:#7a0012;
 
     display:flex;
     justify-content:center;
     align-items:center;
-    flex-direction:column;
 
-    box-shadow:
-    inset 0 0 10px rgba(0,0,0,.05);
+    font-size:34px;
+}
 
-    transition:.3s;
+.estado-texto{
 
-    position:relative;
-    z-index:5;
+    flex:1;
+}
+
+.estado-titulo{
+
+    color:#333;
+
+    font-size:34px;
+
+    font-weight:bold;
+}
+
+.estado-sub{
+
+    color:#555;
+
+    font-size:18px;
+}
+
+/* 🔥 INFO */
+
+.info{
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:10px;
+
+    margin-top:10px;
+}
+
+.info-card{
+
+    background:
+    linear-gradient(
+        180deg,
+        rgba(255,255,255,.12),
+        rgba(255,255,255,.05)
+    );
+
+    border:2px solid rgba(255,255,255,.15);
+
+    border-radius:15px;
+
+    padding:12px;
+
+    text-align:center;
+
+    backdrop-filter:blur(5px);
+}
+
+.info-icon{
+
+    font-size:28px;
+
+    margin-bottom:5px;
+}
+
+.info-label{
+
+    font-size:14px;
+
+    color:#ffdede;
+}
+
+.info-value{
+
+    font-size:22px;
+
+    font-weight:bold;
+
+    margin-top:3px;
 }
 
 /* 🔥 FOOTER */
 
 .footer{
 
-    margin-top:25px;
-
     text-align:center;
 
-    color:#777;
+    margin-top:12px;
 
-    font-size:15px;
+    color:#ffd7d7;
 
-    position:relative;
-    z-index:5;
+    font-size:16px;
+
+    padding-bottom:10px;
 }
 
-/* 📱 RESPONSIVE */
+/* 📱 MOVIL */
 
-@media(max-width:600px){
+@media(max-height:800px){
 
-    h1{
+    .titulo{
         font-size:34px;
     }
 
-    .taller{
-        font-size:22px;
+    .taller-texto strong{
+        font-size:40px;
     }
 
-    #mensaje{
-        font-size:24px;
+    .estado-titulo{
+        font-size:28px;
+    }
+
+    .logo{
+        width:90px;
     }
 
 }
@@ -296,35 +367,181 @@ h1{
 
 <div class="container">
 
-    <!-- 🔥 LOGO -->
-    <img
+    <!-- 🔥 HEADER -->
+    <div class="header">
+
+        <img
         src="https://scontent.fgdl5-3.fna.fbcdn.net/v/t39.30808-6/473667183_1162920999166773_1954077721713265243_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeE6vFYVzGtrAYx6mu5xSQZ2zkF1KHzPMAnOQXUofM8wCZEd2TzJ_zkdLbq0BahK_r2bLdV-w2rU67x696dRlEZs&_nc_ohc=vj90W0nL-s8Q7kNvwF1SzUA&_nc_oc=Adq9ncx3UN7TvQycg5PnKvR_imdF1qVXPkrt1aUGlkQFWd7TQIaniSweyplR9XZkZGVLWOT-fa_QzmDm-nmptYxx&_nc_zt=23&_nc_ht=scontent.fgdl5-3.fna&_nc_gid=q_iTOr9Q4qkoW9yiq4CZNw&_nc_ss=7b2a8&oh=00_Af4RA6idUZxtx51v156obBGTGB9F0O7X6qiXHbKB1jTVQQ&oe=6A119BE2"
-        class="logo"
-    >
+        class="logo">
 
-    <!-- 🔥 TITULO -->
-    <h1>Congreso Escolar</h1>
+        <div class="titulo">
+            CONGRESO ESCOLAR
+        </div>
 
-    <div class="subtitulo">
-        CBTis 27 · Nayarit
+        <div class="subtitulo">
+            CONTROL DE ASISTENCIA
+        </div>
+
     </div>
 
-    <!-- 🔥 TALLER -->
-    <div
-        class="taller"
-        id="nombreTaller">
+    <!-- 🔥 TARJETA TALLER -->
+    <div class="card">
+
+        <div class="card-header">
+            TALLER ACTIVO
+        </div>
+
+        <div class="taller-body">
+
+            <div class="icono">
+                ⚙️
+            </div>
+
+            <div class="taller-texto">
+
+                <span>TALLER:</span>
+
+                <strong id="nombreTaller">
+                    ESCANEO
+                </strong>
+
+            </div>
+
+        </div>
+
     </div>
 
-    <!-- 🔥 CAMARA -->
-    <div id="reader"></div>
+    <!-- 🔥 TARJETA CAMARA -->
+    <div class="card">
 
-    <!-- 🔥 MENSAJE -->
-    <div id="mensaje">
-        Esperando escaneo...
+        <div class="card-header">
+            ESCANEA TU CÓDIGO QR
+        </div>
+
+        <div id="reader"></div>
+
     </div>
 
+    <!-- 🔥 TARJETA ESTADO -->
+    <div class="card">
+
+        <div class="card-header">
+            ESTADO
+        </div>
+
+        <div class="estado">
+
+            <div class="estado-icono">
+                📱
+            </div>
+
+            <div class="estado-texto">
+
+                <div
+                class="estado-titulo"
+                id="estadoTitulo">
+
+                    ESPERANDO ESCANEO...
+
+                </div>
+
+                <div
+                class="estado-sub"
+                id="estadoSub">
+
+                    Listo para registrar entrada o salida
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- 🔥 INFO -->
+    <div class="info">
+
+        <div class="info-card">
+
+            <div class="info-icon">
+                📅
+            </div>
+
+            <div class="info-label">
+                FECHA
+            </div>
+
+            <div
+            class="info-value"
+            id="fecha">
+            </div>
+
+        </div>
+
+        <div class="info-card">
+
+            <div class="info-icon">
+                🕒
+            </div>
+
+            <div class="info-label">
+                HORA
+            </div>
+
+            <div
+            class="info-value"
+            id="hora">
+            </div>
+
+        </div>
+
+        <div class="info-card">
+
+            <div class="info-icon">
+                👥
+            </div>
+
+            <div class="info-label">
+                REGISTROS HOY
+            </div>
+
+            <div
+            class="info-value"
+            id="contador">
+
+                0
+
+            </div>
+
+        </div>
+
+        <div class="info-card">
+
+            <div class="info-icon">
+                🛡️
+            </div>
+
+            <div class="info-label">
+                SISTEMA
+            </div>
+
+            <div class="info-value"
+            style="color:#ffe066">
+
+                ACTIVO
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- 🔥 FOOTER -->
     <div class="footer">
-        Sistema Inteligente de Asistencia
+
+        CBTis 27 · Ixtlán del Río · Nayarit
+
     </div>
 
 </div>
@@ -371,63 +588,101 @@ const URL_SCRIPT =
 "https://script.google.com/macros/s/AKfycbynZVN1eZ52UsM7x-11k8D6m2l8K0r5n3mtgL15WIjkGW6BnL31Ipu3YkEi9jLLUfgl/exec";
 
 // =====================================
-// 🔥 ELEMENTOS
+// 🔥 PARAMETROS
 // =====================================
 
-const mensaje = document.getElementById("mensaje");
+const params =
+new URLSearchParams(window.location.search);
+
+const taller =
+params.get("taller") || "escaneo";
+
+document.getElementById(
+"nombreTaller"
+).innerHTML =
+taller.toUpperCase();
 
 // =====================================
-// 🔥 OBTENER TALLER
+// 🔥 FECHA Y HORA
 // =====================================
 
-const params = new URLSearchParams(window.location.search);
+function actualizarHora(){
 
-const taller = params.get("taller") || "general";
+    const ahora = new Date();
 
-document.getElementById("nombreTaller").innerHTML =
-"📍 TALLER: " + taller.toUpperCase();
+    document.getElementById("hora")
+    .innerHTML =
+    ahora.toLocaleTimeString();
+
+    document.getElementById("fecha")
+    .innerHTML =
+    ahora.toLocaleDateString();
+
+}
+
+setInterval(actualizarHora,1000);
+
+actualizarHora();
 
 // =====================================
-// 🔥 EVITAR DOBLE LECTURA
+// 🔥 CONTADOR
 // =====================================
 
-let ultimoCodigo = "";
+let contador = 0;
 
 // =====================================
-// 🔔 TELEGRAM
+// 🔥 SONIDOS
 // =====================================
 
-function notificar(chat_id, nombre, tipo, hora){
+const sonidoEntrada =
+new Audio(
+"https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
+);
+
+const sonidoSalida =
+new Audio(
+"https://actions.google.com/sounds/v1/cartoon/pop.ogg"
+);
+
+const sonidoError =
+new Audio(
+"https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
+);
+
+// =====================================
+// 🔥 TELEGRAM
+// =====================================
+
+function notificar(chat_id,nombre,tipo,hora){
 
     fetch(
-        "https://bot-telegram-production-cb3d.up.railway.app/notificar",
-        {
+    "https://bot-telegram-production-cb3d.up.railway.app/notificar",
+    {
 
-            method:"POST",
+        method:"POST",
 
-            headers:{
-                "Content-Type":"application/json"
-            },
+        headers:{
+            "Content-Type":"application/json"
+        },
 
-            body:JSON.stringify({
+        body:JSON.stringify({
 
-                chat_id:chat_id,
-                nombre:nombre,
-                tipo:tipo,
-                hora:hora
+            chat_id:chat_id,
+            nombre:nombre,
+            tipo:tipo,
+            hora:hora
 
-            })
+        })
 
-        }
-    );
+    });
 
 }
 
 // =====================================
-// 📄 GOOGLE SHEETS
+// 🔥 SHEETS
 // =====================================
 
-function guardarEnSheets(id, nombre, taller, tipo){
+function guardarEnSheets(id,nombre,taller,tipo){
 
     const url =
     URL_SCRIPT
@@ -437,9 +692,10 @@ function guardarEnSheets(id, nombre, taller, tipo){
     + "&tipo=" + encodeURIComponent(tipo)
     + "&dispositivo=" + encodeURIComponent(
         navigator.platform
-      );
+    );
 
-    const iframe = document.createElement("iframe");
+    const iframe =
+    document.createElement("iframe");
 
     iframe.style.display = "none";
 
@@ -450,26 +706,17 @@ function guardarEnSheets(id, nombre, taller, tipo){
 }
 
 // =====================================
-// 🔊 SONIDOS
+// 🔥 DOBLE LECTURA
 // =====================================
 
-const sonidoEntrada = new Audio(
-"https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
-);
-
-const sonidoSalida = new Audio(
-"https://actions.google.com/sounds/v1/cartoon/pop.ogg"
-);
-
-const sonidoError = new Audio(
-"https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
-);
+let ultimoCodigo = "";
 
 // =====================================
-// 📷 CAMARA RAPIDA
+// 🔥 CAMARA
 // =====================================
 
-const qr = new Html5Qrcode("reader");
+const qr =
+new Html5Qrcode("reader");
 
 qr.start(
 
@@ -480,8 +727,8 @@ qr.start(
         fps:20,
 
         qrbox:{
-            width:300,
-            height:130
+            width:260,
+            height:120
         }
 
     },
@@ -508,35 +755,45 @@ qr.start(
 
 async function registrar(id){
 
+    const estadoTitulo =
+    document.getElementById("estadoTitulo");
+
+    const estadoSub =
+    document.getElementById("estadoSub");
+
+    estadoTitulo.innerHTML =
+    "BUSCANDO...";
+
+    estadoSub.innerHTML =
+    "Consultando alumno";
+
     const ahora = new Date();
 
-    const fecha = ahora.toISOString().split('T')[0];
+    const fecha =
+    ahora.toISOString().split('T')[0];
 
-    const hora = ahora.toLocaleTimeString();
+    const hora =
+    ahora.toLocaleTimeString();
 
-    const timestamp = ahora.getTime();
+    const timestamp =
+    ahora.getTime();
 
-    mensaje.innerHTML =
-    "🔍 Buscando alumno...";
-
-    // 🔥 BUSCAR
+    // 🔥 BUSCAR ALUMNO
     const snap =
-    await db.ref("alumnos/" + id).once("value");
+    await db.ref(
+        "alumnos/" + id
+    ).once("value");
 
+    // ❌ NO EXISTE
     if(!snap.exists()){
 
         sonidoError.play();
 
-        navigator.vibrate(500);
+        estadoTitulo.innerHTML =
+        "NO REGISTRADO";
 
-        mensaje.style.background =
-        "#fee2e2";
-
-        mensaje.style.color =
-        "#991b1b";
-
-        mensaje.innerHTML =
-        "❌ Alumno no encontrado";
+        estadoSub.innerHTML =
+        "Alumno no encontrado";
 
         return;
     }
@@ -550,10 +807,11 @@ async function registrar(id){
     const activoSnap =
     await refActivo.once("value");
 
-    const activo = activoSnap.val();
+    const activo =
+    activoSnap.val();
 
     // =====================================
-    // 🔥 YA EXISTE ACTIVO
+    // 🔥 YA ACTIVO
     // =====================================
 
     if(activo){
@@ -570,22 +828,16 @@ async function registrar(id){
 
                 sonidoError.play();
 
-                mensaje.style.background =
-                "#fff7ed";
+                estadoTitulo.innerHTML =
+                "ESPERA";
 
-                mensaje.style.color =
-                "#9a3412";
-
-                mensaje.innerHTML = `
-                ⏳ Deben pasar 10 minutos
-                <br><br>
-                👨‍🎓 ${alumno.nombre}
-                `;
+                estadoSub.innerHTML =
+                "Deben pasar 10 minutos";
 
                 return;
             }
 
-            // 🔥 GUARDAR SALIDA
+            // 🔥 SALIDA
             await db.ref(
 
                 "congreso/" +
@@ -615,23 +867,29 @@ async function registrar(id){
                 "salida"
             );
 
+            if(alumno.chat_id){
+
+                notificar(
+                    alumno.chat_id,
+                    alumno.nombre,
+                    "salida",
+                    hora
+                );
+            }
+
             sonidoSalida.play();
 
-            navigator.vibrate(200);
+            contador++;
 
-            mensaje.style.background =
-            "#dbeafe";
+            document.getElementById(
+            "contador"
+            ).innerHTML = contador;
 
-            mensaje.style.color =
-            "#1e3a8a";
+            estadoTitulo.innerHTML =
+            "SALIDA";
 
-            mensaje.innerHTML = `
-            👋 SALIDA REGISTRADA
-            <br><br>
-            👨‍🎓 ${alumno.nombre}
-            <br>
-            📍 ${taller.toUpperCase()}
-            `;
+            estadoSub.innerHTML =
+            alumno.nombre;
 
             return;
         }
@@ -641,19 +899,11 @@ async function registrar(id){
 
             sonidoError.play();
 
-            navigator.vibrate(700);
+            estadoTitulo.innerHTML =
+            "OCUPADO";
 
-            mensaje.style.background =
-            "#fee2e2";
-
-            mensaje.style.color =
-            "#991b1b";
-
-            mensaje.innerHTML = `
-            ⛔ YA ESTÁ EN:
-            <br><br>
-            📍 ${activo.taller.toUpperCase()}
-            `;
+            estadoSub.innerHTML =
+            "Está en " + activo.taller;
 
             return;
         }
@@ -661,7 +911,7 @@ async function registrar(id){
     }
 
     // =====================================
-    // ✅ NUEVA ENTRADA
+    // ✅ ENTRADA
     // =====================================
 
     await db.ref(
@@ -684,7 +934,7 @@ async function registrar(id){
 
     });
 
-    // 🔥 MARCAR ACTIVO
+    // 🔥 ACTIVO
     await refActivo.set({
 
         taller:taller,
@@ -700,23 +950,29 @@ async function registrar(id){
         "entrada"
     );
 
+    if(alumno.chat_id){
+
+        notificar(
+            alumno.chat_id,
+            alumno.nombre,
+            "entrada",
+            hora
+        );
+    }
+
     sonidoEntrada.play();
 
-    navigator.vibrate(200);
+    contador++;
 
-    mensaje.style.background =
-    "#dcfce7";
+    document.getElementById(
+    "contador"
+    ).innerHTML = contador;
 
-    mensaje.style.color =
-    "#166534";
+    estadoTitulo.innerHTML =
+    "ENTRADA";
 
-    mensaje.innerHTML = `
-    ✅ ENTRADA REGISTRADA
-    <br><br>
-    👨‍🎓 ${alumno.nombre}
-    <br>
-    📍 ${taller.toUpperCase()}
-    `;
+    estadoSub.innerHTML =
+    alumno.nombre;
 
 }
 

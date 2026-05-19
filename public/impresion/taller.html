@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Congreso Escolar CBTis 27</title>
+
+<!-- 🔥 LECTOR QR -->
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    font-family:Arial;
+    background:
+    linear-gradient(
+        180deg,
+        #5e000f 0%,
+        #7b0013 40%,
+        #a4001a 100%
+    );
+
+    min-height:100vh;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    padding:20px;
+
+    overflow-x:hidden;
+}
+
+/* 🔥 TARJETA PRINCIPAL */
+
+.container{
+
+    width:100%;
+    max-width:520px;
+
+    background:white;
+
+    border-radius:35px;
+
+    padding:30px 25px;
+
+    box-shadow:
+    0 15px 40px rgba(0,0,0,.35);
+
+    position:relative;
+
+    overflow:hidden;
+}
+
+/* 🔥 CÍRCULOS DECORATIVOS */
+
+.container::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:220px;
+    height:220px;
+
+    background:rgba(122,0,18,.08);
+
+    border-radius:50%;
+
+    top:-80px;
+    right:-80px;
+}
+
+.container::after{
+
+    content:"";
+
+    position:absolute;
+
+    width:180px;
+    height:180px;
+
+    background:rgba(122,0,18,.05);
+
+    border-radius:50%;
+
+    bottom:-60px;
+    left:-60px;
+}
+
+/* 🔥 LOGO */
+
+.logo{
+
+    width:170px;
+
+    display:block;
+
+    margin:auto;
+
+    margin-bottom:15px;
+
+    position:relative;
+    z-index:5;
+}
+
+/* 🔥 TITULOS */
+
+h1{
+
+    text-align:center;
+
+    font-size:42px;
+
+    color:#7a0012;
+
+    margin-bottom:8px;
+
+    position:relative;
+    z-index:5;
+}
+
+.subtitulo{
+
+    text-align:center;
+
+    color:#666;
+
+    font-size:18px;
+
+    margin-bottom:25px;
+
+    position:relative;
+    z-index:5;
+}
+
+/* 🔥 TALLER */
+
+.taller{
+
+    background:
+    linear-gradient(
+        90deg,
+        #7a0012,
+        #b3001b
+    );
+
+    color:white;
+
+    padding:16px;
+
+    border-radius:18px;
+
+    font-size:26px;
+
+    font-weight:bold;
+
+    margin-bottom:25px;
+
+    box-shadow:
+    0 8px 20px rgba(122,0,18,.25);
+
+    position:relative;
+    z-index:5;
+}
+
+/* 🔥 CAMARA */
+
+#reader{
+
+    width:100%;
+
+    overflow:hidden;
+
+    border-radius:28px;
+
+    border:8px solid #7a0012;
+
+    background:black;
+
+    box-shadow:
+    0 10px 30px rgba(0,0,0,.25);
+
+    position:relative;
+    z-index:5;
+}
+
+#reader video{
+
+    border-radius:20px;
+
+    object-fit:cover !important;
+}
+
+/* 🔥 OCULTAR BOTONES FEOS */
+
+.html5-qrcode-element{
+    display:none !important;
+}
+
+#reader__dashboard{
+    display:none !important;
+}
+
+#reader__scan_region{
+    border:none !important;
+}
+
+#reader__scan_region img{
+    display:none !important;
+}
+
+/* 🔥 MENSAJES */
+
+#mensaje{
+
+    margin-top:25px;
+
+    padding:20px;
+
+    border-radius:22px;
+
+    background:#f5f5f5;
+
+    color:#111;
+
+    font-size:28px;
+
+    font-weight:bold;
+
+    min-height:120px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+
+    box-shadow:
+    inset 0 0 10px rgba(0,0,0,.05);
+
+    transition:.3s;
+
+    position:relative;
+    z-index:5;
+}
+
+/* 🔥 FOOTER */
+
+.footer{
+
+    margin-top:25px;
+
+    text-align:center;
+
+    color:#777;
+
+    font-size:15px;
+
+    position:relative;
+    z-index:5;
+}
+
+/* 📱 RESPONSIVE */
+
+@media(max-width:600px){
+
+    h1{
+        font-size:34px;
+    }
+
+    .taller{
+        font-size:22px;
+    }
+
+    #mensaje{
+        font-size:24px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- 🔥 LOGO -->
+    <img
+        src="https://scontent.fgdl5-3.fna.fbcdn.net/v/t39.30808-6/473667183_1162920999166773_1954077721713265243_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeE6vFYVzGtrAYx6mu5xSQZ2zkF1KHzPMAnOQXUofM8wCZEd2TzJ_zkdLbq0BahK_r2bLdV-w2rU67x696dRlEZs&_nc_ohc=vj90W0nL-s8Q7kNvwF1SzUA&_nc_oc=Adq9ncx3UN7TvQycg5PnKvR_imdF1qVXPkrt1aUGlkQFWd7TQIaniSweyplR9XZkZGVLWOT-fa_QzmDm-nmptYxx&_nc_zt=23&_nc_ht=scontent.fgdl5-3.fna&_nc_gid=q_iTOr9Q4qkoW9yiq4CZNw&_nc_ss=7b2a8&oh=00_Af4RA6idUZxtx51v156obBGTGB9F0O7X6qiXHbKB1jTVQQ&oe=6A119BE2"
+        class="logo"
+    >
+
+    <!-- 🔥 TITULO -->
+    <h1>Congreso Escolar</h1>
+
+    <div class="subtitulo">
+        CBTis 27 · Nayarit
+    </div>
+
+    <!-- 🔥 TALLER -->
+    <div
+        class="taller"
+        id="nombreTaller">
+    </div>
+
+    <!-- 🔥 CAMARA -->
+    <div id="reader"></div>
+
+    <!-- 🔥 MENSAJE -->
+    <div id="mensaje">
+        Esperando escaneo...
+    </div>
+
+    <div class="footer">
+        Sistema Inteligente de Asistencia
+    </div>
+
+</div>
+
+<!-- 🔥 FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+
+// =====================================
+// 🔥 FIREBASE
+// =====================================
+
+const firebaseConfig = {
+
+  apiKey: "AIzaSyCWQAmB9cMI4Y0YBPC_iV6p1YGgZTSNFQ0",
+
+  authDomain: "controlasistencia-d236e.firebaseapp.com",
+
+  databaseURL: "https://controlasistencia-d236e-default-rtdb.firebaseio.com",
+
+  projectId: "controlasistencia-d236e",
+
+  storageBucket: "controlasistencia-d236e.firebasestorage.app",
+
+  messagingSenderId: "3052247103",
+
+  appId: "1:3052247103:web:eaed021913fa765427808a",
+
+  measurementId: "G-H9EKB1F7ZW"
+
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.database();
+
+// =====================================
+// 🔥 GOOGLE SHEETS
+// =====================================
+
+const URL_SCRIPT =
+"https://script.google.com/macros/s/AKfycbynZVN1eZ52UsM7x-11k8D6m2l8K0r5n3mtgL15WIjkGW6BnL31Ipu3YkEi9jLLUfgl/exec";
+
+// =====================================
+// 🔥 ELEMENTOS
+// =====================================
+
+const mensaje = document.getElementById("mensaje");
+
+// =====================================
+// 🔥 OBTENER TALLER
+// =====================================
+
+const params = new URLSearchParams(window.location.search);
+
+const taller = params.get("taller") || "general";
+
+document.getElementById("nombreTaller").innerHTML =
+"📍 TALLER: " + taller.toUpperCase();
+
+// =====================================
+// 🔥 EVITAR DOBLE LECTURA
+// =====================================
+
+let ultimoCodigo = "";
+
+// =====================================
+// 🔔 TELEGRAM
+// =====================================
+
+function notificar(chat_id, nombre, tipo, hora){
+
+    fetch(
+        "https://bot-telegram-production-cb3d.up.railway.app/notificar",
+        {
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+
+                chat_id:chat_id,
+                nombre:nombre,
+                tipo:tipo,
+                hora:hora
+
+            })
+
+        }
+    );
+
+}
+
+// =====================================
+// 📄 GOOGLE SHEETS
+// =====================================
+
+function guardarEnSheets(id, nombre, taller, tipo){
+
+    const url =
+    URL_SCRIPT
+    + "?id=" + encodeURIComponent(id)
+    + "&nombre=" + encodeURIComponent(nombre)
+    + "&taller=" + encodeURIComponent(taller)
+    + "&tipo=" + encodeURIComponent(tipo)
+    + "&dispositivo=" + encodeURIComponent(
+        navigator.platform
+      );
+
+    const iframe = document.createElement("iframe");
+
+    iframe.style.display = "none";
+
+    iframe.src = url;
+
+    document.body.appendChild(iframe);
+
+}
+
+// =====================================
+// 🔊 SONIDOS
+// =====================================
+
+const sonidoEntrada = new Audio(
+"https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
+);
+
+const sonidoSalida = new Audio(
+"https://actions.google.com/sounds/v1/cartoon/pop.ogg"
+);
+
+const sonidoError = new Audio(
+"https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
+);
+
+// =====================================
+// 📷 CAMARA RAPIDA
+// =====================================
+
+const qr = new Html5Qrcode("reader");
+
+qr.start(
+
+    { facingMode:"environment" },
+
+    {
+
+        fps:20,
+
+        qrbox:{
+            width:300,
+            height:130
+        }
+
+    },
+
+    async(codigo)=>{
+
+        if(codigo === ultimoCodigo) return;
+
+        ultimoCodigo = codigo;
+
+        setTimeout(()=>{
+            ultimoCodigo = "";
+        },2000);
+
+        registrar(codigo);
+
+    }
+
+);
+
+// =====================================
+// 🔥 REGISTRAR
+// =====================================
+
+async function registrar(id){
+
+    const ahora = new Date();
+
+    const fecha = ahora.toISOString().split('T')[0];
+
+    const hora = ahora.toLocaleTimeString();
+
+    const timestamp = ahora.getTime();
+
+    mensaje.innerHTML =
+    "🔍 Buscando alumno...";
+
+    // 🔥 BUSCAR
+    const snap =
+    await db.ref("alumnos/" + id).once("value");
+
+    if(!snap.exists()){
+
+        sonidoError.play();
+
+        navigator.vibrate(500);
+
+        mensaje.style.background =
+        "#fee2e2";
+
+        mensaje.style.color =
+        "#991b1b";
+
+        mensaje.innerHTML =
+        "❌ Alumno no encontrado";
+
+        return;
+    }
+
+    const alumno = snap.val();
+
+    // 🔥 VALIDAR ACTIVO
+    const refActivo =
+    db.ref("activos/" + id);
+
+    const activoSnap =
+    await refActivo.once("value");
+
+    const activo = activoSnap.val();
+
+    // =====================================
+    // 🔥 YA EXISTE ACTIVO
+    // =====================================
+
+    if(activo){
+
+        // ✅ MISMO TALLER
+        if(activo.taller === taller){
+
+            const minutos =
+            (timestamp - activo.timestamp)
+            / 60000;
+
+            // ⛔ MENOS DE 10 MIN
+            if(minutos < 10){
+
+                sonidoError.play();
+
+                mensaje.style.background =
+                "#fff7ed";
+
+                mensaje.style.color =
+                "#9a3412";
+
+                mensaje.innerHTML = `
+                ⏳ Deben pasar 10 minutos
+                <br><br>
+                👨‍🎓 ${alumno.nombre}
+                `;
+
+                return;
+            }
+
+            // 🔥 GUARDAR SALIDA
+            await db.ref(
+
+                "congreso/" +
+                taller + "/" +
+                fecha + "/" +
+                id
+
+            ).push({
+
+                alumno:id,
+                nombre:alumno.nombre,
+                tipo:"salida",
+                hora:hora,
+                fecha:fecha,
+                taller:taller,
+                dispositivo:navigator.userAgent,
+                timestamp:timestamp
+
+            });
+
+            await refActivo.remove();
+
+            guardarEnSheets(
+                id,
+                alumno.nombre,
+                taller,
+                "salida"
+            );
+
+            sonidoSalida.play();
+
+            navigator.vibrate(200);
+
+            mensaje.style.background =
+            "#dbeafe";
+
+            mensaje.style.color =
+            "#1e3a8a";
+
+            mensaje.innerHTML = `
+            👋 SALIDA REGISTRADA
+            <br><br>
+            👨‍🎓 ${alumno.nombre}
+            <br>
+            📍 ${taller.toUpperCase()}
+            `;
+
+            return;
+        }
+
+        // ❌ OTRO TALLER
+        else{
+
+            sonidoError.play();
+
+            navigator.vibrate(700);
+
+            mensaje.style.background =
+            "#fee2e2";
+
+            mensaje.style.color =
+            "#991b1b";
+
+            mensaje.innerHTML = `
+            ⛔ YA ESTÁ EN:
+            <br><br>
+            📍 ${activo.taller.toUpperCase()}
+            `;
+
+            return;
+        }
+
+    }
+
+    // =====================================
+    // ✅ NUEVA ENTRADA
+    // =====================================
+
+    await db.ref(
+
+        "congreso/" +
+        taller + "/" +
+        fecha + "/" +
+        id
+
+    ).push({
+
+        alumno:id,
+        nombre:alumno.nombre,
+        tipo:"entrada",
+        hora:hora,
+        fecha:fecha,
+        taller:taller,
+        dispositivo:navigator.userAgent,
+        timestamp:timestamp
+
+    });
+
+    // 🔥 MARCAR ACTIVO
+    await refActivo.set({
+
+        taller:taller,
+        hora:hora,
+        timestamp:timestamp
+
+    });
+
+    guardarEnSheets(
+        id,
+        alumno.nombre,
+        taller,
+        "entrada"
+    );
+
+    sonidoEntrada.play();
+
+    navigator.vibrate(200);
+
+    mensaje.style.background =
+    "#dcfce7";
+
+    mensaje.style.color =
+    "#166534";
+
+    mensaje.innerHTML = `
+    ✅ ENTRADA REGISTRADA
+    <br><br>
+    👨‍🎓 ${alumno.nombre}
+    <br>
+    📍 ${taller.toUpperCase()}
+    `;
+
+}
+
+</script>
+
+</body>
+</html>
