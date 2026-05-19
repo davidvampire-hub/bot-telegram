@@ -510,45 +510,76 @@ let ultimoCodigo = "";
 // =====================================
 // 🔥 CONFIGURACIÓN DE CÁMARA (Visor 1:1 Nativo)
 // =====================================
-const qr = new Html5Qrcode("reader");
+function iniciarCamara(){
 
-qr.start(
-    { facingMode: "environment" },
-    {
-        fps: 30,
-        qrbox: { width: 160, height: 160 }, 
-        formatsToSupport: [ 
-            0, // QR_CODE
-            6, // CODE_128
-            5, // CODE_39
-            11 // EAN_13
-        ]
-    },
-    async (codigo) => {
-        const codigoLimpio = codigo.toString().trim().replace(/[\n\r\t]/g, "");
+    const html5QrCode = new Html5Qrcode(
 
-        if (!codigoLimpio) return;
-        if (codigoLimpio === ultimoCodigo) return;
-        
-        ultimoCodigo = codigoLimpio;
-        setTimeout(() => { ultimoCodigo = ""; }, 3000);
-        
-        registrar(codigoLimpio);
-    }
-).catch(err => {
-    console.warn("Fallo en inicialización inicial, aplicando fallback genérico: ", err);
-    qr.start(
-        { facingMode: "environment" },
-        { fps: 30, qrbox: { width: 160, height: 160 } },
-        async (codigo) => {
-            const codigoLimpio = codigo.toString().trim().replace(/[\n\r\t]/g, "");
-            if (codigoLimpio === ultimoCodigo) return;
-            ultimoCodigo = codigoLimpio;
-            setTimeout(() => { ultimoCodigo = ""; }, 3000);
-            registrar(codigoLimpio);
+        "reader",
+
+        {
+
+            formatsToSupport:[
+                Html5QrcodeSupportedFormats.CODE_128
+            ]
+
         }
+
     );
-});
+
+    html5QrCode.start(
+
+        { facingMode:"environment" },
+
+        {
+
+            fps:10,
+
+            qrbox:{
+                width:320,
+                height:140
+            },
+
+            rememberLastUsedCamera:true
+
+        },
+
+        (decodedText)=>{
+
+            if(decodedText === ultimoCodigo) return;
+
+            ultimoCodigo = decodedText;
+
+            setTimeout(()=>{
+                ultimoCodigo = "";
+            },2000);
+
+            registrar(decodedText);
+
+        },
+
+        (errorMessage)=>{
+            // ignorar
+        }
+
+    )
+
+    .catch(err=>{
+
+        console.error(err);
+
+        mensaje.innerHTML =
+        "❌ No se pudo abrir la cámara";
+
+    });
+
+}
+
+// ======================================
+// INICIAR
+// ======================================
+
+iniciarCamara();
+
 
 // =====================================
 // 🔥 LOGICA CENTRAL DE BASE DE DATOS
