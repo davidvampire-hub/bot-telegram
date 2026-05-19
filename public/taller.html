@@ -174,15 +174,15 @@
         text-transform: uppercase;
     }
 
-    /* Contenedor del Visor (Cuadrado con esquinas redondeadas) */
+ /* 🔥 Visor Principal (Forzamos proporción 1:1 Nativa Antidistorsión) */
 .scanner-viewfinder {
     position: relative;
     width: 230px;
     height: 230px;
-    background: #000000;
-    border-radius: 24px;
+    background: #ffffff;
+    border-radius: 20px;
     overflow: hidden;
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
 }
 
 #reader {
@@ -197,32 +197,25 @@
     object-fit: cover !important;
 }
 
-/* 🌟 ESQUINAS ROJAS DE TU BOCETO (Controladas 100% por CSS) */
+/* 🌟 ESQUINAS ROJAS ADAPTADAS A LA MIRA CENTRAL (Usa estas reglas) */
 .corner-guide {
     position: absolute;
     width: 28px;
     height: 28px;
-    border: 4px solid #6e1c24; /* Color guinda de tu diseño */
+    border: 4px solid #6e1c24; /* Color guinda del boceto */
     pointer-events: none;
     z-index: 99;
 }
-.top-left     { top: 16px; left: 16px; border-right: none; border-bottom: none; }
-.top-right    { top: 16px; right: 16px; border-left: none; border-bottom: none; }
-.bottom-left  { bottom: 16px; left: 16px; border-right: none; border-top: none; }
-.bottom-right { bottom: 16px; right: 16px; border-left: none; border-top: none; }
+/* Se alinean para enmarcar el qrbox de 210x90 definido en JS */
+.top-left     { top: 70px; left: 10px; border-right: none; border-bottom: none; }
+.top-right    { top: 70px; right: 10px; border-left: none; border-bottom: none; }
+.bottom-left  { bottom: 70px; left: 10px; border-right: none; border-top: none; }
+.bottom-right { bottom: 70px; right: 10px; border-left: none; border-top: none; }
 
-/* 🌟 OCULTAR LA BASURA VISUAL DE LA LIBRERÍA */
-#reader__scan_region {
-    background: transparent !important;
-}
-/* Esconde los bordes blancos nativos que se salen de lugar */
-#reader__scan_region > div {
-    border: none !important; 
-    display: none !important;
-}
-/* Esconde el sombreado gris automático para usar toda la pantalla del visor */
+
+/* Restablecemos el fondo gris automático de la librería para resaltar el centro */
 #reader__scan_region td {
-    background: transparent !important;
+    background: rgba(0, 0, 0, 0.5) !important; /* Sombras laterales para enfoque */
 }
 
     /* Esquinas rojas de guía visual según tu boceto original */
@@ -540,6 +533,7 @@ let ultimoCodigo = "";
 // 🔥 INICIALIZACIÓN DE CÁMARA (Visor 1:1 Nativo Antidistorsión)
 // =====================================
 function iniciarCamara(){
+    // Instanciación limpia exclusivamente para el estándar de tus credenciales
     const html5QrCode = new Html5Qrcode("reader", {
         formatsToSupport: [ Html5QrcodeSupportedFormats.CODE_128 ]
     });
@@ -547,12 +541,13 @@ function iniciarCamara(){
     html5QrCode.start(
         { facingMode: "environment" },
         {
-            fps: 20,
-            // 🌟 Al no declarar qrbox, la cámara escanea TODO el cuadro visible.
-            // Esto elimina la zona restringida y lee el código de barras completo de extremo a extremo.
+            fps: 24, // Máxima fluidez para enfoque rápido
+            // 🌟 Visor de Ranura Horizontal Centrado, Amplio y Alto (210x90)
+            qrbox: { width: 210, height: 90 }, 
             rememberLastUsedCamera: true
         },
         (decodedText) => {
+            // Sanitización profunda para evitar caracteres invisibles del escáner
             const codigoLimpio = decodedText.toString().trim().replace(/[\n\r\t]/g, "");
 
             if(!codigoLimpio) return;
@@ -562,7 +557,7 @@ function iniciarCamara(){
 
             setTimeout(() => {
                 ultimoCodigo = "";
-            }, 2500);
+            }, 3000); // 3 segundos para evitar doble lectura rápida
 
             registrar(codigoLimpio);
         },
@@ -571,8 +566,21 @@ function iniciarCamara(){
         }
     )
     .catch(err => {
-        console.error(err);
-        mensaje.innerHTML = "❌ No se pudo abrir la cámara";
+        console.error("Reintentando inicialización segura: ", err);
+        // Fallback genérico si el navegador restringe formatos nativos
+        html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 20, qrbox: { width: 200, height: 100 } },
+            (decodedText) => {
+                const codigoLimpio = decodedText.toString().trim().replace(/[\n\r\t]/g, "");
+                if(codigoLimpio && codigoLimpio !== ultimoCodigo) {
+                    ultimoCodigo = codigoLimpio;
+                    setTimeout(() => { ultimoCodigo = ""; }, 3000);
+                    registrar(codigoLimpio);
+                }
+            },
+            (err) => {}
+        );
     });
 }
 // ======================================
