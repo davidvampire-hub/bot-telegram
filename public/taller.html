@@ -189,31 +189,35 @@
     }
 
     /* Capa del visor simulado del boceto */
-    #reader {
-        width: 100% !important;
-        height: 100% !important;
-        border: none !important;
-    }
+   /* 🔥 CAMARA CORREGIDA */
+#reader {
+    width: 100% !important;
+    height: 100% !important;
+    border: none !important;
+    overflow: hidden;
+    position: relative;
+}
 
-    #reader video {
-        object-fit: cover !important;
-        width: 100% !important;
-        height: 100% !important;
-    }
+#reader video {
+    object-fit: fill !important; /* 🌟 Forzar proporción real sin deformaciones */
+    width: 100% !important;
+    height: 100% !important;
+}
 
-    /* Guías de las esquinas del boceto */
-    .corner-guide {
-        position: absolute;
-        width: 20px;
-        height: 20px;
-        border: 2px solid #6e1c24;
-        pointer-events: none;
-        z-index: 10;
-    }
-    .top-left { top: 12px; left: 12px; border-right: none; border-bottom: none; border-top-left-radius: 8px; }
-    .top-right { top: 12px; right: 12px; border-left: none; border-bottom: none; border-top-right-radius: 8px; }
-    .bottom-left { bottom: 12px; left: 12px; border-right: none; border-top: none; border-bottom-left-radius: 8px; }
-    .bottom-right { bottom: 12px; right: 12px; border-left: none; border-top: none; border-bottom-right-radius: 8px; }
+/* Rediseño de las esquinas rojas de guía para que marquen solo la franja central */
+.corner-guide {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border: 3px solid #6e1c24;
+    pointer-events: none;
+    z-index: 10;
+}
+/* Ajustadas para centrarse horizontalmente como una ranura de escáner */
+.top-left     { top: 55px; left: 40px; border-right: none; border-bottom: none; }
+.top-right    { top: 55px; right: 40px; border-left: none; border-bottom: none; }
+.bottom-left  { bottom: 55px; left: 40px; border-right: none; border-top: none; }
+.bottom-right { bottom: 55px; right: 40px; border-left: none; border-top: none; }
 
     .scanner-hint {
         font-size: 10px;
@@ -556,48 +560,49 @@ function guardarEnSheets(id, nombre, taller, tipo){
 let ultimoCodigo = "";
 
 // =====================================
-// 🔥 INICIALIZACIÓN DE CÁMARA (Corrección de Visor y Barras)
+// 🔥 INICIALIZACIÓN DE CÁMARA (Lector de Ranura Horizontal Eficiente)
 // =====================================
 const qr = new Html5Qrcode("reader");
 
+const configCamara = {
+    fps: 30, // Máxima fluidez para enfoque rápido
+    // Visor en forma de ranura horizontal (260 de ancho x 70 de alto)
+    // Esto aísla un solo código de barras si hay varios juntos
+    qrbox: { width: 260, height: 70 }, 
+    formatsToSupport: [ 
+        0, // QR_CODE
+        6, // CODE_128 (Estándar de tus credenciales)
+        5, // CODE_39
+        11 // EAN_13
+    ]
+};
+
 qr.start(
     { facingMode: "environment" },
-    {
-        fps: 25,
-        // Fijamos un rectángulo estático perfecto para barras y QR sin usar funciones
-        qrbox: { width: 220, height: 110 }, 
-        // Formatos explícitos bien declarados
-        formatsToSupport: [ 
-            0, // QR_CODE
-            6, // CODE_128 (El estándar de credenciales)
-            5, // CODE_39
-            1, // DATA_MATRIX
-            11 // EAN_13
-        ]
-    },
+    configCamara,
     async (codigo) => {
-        // Limpieza de caracteres invisibles del código de barras
+        // Limpieza profunda de caracteres y retornos de carro del escáner
         const codigoLimpio = codigo.toString().trim().replace(/[\n\r\t]/g, "");
 
         if (!codigoLimpio) return;
         if (codigoLimpio === ultimoCodigo) return;
         
         ultimoCodigo = codigoLimpio;
-        setTimeout(() => { ultimoCodigo = ""; }, 2500);
+        setTimeout(() => { ultimoCodigo = ""; }, 3000); // 3 segundos para evitar doble lectura
         
         registrar(codigoLimpio);
     }
 ).catch(err => {
-    console.error("Error de inicialización: ", err);
-    // Si falla por los formatos, arranca en modo automático para no bloquearse
+    console.error("Reintentando inicialización general: ", err);
+    // Modo de respaldo si el navegador restringe formatos nativos
     qr.start(
         { facingMode: "environment" },
-        { fps: 25, qrbox: { width: 200, height: 120 } },
+        { fps: 30, qrbox: { width: 250, height: 80 } },
         async (codigo) => {
             const codigoLimpio = codigo.toString().trim().replace(/[\n\r\t]/g, "");
             if (codigoLimpio === ultimoCodigo) return;
             ultimoCodigo = codigoLimpio;
-            setTimeout(() => { ultimoCodigo = ""; }, 2500);
+            setTimeout(() => { ultimoCodigo = ""; }, 3000);
             registrar(codigoLimpio);
         }
     );
