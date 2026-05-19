@@ -184,20 +184,35 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
-   #reader{
-    width:95vw;
-    max-width:900px;
-    margin:auto;
+  #reader {
+    width: 95vw;
+    max-width: 900px;
+    margin: auto;
+    border-radius: 20px !important;
+    overflow: hidden !important; /* 🌟 Corta de raíz cualquier cosa que intente salirse */
+    position: relative;
+    border: none !important; /* Quita el borde gris feo por defecto de la librería */
 }
 
-#reader video{
-    border-radius:20px;
-    object-fit:cover !important;
+/* Forzar que el video ocupe el espacio del contenedor sin deformarse */
+#reader video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 20px !important;
 }
 
-#reader__scan_region{
-    border:4px solid #00ff88 !important;
-    border-radius:20px;
+/* Ajustar el cuadro de escaneo nativo */
+#reader__scan_region {
+    border: 4px solid #00ff88 !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    background: transparent !important;
+}
+
+/* 🌟 EXTRA: Esconde las líneas sombreadas automáticas de la librería que suelen salirse del cuadro */
+#reader__scan_region td {
+    background: rgba(0, 0, 0, 0.4) !important;
 }
 
     /* Esquinas rojas de guía visual según tu boceto original */
@@ -515,73 +530,51 @@ let ultimoCodigo = "";
 // 🔥 INICIALIZACIÓN DE CÁMARA (Visor 1:1 Nativo Antidistorsión)
 // =====================================
 function iniciarCamara(){
-
-    const html5QrCode = new Html5Qrcode(
-
-        "reader",
-
-        {
-
-            formatsToSupport:[
-                Html5QrcodeSupportedFormats.CODE_128
-            ]
-
-        }
-
-    );
-
-    html5QrCode.start(
-
-        { facingMode:"environment" },
-
-        {
-
-            fps:10,
-
-            qrbox:{
-                width:320,
-                height:140
-            },
-
-            rememberLastUsedCamera:true
-
-        },
-
-        (decodedText)=>{
-
-            if(decodedText === ultimoCodigo) return;
-
-            ultimoCodigo = decodedText;
-
-            setTimeout(()=>{
-                ultimoCodigo = "";
-            },2000);
-
-            registrar(decodedText);
-
-        },
-
-        (errorMessage)=>{
-            // ignorar
-        }
-
-    )
-
-    .catch(err=>{
-
-        console.error(err);
-
-        mensaje.innerHTML =
-        "❌ No se pudo abrir la cámara";
-
+    // 🌟 Instanciación correcta pasando la configuración de formatos en el constructor
+    const html5QrCode = new Html5Qrcode("reader", {
+        formatsToSupport: [ Html5QrcodeSupportedFormats.CODE_128 ]
     });
 
+    html5QrCode.start(
+        { facingMode: "environment" },
+        {
+            fps: 15, // Subimos a 15 para mejorar la velocidad de captura en código de barras
+            // 🌟 Función dinámica: Usa 320x140 en pantallas grandes, o se adapta si el cel es chico
+            qrbox: function(viewfinderWidth, viewfinderHeight) {
+                const anchoBox = Math.min(viewfinderWidth - 40, 320);
+                const altoBox = Math.min(viewfinderHeight - 40, 140);
+                return { width: anchoBox, height: altoBox };
+            },
+            rememberLastUsedCamera: true
+        },
+        (decodedText) => {
+            // Sanitización: Eliminar saltos de línea invisibles que generan los códigos de barras
+            const codigoLimpio = decodedText.toString().trim().replace(/[\n\r\t]/g, "");
+
+            if(!codigoLimpio) return;
+            if(codigoLimpio === ultimoCodigo) return;
+
+            ultimoCodigo = codigoLimpio;
+
+            setTimeout(() => {
+                ultimoCodigo = "";
+            }, 2500);
+
+            registrar(codigoLimpio);
+        },
+        (errorMessage) => {
+            // ignorar
+        }
+    )
+    .catch(err => {
+        console.error(err);
+        mensaje.innerHTML = "❌ No se pudo abrir la cámara";
+    });
 }
 
 // ======================================
 // INICIAR
 // ======================================
-
 iniciarCamara();
 
 
