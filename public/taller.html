@@ -533,55 +533,67 @@ let ultimoCodigo = "";
 // 🔥 INICIALIZACIÓN DE CÁMARA (Visor 1:1 Nativo Antidistorsión)
 // =====================================
 function iniciarCamara(){
-    // Instanciación limpia exclusivamente para el estándar de tus credenciales
-    const html5QrCode = new Html5Qrcode("reader", {
-        formatsToSupport: [ Html5QrcodeSupportedFormats.CODE_128 ]
-    });
+
+    const html5QrCode = new Html5Qrcode(
+
+        "reader",
+
+        {
+
+            formatsToSupport:[
+                Html5QrcodeSupportedFormats.CODE_128
+            ]
+
+        }
+
+    );
 
     html5QrCode.start(
-        { facingMode: "environment" },
+
+        { facingMode:"environment" },
+
         {
-            fps: 24, // Máxima fluidez para enfoque rápido
-            // 🌟 Visor de Ranura Horizontal Centrado, Amplio y Alto (210x90)
-            qrbox: { width: 210, height: 90 }, 
-            rememberLastUsedCamera: true
+
+            fps:10,
+
+            qrbox:{
+                width:320,
+                height:140
+            },
+
+            rememberLastUsedCamera:true
+
         },
-        (decodedText) => {
-            // Sanitización profunda para evitar caracteres invisibles del escáner
-            const codigoLimpio = decodedText.toString().trim().replace(/[\n\r\t]/g, "");
 
-            if(!codigoLimpio) return;
-            if(codigoLimpio === ultimoCodigo) return;
+        (decodedText)=>{
 
-            ultimoCodigo = codigoLimpio;
+            if(decodedText === ultimoCodigo) return;
 
-            setTimeout(() => {
+            ultimoCodigo = decodedText;
+
+            setTimeout(()=>{
                 ultimoCodigo = "";
-            }, 3000); // 3 segundos para evitar doble lectura rápida
+            },2000);
 
-            registrar(codigoLimpio);
+            registrar(decodedText);
+
         },
-        (errorMessage) => {
+
+        (errorMessage)=>{
             // ignorar
         }
+
     )
-    .catch(err => {
-        console.error("Reintentando inicialización segura: ", err);
-        // Fallback genérico si el navegador restringe formatos nativos
-        html5QrCode.start(
-            { facingMode: "environment" },
-            { fps: 20, qrbox: { width: 200, height: 100 } },
-            (decodedText) => {
-                const codigoLimpio = decodedText.toString().trim().replace(/[\n\r\t]/g, "");
-                if(codigoLimpio && codigoLimpio !== ultimoCodigo) {
-                    ultimoCodigo = codigoLimpio;
-                    setTimeout(() => { ultimoCodigo = ""; }, 3000);
-                    registrar(codigoLimpio);
-                }
-            },
-            (err) => {}
-        );
+
+    .catch(err=>{
+
+        console.error(err);
+
+        mensaje.innerHTML =
+        "❌ No se pudo abrir la cámara";
+
     });
+
 }
 // ======================================
 // INICIAR
