@@ -1,6 +1,4 @@
 const express = require("express");
-
-console.log("🔥 SERVER INICIADO");
 const fetch = require("node-fetch");
 
 const app = express();
@@ -8,40 +6,43 @@ const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
-// =====================================
-// 🤖 TELEGRAM BOT
-// =====================================
+// ======================================
+// 🔑 TELEGRAM
+// ======================================
 
-const TOKEN = "TU_TOKEN_AQUI";
+const TOKEN = "8761191809:AAG0Z_0wuLOdOevzGk9G8bz6BJh9e9NUL6w";
 
 const URL = `https://api.telegram.org/bot${TOKEN}`;
 
-// =====================================
+// ======================================
 // 🔥 FIREBASE
-// =====================================
+// ======================================
 
 const FIREBASE =
 "https://controlasistencia-d236e-default-rtdb.firebaseio.com";
 
-// =====================================
-// ✅ RUTA PRINCIPAL
-// =====================================
+// ======================================
+// ✅ RUTA BASE
+// ======================================
 
 app.get("/", (req, res) => {
 
-  res.send("✅ BOT ACTIVO");
+  res.send("OK FUNCIONANDO ✅");
 
 });
 
-// =====================================
-// 🤖 WEBHOOK TELEGRAM
-// =====================================
+// ======================================
+// 🤖 WEBHOOK
+// ======================================
 
 app.post("/webhook", async (req, res) => {
-console.log("📩 MENSAJE RECIBIDO");
+
   try {
 
-    console.log("🔥 WEBHOOK:", JSON.stringify(req.body));
+    console.log(
+      "📩 WEBHOOK:",
+      JSON.stringify(req.body)
+    );
 
     const msg = req.body.message;
 
@@ -52,44 +53,38 @@ console.log("📩 MENSAJE RECIBIDO");
     const chatId = msg.chat.id;
 
     const text = msg.text
-      ? msg.text.trim().toUpperCase()
+      ? msg.text.toUpperCase().trim()
       : "";
 
-    // =====================================
-    // /START
-    // =====================================
+    // ======================================
+    // 👋 START
+    // ======================================
 
     if (text === "/START") {
 
       await enviar(
         chatId,
-        `👋 Bienvenido al sistema de asistencia
-        
-📲 Envía el número de control del alumno para vincular las notificaciones.
-
-Ejemplo:
-23318050270088`
+        "👋 Bienvenido(a)\n\nEnvía el número de control de tu hijo(a) para vincularte automáticamente."
       );
 
       return res.sendStatus(200);
+
     }
 
-    // =====================================
-    // 🔗 VINCULACIÓN AUTOMÁTICA
-    // =====================================
+    // ======================================
+    // 🔗 VINCULAR CHAT_ID
+    // ======================================
 
     if (/^\d+$/.test(text)) {
 
       const id = text;
 
-      // 🔥 BUSCAR ALUMNO
       const alumnoRes = await fetch(
         `${FIREBASE}/alumnos/${id}.json`
       );
 
       const alumno = await alumnoRes.json();
 
-      // ❌ NO EXISTE
       if (!alumno) {
 
         await enviar(
@@ -98,110 +93,92 @@ Ejemplo:
         );
 
         return res.sendStatus(200);
+
       }
 
-      // =====================================
-      // 🔥 OBTENER TELÉFONO ACTUAL
-      // =====================================
-
-      const telefonoActual =
-        alumno.chat_id || "";
-
-      // =====================================
-      // 🔥 GUARDAR NUEVO CHAT_ID
-      // =====================================
-
+      // 🔥 GUARDAR CHAT_ID
       await fetch(
         `${FIREBASE}/alumnos/${id}.json`,
         {
-
           method: "PATCH",
-
           headers: {
             "Content-Type": "application/json"
           },
-
           body: JSON.stringify({
-
             chat_id: chatId
-
           })
-
         }
       );
 
       console.log(
-        `✅ Vinculado ${id} -> ${chatId}`
+        "✅ CHAT_ID ACTUALIZADO:",
+        id,
+        chatId
       );
 
       await enviar(
         chatId,
-        `✅ Vinculación exitosa
-
-👨‍🎓 ${alumno.nombre}
-
-🔔 Ahora recibirás notificaciones automáticas de entrada y salida.`
+        `✅ Vinculado con:\n👨‍🎓 ${alumno.nombre}`
       );
 
       return res.sendStatus(200);
+
     }
 
-    // =====================================
-    // 📋 CONSULTA DE ASISTENCIA
-    // =====================================
+    // ======================================
+    // 📋 CONSULTAR ASISTENCIA
+    // ======================================
 
-    // =====================================
-// 📋 CONSULTA DE ASISTENCIA
-// =====================================
+    if (text.startsWith("ASISTENCIA")) {
 
-if (text.startsWith("ASISTENCIA")) {
+      const partes = text.split(" ");
 
-  const partes = text.split(" ");
+      const id = partes[1];
 
-  const id = partes[1];
+      if (!id) {
 
-  if (!id) {
+        await enviar(
+          chatId,
+          "⚠️ Usa:\nASISTENCIA 23318050270088"
+        );
 
-    await enviar(
-      chatId,
-      "⚠️ Usa:\nASISTENCIA 23318050270088"
-    );
+        return res.sendStatus(200);
 
-    return res.sendStatus(200);
-  }
+      }
 
-  try {
-
-    // 🔥 BUSCAR ALUMNO
-    const alumnoRes = await fetch(
-      `${FIREBASE}/alumnos/${id}.json`
-    );
-
-    const alumno = await alumnoRes.json();
-
-    if (!alumno) {
-
-      await enviar(
-        chatId,
-        "❌ Alumno no encontrado"
+      const alumnoRes = await fetch(
+        `${FIREBASE}/alumnos/${id}.json`
       );
 
-      return res.sendStatus(200);
-    }
+      const alumno = await alumnoRes.json();
 
-    const fecha =
-      new Date()
-      .toISOString()
-      .split("T")[0];
+      if (!alumno) {
 
-    // 🔥 LEER TODOS LOS TALLERES
-    const congresosRes = await fetch(
-      `${FIREBASE}/congreso.json`
-    );
+        await enviar(
+          chatId,
+          "❌ Alumno no encontrado"
+        );
 
-    const congresos = await congresosRes.json();
+        return res.sendStatus(200);
 
-    let mensaje =
+      }
+
+      const fecha =
+        new Date()
+        .toISOString()
+        .split("T")[0];
+
+      // ======================================
+      // 🔥 LEER CONGRESO
+      // ======================================
+
+      const congresosRes = await fetch(
+        `${FIREBASE}/congreso.json`
+      );
+
+      const congresos = await congresosRes.json();
+
+      let respuesta =
 `🎓 CONGRESO ESCOLAR
 
 👨‍🎓 ${alumno.nombre}
@@ -210,81 +187,69 @@ if (text.startsWith("ASISTENCIA")) {
 
 `;
 
-    let encontrados = 0;
+      let encontrados = 0;
 
-    if (congresos) {
+      if (congresos) {
 
-      for (const taller in congresos) {
+        for (const taller in congresos) {
 
-        const registrosAlumno =
-          congresos[taller] &&
-          congresos[taller][fecha] &&
-          congresos[taller][fecha][id];
+          const registrosAlumno =
+            congresos[taller] &&
+            congresos[taller][fecha] &&
+            congresos[taller][fecha][id];
 
-        if (registrosAlumno) {
+          if (registrosAlumno) {
 
-          Object.values(registrosAlumno)
-          .forEach(r => {
+            Object.values(registrosAlumno)
+            .forEach(r => {
 
-            encontrados++;
+              encontrados++;
 
-            mensaje +=
+              respuesta +=
 `📍 ${r.taller}
 ${r.tipo.toUpperCase()}
 ⏰ ${r.hora}
 
 `;
 
-          });
+            });
+
+          }
 
         }
 
       }
 
+      if (encontrados === 0) {
+
+        respuesta +=
+          "❌ Sin registros hoy";
+
+      }
+
+      await enviar(chatId, respuesta);
+
+      return res.sendStatus(200);
+
     }
 
-    if (encontrados === 0) {
-
-      mensaje += "❌ Sin registros hoy";
-    }
-
-    await enviar(chatId, mensaje);
-
-    return res.sendStatus(200);
-
-  } catch (err) {
-
-    console.error(
-      "❌ ERROR ASISTENCIA:",
-      err
-    );
+    // ======================================
+    // 💬 DEFAULT
+    // ======================================
 
     await enviar(
       chatId,
-      "❌ Error consultando asistencia"
-    );
+`👋 COMANDOS DISPONIBLES
 
-    return res.sendStatus(200);
-  }
+/start
 
-}
+ASISTENCIA NUMERO_CONTROL
 
-    // =====================================
-    // 💬 MENSAJE DEFAULT
-    // =====================================
-
-    await enviar(
-      chatId,
-`👋 Comandos disponibles:
-
-📲 Vincular:
-23318050270088
-
-📋 Consultar:
+Ejemplo:
 ASISTENCIA 23318050270088`
     );
 
-    res.sendStatus(200);
+    return res.sendStatus(200);
 
   } catch (error) {
 
@@ -293,14 +258,52 @@ ASISTENCIA 23318050270088`
       error
     );
 
-    res.sendStatus(200);
+    return res.sendStatus(200);
+
   }
 
 });
 
-// =====================================
-// 📢 NOTIFICACIONES
-// =====================================
+// ======================================
+// 📤 ENVIAR TELEGRAM
+// ======================================
+
+async function enviar(chatId, texto) {
+
+  try {
+
+    const resp = await fetch(
+      `${URL}/sendMessage`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: texto
+        })
+      }
+    );
+
+    const data = await resp.json();
+
+    console.log("📨 TELEGRAM:", data);
+
+  } catch (error) {
+
+    console.error(
+      "❌ ERROR TELEGRAM:",
+      error
+    );
+
+  }
+
+}
+
+// ======================================
+// 🔔 NOTIFICACIONES WEB
+// ======================================
 
 app.post("/notificar", async (req, res) => {
 
@@ -315,63 +318,50 @@ app.post("/notificar", async (req, res) => {
     } = req.body;
 
     console.log(
-      "📩 NOTIFICAR:",
+      "📩 NOTIFICACION:",
       req.body
     );
 
-    // ❌ NO HAY CHAT ID
     if (!chat_id) {
 
       console.log("❌ chat_id vacío");
 
       return res.sendStatus(400);
+
     }
 
-    // =====================================
-    // 🔥 MENSAJE
-    // =====================================
-
     const mensaje =
-
-`🎓 CONGRESO ESCOLAR
+`🎓 Congreso Escolar
 
 👨‍🎓 ${nombre}
 
 📍 Taller:
 ${taller}
 
-${tipo === "entrada" ? "✅ ENTRADA" : "👋 SALIDA"}
+✅ ${tipo.toUpperCase()}
 
 ⏰ ${hora}`;
 
-    // =====================================
-    // 🔥 ENVIAR A TELEGRAM
-    // =====================================
-
-    const telegram = await fetch(
+    const resp = await fetch(
       `${URL}/sendMessage`,
       {
-
         method: "POST",
-
         headers: {
           "Content-Type": "application/json"
         },
-
         body: JSON.stringify({
-
           chat_id: chat_id,
-
           text: mensaje
-
         })
-
       }
     );
 
-    const data = await telegram.json();
+    const data = await resp.json();
 
-    console.log("📨 TELEGRAM:", data);
+    console.log(
+      "📨 RESPUESTA TELEGRAM:",
+      data
+    );
 
     res.sendStatus(200);
 
@@ -383,59 +373,21 @@ ${tipo === "entrada" ? "✅ ENTRADA" : "👋 SALIDA"}
     );
 
     res.sendStatus(500);
+
   }
 
 });
 
-// =====================================
-// 📤 FUNCIÓN ENVIAR
-// =====================================
-
-async function enviar(chatId, texto) {
-
-  try {
-
-    await fetch(
-      `${URL}/sendMessage`,
-      {
-
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-
-          chat_id: chatId,
-
-          text: texto
-
-        })
-
-      }
-    );
-
-  } catch (error) {
-
-    console.error(
-      "❌ ERROR ENVIAR:",
-      error
-    );
-  }
-
-}
-
-// =====================================
-// 💥 EVITAR CAÍDAS
-// =====================================
+// ======================================
+// 💥 ERRORES
+// ======================================
 
 process.on(
   "uncaughtException",
   err => {
 
     console.error(
-      "💥 uncaughtException:",
+      "💥 ERROR:",
       err
     );
 
@@ -447,24 +399,29 @@ process.on(
   err => {
 
     console.error(
-      "💥 unhandledRejection:",
+      "💥 PROMESA:",
       err
     );
 
   }
 );
 
-// =====================================
-// 🚀 SERVIDOR
-// =====================================
+// ======================================
+// 🚀 SERVER
+// ======================================
 
-const PORT = process.env.PORT || 8080;
+const PORT =
+  process.env.PORT || 8080;
 
-app.listen(PORT, "0.0.0.0", () => {
+app.listen(
+  PORT,
+  "0.0.0.0",
+  () => {
 
-  console.log(
-    "🚀 Servidor activo en puerto",
-    PORT
-  );
+    console.log(
+      "🚀 SERVIDOR ACTIVO:",
+      PORT
+    );
 
-});
+  }
+);
