@@ -4,24 +4,37 @@ const fetch = require("node-fetch");
 const app = express();
 
 app.use(express.json());
-app.use(express.static("public")); // 👈 para index.html y consulta.html
+app.use(express.static("public"));
 
-// 🔑 TOKEN BOT TELEGRAM
-const TOKEN = "8761191809:AAG0Z_0wuLOdOevzGk9G8bz6BJh9e9NUL6w";
+// =====================================
+// 🤖 TELEGRAM BOT
+// =====================================
+
+const TOKEN = "TU_TOKEN_AQUI";
+
 const URL = `https://api.telegram.org/bot${TOKEN}`;
 
+// =====================================
 // 🔥 FIREBASE
-const FIREBASE = "https://controlasistencia-d236e-default-rtdb.firebaseio.com";
+// =====================================
 
-// ✅ RUTA BASE
+const FIREBASE =
+"https://controlasistencia-d236e-default-rtdb.firebaseio.com";
+
+// =====================================
+// ✅ RUTA PRINCIPAL
+// =====================================
+
 app.get("/", (req, res) => {
-  res.send("OK FUNCIONANDO ✅");
+
+  res.send("✅ BOT ACTIVO");
+
 });
 
-
-// ===============================
+// =====================================
 // 🤖 WEBHOOK TELEGRAM
-// ===============================
+// =====================================
+
 app.post("/webhook", async (req, res) => {
 
   try {
@@ -29,205 +42,409 @@ app.post("/webhook", async (req, res) => {
     console.log("🔥 WEBHOOK:", JSON.stringify(req.body));
 
     const msg = req.body.message;
-    if (!msg) return res.sendStatus(200);
+
+    if (!msg) {
+      return res.sendStatus(200);
+    }
 
     const chatId = msg.chat.id;
-    const text = msg.text ? msg.text.toUpperCase() : "";
 
-    // ===============================
-    // 👨‍👩‍👧 REGISTRO DE PADRE (/start)
-    // ===============================
+    const text = msg.text
+      ? msg.text.trim().toUpperCase()
+      : "";
+
+    // =====================================
+    // /START
+    // =====================================
+
     if (text === "/START") {
 
-      await enviar(chatId, "👋 Bienvenido(a)\nEnvía el Numero de control de tu hijo(a) para vincularte");
+      await enviar(
+        chatId,
+        `👋 Bienvenido al sistema de asistencia
+        
+📲 Envía el número de control del alumno para vincular las notificaciones.
 
-      // Guardar padre temporal
-      await fetch(`${FIREBASE}/padres/${chatId}.json`, {
-        method: "PUT",
-        body: JSON.stringify({
-          chat_id: chatId
-        })
-      });
+Ejemplo:
+23318050270088`
+      );
 
       return res.sendStatus(200);
     }
 
-    // ===============================
-    // 🔗 VINCULAR PADRE CON ALUMNO
-    // ===============================
+    // =====================================
+    // 🔗 VINCULACIÓN AUTOMÁTICA
+    // =====================================
+
     if (/^\d+$/.test(text)) {
 
       const id = text;
 
-      const alumnoRes = await fetch(`${FIREBASE}/alumnos/${id}.json`);
+      // 🔥 BUSCAR ALUMNO
+      const alumnoRes = await fetch(
+        `${FIREBASE}/alumnos/${id}.json`
+      );
+
       const alumno = await alumnoRes.json();
 
+      // ❌ NO EXISTE
       if (!alumno) {
-        await enviar(chatId, "❌ Alumno no encontrado");
+
+        await enviar(
+          chatId,
+          "❌ Alumno no encontrado"
+        );
+
         return res.sendStatus(200);
       }
 
-      // Guardar chat_id en alumno
-      await fetch(`${FIREBASE}/alumnos/${id}.json`, {
-        method: "PATCH",
-        body: JSON.stringify({
-          chat_id: chatId
-        })
-      });
+      // =====================================
+      // 🔥 OBTENER TELÉFONO ACTUAL
+      // =====================================
 
-      await enviar(chatId, `✅ Vinculado con ${alumno.nombre}`);
+      const telefonoActual =
+        alumno.chat_id || "";
+
+      // =====================================
+      // 🔥 GUARDAR NUEVO CHAT_ID
+      // =====================================
+
+      await fetch(
+        `${FIREBASE}/alumnos/${id}.json`,
+        {
+
+          method: "PATCH",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+
+            chat_id: chatId
+
+          })
+
+        }
+      );
+
+      console.log(
+        `✅ Vinculado ${id} -> ${chatId}`
+      );
+
+      await enviar(
+        chatId,
+        `✅ Vinculación exitosa
+
+👨‍🎓 ${alumno.nombre}
+
+🔔 Ahora recibirás notificaciones automáticas de entrada y salida.`
+      );
 
       return res.sendStatus(200);
     }
 
-    // ===============================
-    // 📊 CONSULTA ASISTENCIA
-    // ===============================
+    // =====================================
+    // 📋 CONSULTA DE ASISTENCIA
+    // =====================================
+
     if (text.startsWith("ASISTENCIA")) {
 
-      const partes = text.trim().split(/\s+/);
+      const partes = text.split(" ");
+
       const id = partes[1];
 
       if (!id) {
-        await enviar(chatId, "⚠️ Usa: ASISTENCIA NUMERO DE CONTROL DE TU HIJO(A)");
+
+        await enviar(
+          chatId,
+          "⚠️ Usa:\nASISTENCIA NUMERO_CONTROL"
+        );
+
         return res.sendStatus(200);
       }
 
-      await enviar(chatId, `📋 Buscando alumno ${id}...`);
+      const alumnoRes = await fetch(
+        `${FIREBASE}/alumnos/${id}.json`
+      );
 
-      const alumnoRes = await fetch(`${FIREBASE}/alumnos/${id}.json`);
       const alumno = await alumnoRes.json();
 
       if (!alumno) {
-        await enviar(chatId, "❌ Alumno no encontrado");
+
+        await enviar(
+          chatId,
+          "❌ Alumno no encontrado"
+        );
+
         return res.sendStatus(200);
       }
 
-      const fecha = new Date().toISOString().split("T")[0];
+      const fecha =
+        new Date()
+        .toISOString()
+        .split("T")[0];
 
-      const regRes = await fetch(`${FIREBASE}/registros/${id}/${fecha}.json`);
-      const registros = await regRes.json();
+      // =====================================
+      // 🔥 BUSCAR REGISTROS
+      // =====================================
 
-      let respuesta = `👨‍🎓 ${alumno.nombre}\n📅 ${fecha}\n\n`;
+      const regRes = await fetch(
+        `${FIREBASE}/congreso.json`
+      );
 
-      if (!registros) {
-        respuesta += "Sin registros hoy";
-      } else {
-        Object.values(registros).forEach(r => {
-          respuesta += `✔ ${r.tipo} - ${r.hora}\n`;
+      const data = await regRes.json();
+
+      let respuesta =
+`🎓 CONGRESO ESCOLAR
+
+👨‍🎓 ${alumno.nombre}
+
+📅 ${fecha}
+
+`;
+
+      let encontrados = 0;
+
+      if (data) {
+
+        Object.keys(data).forEach(taller => {
+
+          if (
+            data[taller] &&
+            data[taller][fecha] &&
+            data[taller][fecha][id]
+          ) {
+
+            const registros =
+              data[taller][fecha][id];
+
+            Object.values(registros)
+            .forEach(r => {
+
+              encontrados++;
+
+              respuesta +=
+`📍 ${r.taller}
+${r.tipo.toUpperCase()} - ${r.hora}
+
+`;
+
+            });
+
+          }
+
         });
+
+      }
+
+      if (encontrados === 0) {
+
+        respuesta +=
+        "❌ Sin registros hoy";
       }
 
       await enviar(chatId, respuesta);
+
       return res.sendStatus(200);
     }
 
-    // ===============================
-    // 💬 DEFAULT
-    // ===============================
-    await enviar(chatId, "👋 Usa:\n/start\nESCRIBE LA PALABRA ASISTENCIA SEGUIDO DEL NUMERO DE CONTROL DE TU HIJO(A)");
+    // =====================================
+    // 💬 MENSAJE DEFAULT
+    // =====================================
+
+    await enviar(
+      chatId,
+`👋 Comandos disponibles:
+
+📲 Vincular:
+23318050270088
+
+📋 Consultar:
+ASISTENCIA 23318050270088`
+    );
 
     res.sendStatus(200);
 
   } catch (error) {
-    console.error("❌ ERROR WEBHOOK:", error);
+
+    console.error(
+      "❌ ERROR WEBHOOK:",
+      error
+    );
+
     res.sendStatus(200);
   }
 
 });
 
+// =====================================
+// 📢 NOTIFICACIONES
+// =====================================
 
-// ===============================
-// 📤 ENVIAR MENSAJE TELEGRAM
-// ===============================
-async function enviar(chatId, texto) {
-  try {
-    await fetch(`${URL}/sendMessage`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: texto
-      })
-    });
-  } catch (error) {
-    console.error("❌ Error enviando mensaje:", error);
-  }
-}
-
-
-// ===============================
-// 📢 NOTIFICACIONES DESDE WEB
-// ===============================
 app.post("/notificar", async (req, res) => {
 
   try {
 
-   const { chat_id, nombre, tipo, hora, taller } = req.body;
+    const {
+      chat_id,
+      nombre,
+      tipo,
+      hora,
+      taller
+    } = req.body;
 
-    console.log("📩 Datos recibidos:", req.body);
+    console.log(
+      "📩 NOTIFICAR:",
+      req.body
+    );
 
+    // ❌ NO HAY CHAT ID
     if (!chat_id) {
+
       console.log("❌ chat_id vacío");
+
       return res.sendStatus(400);
     }
 
-    const mensaje = `
-🎓 Congreso Escolar
+    // =====================================
+    // 🔥 MENSAJE
+    // =====================================
+
+    const mensaje =
+
+`🎓 CONGRESO ESCOLAR
 
 👨‍🎓 ${nombre}
 
 📍 Taller:
 ${taller}
 
-✅ ${tipo.toUpperCase()}
+${tipo === "entrada" ? "✅ ENTRADA" : "👋 SALIDA"}
 
-⏰ ${hora}
-`;
+⏰ ${hora}`;
 
-    const resp = await fetch(`${URL}/sendMessage`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        chat_id: chat_id,
-        text: mensaje
-      })
-    });
+    // =====================================
+    // 🔥 ENVIAR A TELEGRAM
+    // =====================================
 
-    const data = await resp.json();
-    console.log("📨 Telegram:", data);
+    const telegram = await fetch(
+      `${URL}/sendMessage`,
+      {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+
+          chat_id: chat_id,
+
+          text: mensaje
+
+        })
+
+      }
+    );
+
+    const data = await telegram.json();
+
+    console.log("📨 TELEGRAM:", data);
 
     res.sendStatus(200);
 
   } catch (error) {
-    console.error("❌ ERROR NOTIFICAR:", error);
+
+    console.error(
+      "❌ ERROR NOTIFICAR:",
+      error
+    );
+
     res.sendStatus(500);
   }
 
 });
 
+// =====================================
+// 📤 FUNCIÓN ENVIAR
+// =====================================
 
-// ===============================
-// 💥 EVITAR CAÍDAS (IMPORTANTE)
-// ===============================
-process.on("uncaughtException", err => {
-  console.error("💥 Error no controlado:", err);
-});
+async function enviar(chatId, texto) {
 
-process.on("unhandledRejection", err => {
-  console.error("💥 Promesa no manejada:", err);
-});
+  try {
 
+    await fetch(
+      `${URL}/sendMessage`,
+      {
 
-// ===============================
-// 🌐 SERVIDOR
-// ===============================
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+
+          chat_id: chatId,
+
+          text: texto
+
+        })
+
+      }
+    );
+
+  } catch (error) {
+
+    console.error(
+      "❌ ERROR ENVIAR:",
+      error
+    );
+  }
+
+}
+
+// =====================================
+// 💥 EVITAR CAÍDAS
+// =====================================
+
+process.on(
+  "uncaughtException",
+  err => {
+
+    console.error(
+      "💥 uncaughtException:",
+      err
+    );
+
+  }
+);
+
+process.on(
+  "unhandledRejection",
+  err => {
+
+    console.error(
+      "💥 unhandledRejection:",
+      err
+    );
+
+  }
+);
+
+// =====================================
+// 🚀 SERVIDOR
+// =====================================
+
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log("🚀 Servidor activo en puerto", PORT);
+
+  console.log(
+    "🚀 Servidor activo en puerto",
+    PORT
+  );
+
 });
