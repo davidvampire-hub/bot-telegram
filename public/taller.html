@@ -156,7 +156,7 @@
         line-height: 1.1;
     }
 
-    /* 🔥 CÁMARA (Proporciones corregidas sin estiramiento) */
+    /* 🔥 CÁMARA (Efecto enmarcado con la esquina blanca abajo) */
     .scanner-container {
         padding: 12px;
         display: flex;
@@ -174,49 +174,27 @@
         text-transform: uppercase;
     }
 
- /* 🔥 Visor Principal (Forzamos proporción 1:1 Nativa Antidistorsión) */
-.scanner-viewfinder {
-    position: relative;
-    width: 230px;
-    height: 230px;
-    background: #ffffff;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
-}
+    .scanner-viewfinder {
+        position: relative;
+        width: 210px;
+        height: 210px;
+        background: #000000;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
 
-#reader {
-    width: 100% !important;
-    height: 100% !important;
-    border: none !important;
-}
+    #reader {
+        width: 100% !important;
+        height: 100% !important;
+        border: none !important;
+    }
 
-#reader video {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-}
-
-/* 🌟 ESQUINAS ROJAS ADAPTADAS A LA MIRA CENTRAL (Usa estas reglas) */
-.corner-guide {
-    position: absolute;
-    width: 28px;
-    height: 28px;
-    border: 4px solid #6e1c24; /* Color guinda del boceto */
-    pointer-events: none;
-    z-index: 99;
-}
-/* Se alinean para enmarcar el qrbox de 210x90 definido en JS */
-.top-left     { top: 70px; left: 10px; border-right: none; border-bottom: none; }
-.top-right    { top: 70px; right: 10px; border-left: none; border-bottom: none; }
-.bottom-left  { bottom: 70px; left: 10px; border-right: none; border-top: none; }
-.bottom-right { bottom: 70px; right: 10px; border-left: none; border-top: none; }
-
-
-/* Restablecemos el fondo gris automático de la librería para resaltar el centro */
-#reader__scan_region td {
-    background: rgba(0, 0, 0, 0.5) !important; /* Sombras laterales para enfoque */
-}
+    #reader video {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+    }
 
     /* Esquinas rojas de guía visual según tu boceto original */
     .corner-guide {
@@ -530,76 +508,47 @@ function guardarEnSheets(id, nombre, taller, tipo){
 let ultimoCodigo = "";
 
 // =====================================
-// 🔥 INICIALIZACIÓN DE CÁMARA (Visor 1:1 Nativo Antidistorsión)
+// 🔥 CONFIGURACIÓN DE CÁMARA (Visor 1:1 Nativo)
 // =====================================
-function iniciarCamara(){
+const qr = new Html5Qrcode("reader");
 
-    const html5QrCode = new Html5Qrcode(
+qr.start(
+    { facingMode: "environment" },
+    {
+        fps: 30,
+        qrbox: { width: 160, height: 160 }, 
+        formatsToSupport: [ 
+            0, // QR_CODE
+            6, // CODE_128
+            5, // CODE_39
+            11 // EAN_13
+        ]
+    },
+    async (codigo) => {
+        const codigoLimpio = codigo.toString().trim().replace(/[\n\r\t]/g, "");
 
-        "reader",
-
-        {
-
-            formatsToSupport:[
-                Html5QrcodeSupportedFormats.CODE_128
-            ]
-
+        if (!codigoLimpio) return;
+        if (codigoLimpio === ultimoCodigo) return;
+        
+        ultimoCodigo = codigoLimpio;
+        setTimeout(() => { ultimoCodigo = ""; }, 3000);
+        
+        registrar(codigoLimpio);
+    }
+).catch(err => {
+    console.warn("Fallo en inicialización inicial, aplicando fallback genérico: ", err);
+    qr.start(
+        { facingMode: "environment" },
+        { fps: 30, qrbox: { width: 160, height: 160 } },
+        async (codigo) => {
+            const codigoLimpio = codigo.toString().trim().replace(/[\n\r\t]/g, "");
+            if (codigoLimpio === ultimoCodigo) return;
+            ultimoCodigo = codigoLimpio;
+            setTimeout(() => { ultimoCodigo = ""; }, 3000);
+            registrar(codigoLimpio);
         }
-
     );
-
-    html5QrCode.start(
-
-        { facingMode:"environment" },
-
-        {
-
-            fps:10,
-
-            qrbox:{
-                width:320,
-                height:140
-            },
-
-            rememberLastUsedCamera:true
-
-        },
-
-        (decodedText)=>{
-
-            if(decodedText === ultimoCodigo) return;
-
-            ultimoCodigo = decodedText;
-
-            setTimeout(()=>{
-                ultimoCodigo = "";
-            },2000);
-
-            registrar(decodedText);
-
-        },
-
-        (errorMessage)=>{
-            // ignorar
-        }
-
-    )
-
-    .catch(err=>{
-
-        console.error(err);
-
-        mensaje.innerHTML =
-        "❌ No se pudo abrir la cámara";
-
-    });
-
-}
-// ======================================
-// INICIAR
-// ======================================
-iniciarCamara();
-
+});
 
 // =====================================
 // 🔥 LOGICA CENTRAL DE BASE DE DATOS
@@ -609,7 +558,6 @@ async function registrar(id){
     const estadoSub = document.getElementById("estadoSub");
 
     estadoTitulo.innerHTML = "BUSCANDO...";
-    estadoSub.innerHTML = "ID detectado: " + id; // Muestra el ID transitoriamente en pantalla para auditarlo
 
     const ahora = new Date();
     const fecha = ahora.toISOString().split('T')[0];
@@ -621,7 +569,7 @@ async function registrar(id){
     if(!snap.exists()){
         sonidoError.play();
         estadoTitulo.innerHTML = "NO REGISTRADO";
-        estadoSub.innerHTML = "ID " + id + " no existe en base.";
+        estadoSub.innerHTML = "Código erróneo o alumno ausente.";
         return;
     }
 

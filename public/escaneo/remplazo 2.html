@@ -26,7 +26,6 @@
         align-items: center;
     }
 
-    /* Fondo Tecnológico */
     body::before {
         content: "";
         position: fixed;
@@ -37,7 +36,6 @@
         z-index: 1;
     }
 
-    /* Contenedor Principal (Forzado a ocupar el alto de pantalla disponible sin scroll) */
     .container {
         width: 100%;
         max-width: 430px;
@@ -85,7 +83,7 @@
     }
 
     .subtitulo {
-        color: #c9a46c; /* Tono Dorado/Crema elegante del diseño */
+        color: #c9a46c;
         font-size: 11px;
         font-weight: 600;
         letter-spacing: 2px;
@@ -93,7 +91,7 @@
         text-transform: uppercase;
     }
 
-    /* 🔥 CONTENEDOR DE TARJETAS (Estructura de Bloques Limpios) */
+    /* 🔥 TARJETAS */
     .card-stack {
         display: flex;
         flex-direction: column;
@@ -103,15 +101,14 @@
         margin: 6px 0;
     }
 
-    /* Tarjeta Base */
     .card {
         background: rgba(255, 255, 255, 0.94);
         border-radius: 12px;
         overflow: hidden;
         box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        position: relative;
     }
 
-    /* Encabezado Pequeño Estilo Boceto */
     .card-tag {
         background: #6e1c24;
         color: rgba(255, 255, 255, 0.85);
@@ -124,7 +121,7 @@
         border-bottom-right-radius: 6px;
     }
 
-    /* Bloque Taller Activo */
+    /* Taller */
     .taller-body {
         display: flex;
         align-items: center;
@@ -159,9 +156,8 @@
         line-height: 1.1;
     }
 
-    /* Bloque Escáner QR */
+    /* 🔥 CÁMARA (Proporciones corregidas sin estiramiento) */
     .scanner-container {
-        position: relative;
         padding: 12px;
         display: flex;
         flex-direction: column;
@@ -180,40 +176,57 @@
 
     .scanner-viewfinder {
         position: relative;
-        width: 190px;
-        height: 190px;
-        background: #fafafa;
+        width: 210px;
+        height: 210px;
+        background: #000000;
         border-radius: 16px;
         overflow: hidden;
-        box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
-    /* Capa del visor simulado del boceto */
-    #reader {
-        width: 100% !important;
-        height: 100% !important;
-        border: none !important;
-    }
+      #reader{
 
-    #reader video {
-        object-fit: cover !important;
-        width: 100% !important;
-        height: 100% !important;
-    }
+    width:95vw;
 
-    /* Guías de las esquinas del boceto */
+    max-width:900px;
+
+    margin:auto;
+
+}
+
+
+#reader video{
+
+    border-radius:20px;
+
+    object-fit:cover !important;
+
+}
+
+
+#reader__scan_region{
+
+    border:4px solid #00ff88 !important;
+
+    border-radius:20px;
+
+}
+
+
+
+    /* Esquinas rojas de guía visual según tu boceto original */
     .corner-guide {
         position: absolute;
-        width: 20px;
-        height: 20px;
-        border: 2px solid #6e1c24;
+        width: 24px;
+        height: 24px;
+        border: 3px solid #6e1c24;
         pointer-events: none;
         z-index: 10;
     }
-    .top-left { top: 12px; left: 12px; border-right: none; border-bottom: none; border-top-left-radius: 8px; }
-    .top-right { top: 12px; right: 12px; border-left: none; border-bottom: none; border-top-right-radius: 8px; }
-    .bottom-left { bottom: 12px; left: 12px; border-right: none; border-top: none; border-bottom-left-radius: 8px; }
-    .bottom-right { bottom: 12px; right: 12px; border-left: none; border-top: none; border-bottom-right-radius: 8px; }
+    .top-left     { top: 12px; left: 12px; border-right: none; border-bottom: none; }
+    .top-right    { top: 12px; right: 12px; border-left: none; border-bottom: none; }
+    .bottom-left  { bottom: 12px; left: 12px; border-right: none; border-top: none; }
+    .bottom-right { bottom: 12px; right: 12px; border-left: none; border-top: none; }
 
     .scanner-hint {
         font-size: 10px;
@@ -224,7 +237,7 @@
         text-transform: uppercase;
     }
 
-    /* Bloque Estado */
+    /* Estado */
     .estado-body {
         display: flex;
         align-items: center;
@@ -324,7 +337,7 @@
         color: #e2be5a !important;
     }
 
-    /* 🔥 SECCIÓN FOOTER */
+    /* 🔥 FOOTER */
     .footer-divider {
         width: 100%;
         height: 1px;
@@ -342,18 +355,8 @@
         padding-bottom: 2px;
     }
 
-    /* Esconder elementos nativos del script QR */
-    .html5-qrcode-element, #reader__dashboard, #reader__scan_region border {
+    .html5-qrcode-element, #reader__dashboard, #reader__scan_region img {
         display: none !important;
-    }
-    
-    /* Adaptaciones finas para pantallas muy compactas */
-    @media (max-height: 680px) {
-        .logo-container { width: 70px; height: 70px; }
-        .titulo { font-size: 22px; }
-        .scanner-viewfinder { width: 155px; height: 155px; }
-        .taller-texto strong { font-size: 20px; }
-        .estado-main { font-size: 13px; }
     }
 </style>
 </head>
@@ -385,18 +388,17 @@
             </div>
         </section>
 
-        <section class="card" style="position: relative;">
-            <div class="corner-guide top-left"></div>
-            <div class="corner-guide top-right"></div>
-            <div class="corner-guide bottom-left"></div>
-            <div class="corner-guide bottom-right"></div>
-
+        <section class="card">
             <div class="scanner-container">
-                <span class="scanner-title">Escanea tu código QR</span>
+                <span class="scanner-title">Escanea tu código QR / Barras</span>
                 <div class="scanner-viewfinder">
+                    <div class="corner-guide top-left"></div>
+                    <div class="corner-guide top-right"></div>
+                    <div class="corner-guide bottom-left"></div>
+                    <div class="corner-guide bottom-right"></div>
                     <div id="reader"></div>
                 </div>
-                <span class="scanner-hint">Acerca tu código QR al lector</span>
+                <span class="scanner-hint">Centra un código en el recuadro</span>
             </div>
         </section>
 
@@ -439,7 +441,7 @@
                 <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 1.34 5 3s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
             </div>
             <div class="metric-texts">
-                <span class="metric-label">REGISTROS HOY</span>
+                <span class="metric-label">REGISTROS</span>
                 <span class="metric-value" id="contador">0</span>
             </div>
         </div>
@@ -456,7 +458,7 @@
 
     <div>
         <div class="footer-divider"></div>
-        <div class="footer-text">CBTis 2 · Ixtlán del Río, Nay.</div>
+        <div class="footer-text">CBTis 27 · Ixtlán del Río, Nay.</div>
     </div>
 
 </div>
@@ -465,9 +467,6 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-// =====================================
-// 🔥 CONFIGURACIÓN FIREBASE
-// =====================================
 const firebaseConfig = {
   apiKey: "AIzaSyCWQAmB9cMI4Y0YBPC_iV6p1YGgZTSNFQ0",
   authDomain: "controlasistencia-d236e.firebaseapp.com",
@@ -482,21 +481,12 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// =====================================
-// 🔥 GOOGLE SHEETS URL SCRIPT
-// =====================================
 const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbynZVN1eZ52UsM7x-11k8D6m2l8K0r5n3mtgL15WIjkGW6BnL31Ipu3YkEi9jLLUfgl/exec";
 
-// =====================================
-// 🔥 RECOGIDA DE PARÁMETROS URL
-// =====================================
 const params = new URLSearchParams(window.location.search);
 const taller = params.get("taller") || "escaneo";
 document.getElementById("nombreTaller").innerHTML = taller.toUpperCase();
 
-// =====================================
-// 🔥 CONTROL DE TIEMPO (FECHA Y HORA)
-// =====================================
 function actualizarHora(){
     const ahora = new Date();
     document.getElementById("hora").innerHTML = ahora.toLocaleTimeString();
@@ -505,37 +495,20 @@ function actualizarHora(){
 setInterval(actualizarHora, 1000);
 actualizarHora();
 
-// =====================================
-// 🔥 CONTADOR INTERNO
-// =====================================
 let contador = 0;
 
-// =====================================
-// 🔥 CONFIGURACIÓN DE AUDIO
-// =====================================
 const sonidoEntrada = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
 const sonidoSalida  = new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg");
 const sonidoError   = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
 
-// =====================================
-// 🔥 INTEGRACIÓN API TELEGRAM
-// =====================================
 function notificar(chat_id, nombre, tipo, hora){
     fetch("https://bot-telegram-production-cb3d.up.railway.app/notificar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            chat_id: chat_id,
-            nombre: nombre,
-            tipo: tipo,
-            hora: hora
-        })
+        body: JSON.stringify({ chat_id, nombre, tipo, hora })
     });
 }
 
-// =====================================
-// 🔥 ENVÍO A GOOGLE SHEETS (IFRAME)
-// =====================================
 function guardarEnSheets(id, nombre, taller, tipo){
     const url = URL_SCRIPT
     + "?id=" + encodeURIComponent(id)
@@ -550,56 +523,142 @@ function guardarEnSheets(id, nombre, taller, tipo){
     document.body.appendChild(iframe);
 }
 
-// =====================================
-// 🔥 ANTI-BOUNCE (EVITAR DOBLE LECTURA RAPIDA)
-// =====================================
 let ultimoCodigo = "";
 
 // =====================================
-// 🔥 INICIALIZACIÓN DE CÁMARA QR (Modo Entorno)
+// 🔥 INICIALIZACIÓN DE CÁMARA (Visor 1:1 Nativo Antidistorsión)
 // =====================================
-const qr = new Html5Qrcode("reader");
-qr.start(
-    { facingMode: "environment" },
-    {
-        fps: 24,
-        qrbox: function(width, height) {
-            // Genera dinámicamente un área de escaneo cuadrada ajustada al contenedor
-            return { width: 140, height: 140 };
+ function iniciarCamara(){
+
+
+    const html5QrCode = new Html5Qrcode(
+
+
+        "reader",
+
+
+        {
+
+
+            formatsToSupport:[
+
+                Html5QrcodeSupportedFormats.CODE_128
+
+            ]
+
+
         }
-    },
-    async (codigo) => {
-        if(codigo === ultimoCodigo) return;
-        ultimoCodigo = codigo;
-        setTimeout(() => { ultimoCodigo = ""; }, 2500);
-        registrar(codigo);
-    }
-).catch(err => {
-    console.error("No se pudo iniciar el escáner de cámara: ", err);
-});
+
+
+    );
+
+
+    html5QrCode.start(
+
+
+        { facingMode:"environment" },
+
+
+        {
+
+
+            fps:10,
+
+
+            qrbox:{
+
+                width:320,
+
+                height:140
+
+            },
+
+
+            rememberLastUsedCamera:true
+
+
+        },
+
+
+        (decodedText)=>{
+
+
+            if(decodedText === ultimoCodigo) return;
+
+
+            ultimoCodigo = decodedText;
+
+
+            setTimeout(()=>{
+
+                ultimoCodigo = "";
+
+            },2000);
+
+
+            registrar(decodedText);
+
+
+        },
+
+
+        (errorMessage)=>{
+
+            // ignorar
+
+        }
+
+
+    )
+
+
+    .catch(err=>{
+
+
+        console.error(err);
+
+
+        mensaje.innerHTML =
+
+        "❌ No se pudo abrir la cámara";
+
+
+    });
+
+
+}
+
+
+// ======================================
+
+// INICIAR
+
+// ======================================
+
+
+iniciarCamara(); 
 
 // =====================================
-// 🔥 LÓGICA DE CONTROL Y REGISTRO TRANSACCIONAL
+// 🔥 LOGICA CENTRAL DE BASE DE DATOS
 // =====================================
 async function registrar(id){
     const estadoTitulo = document.getElementById("estadoTitulo");
     const estadoSub = document.getElementById("estadoSub");
 
     estadoTitulo.innerHTML = "BUSCANDO...";
-    estadoSub.innerHTML = "Consultando base de alumnos...";
+    estadoSub.innerHTML = "ID detectado: " + id; // Muestra el ID transitoriamente en pantalla para auditarlo
 
     const ahora = new Date();
     const fecha = ahora.toISOString().split('T')[0];
     const hora = ahora.toLocaleTimeString();
     const timestamp = ahora.getTime();
 
-    // 1. Validar existencia del alumno
     const snap = await db.ref("alumnos/" + id).once("value");
 
     if(!snap.exists()){
         sonidoError.play();
         estadoTitulo.innerHTML = "NO REGISTRADO";
-        estadoSub.innerHTML = "Código erróneo o alumno ausente.";
+        estadoSub.innerHTML = "ID " + id + " no existe en base.";
         return;
     }
 
@@ -608,7 +667,6 @@ async function registrar(id){
     const activoSnap = await refActivo.once("value");
     const activo = activoSnap.val();
 
-    // 2. Comprobar si el alumno ya se encuentra activo en algún taller
     if(activo){
         if(activo.taller === taller){
             const minutos = (timestamp - activo.timestamp) / 60000;
@@ -616,28 +674,19 @@ async function registrar(id){
             if(minutos < 10){
                 sonidoError.play();
                 estadoTitulo.innerHTML = "ESPERA";
-                estadoSub.innerHTML = "Bloqueo de seguridad dinámico (10 min)";
+                estadoSub.innerHTML = "Faltan " + Math.ceil(10 - minutos) + " min.";
                 return;
             }
 
-            // Registrar marcas de Salida
             await db.ref("congreso/" + taller + "/" + fecha + "/" + id).push({
-                alumno: id,
-                nombre: alumno.nombre,
-                tipo: "salida",
-                hora: hora,
-                fecha: fecha,
-                taller: taller,
-                dispositivo: navigator.userAgent,
-                timestamp: timestamp
+                alumno: id, nombre: alumno.nombre, tipo: "salida", hora, fecha, taller,
+                dispositivo: navigator.userAgent, timestamp
             });
 
             await refActivo.remove();
             guardarEnSheets(id, alumno.nombre, taller, "salida");
 
-            if(alumno.chat_id){
-                notificar(alumno.chat_id, alumno.nombre, "salida", hora);
-            }
+            if(alumno.chat_id) notificar(alumno.chat_id, alumno.nombre, "salida", hora);
 
             sonidoSalida.play();
             contador++;
@@ -648,34 +697,20 @@ async function registrar(id){
         } else {
             sonidoError.play();
             estadoTitulo.innerHTML = "ALUMNO OCUPADO";
-            estadoSub.innerHTML = "Activo en: " + activo.taller.toUpperCase();
+            estadoSub.innerHTML = "Activo en taller: " + activo.taller.toUpperCase();
             return;
         }
     }
 
-    // 3. Flujo común: Entrada Exitosa
     await db.ref("congreso/" + taller + "/" + fecha + "/" + id).push({
-        alumno: id,
-        nombre: alumno.nombre,
-        tipo: "entrada",
-        hora: hora,
-        fecha: fecha,
-        taller: taller,
-        dispositivo: navigator.userAgent,
-        timestamp: timestamp
+        alumno: id, nombre: alumno.nombre, tipo: "entrada", hora, fecha, taller,
+        dispositivo: navigator.userAgent, timestamp
     });
 
-    await refActivo.set({
-        taller: taller,
-        hora: hora,
-        timestamp: timestamp
-    });
-
+    await refActivo.set({ taller, hora, timestamp });
     guardarEnSheets(id, alumno.nombre, taller, "entrada");
 
-    if(alumno.chat_id){
-        notificar(alumno.chat_id, alumno.nombre, "entrada", hora);
-    }
+    if(alumno.chat_id) notificar(alumno.chat_id, alumno.nombre, "entrada", hora);
 
     sonidoEntrada.play();
     contador++;
