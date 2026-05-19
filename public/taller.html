@@ -556,48 +556,51 @@ function guardarEnSheets(id, nombre, taller, tipo){
 let ultimoCodigo = "";
 
 // =====================================
-// 🔥 INICIALIZACIÓN DE CÁMARA (Optimizado para Código de Barras y QR)
+// 🔥 INICIALIZACIÓN DE CÁMARA (Corrección de Visor y Barras)
 // =====================================
 const qr = new Html5Qrcode("reader");
 
 qr.start(
     { facingMode: "environment" },
     {
-        fps: 30, // Elevamos los frames por segundo para un enfoque más fluido
-        qrbox: function(width, height) {
-            // Creamos un visor rectangular ideal para códigos de barras
-            // Evita que la cámara se vuelva loca buscando cuadrados
-            return { width: 220, height: 90 }; 
-        },
-        // 🌟 INDICAMOS LOS FORMATOS DE BARRAS MÁS COMUNES EN CREDENCIALES ESCRELARES
+        fps: 25,
+        // Fijamos un rectángulo estático perfecto para barras y QR sin usar funciones
+        qrbox: { width: 220, height: 110 }, 
+        // Formatos explícitos bien declarados
         formatsToSupport: [ 
-            Html5QrcodeSupportedFormats.QR_CODE,
-            Html5QrcodeSupportedFormats.CODE_128, // Muy común en escuelas
-            Html5QrcodeSupportedFormats.CODE_39,
-            Html5QrcodeSupportedFormats.EAN_8,
-            Html5QrcodeSupportedFormats.EAN_13
+            0, // QR_CODE
+            6, // CODE_128 (El estándar de credenciales)
+            5, // CODE_39
+            1, // DATA_MATRIX
+            11 // EAN_13
         ]
     },
     async (codigo) => {
-        // 🌟 LIMPIEZA ABSOLUTA DEL TEXTO DETECTADO
-        // Quita espacios al inicio/final y remueve cualquier salto de línea oculto (\n o \r)
-        const codigoLimpio = codigo.trim().replace(/[\n\r]/g, "");
+        // Limpieza de caracteres invisibles del código de barras
+        const codigoLimpio = codigo.toString().trim().replace(/[\n\r\t]/g, "");
 
-        // Si el código limpio está vacío, no procesar
         if (!codigoLimpio) return;
-
         if (codigoLimpio === ultimoCodigo) return;
-        ultimoCodigo = codigoLimpio;
         
+        ultimoCodigo = codigoLimpio;
         setTimeout(() => { ultimoCodigo = ""; }, 2500);
         
-        // Ejecuta el registro con la cadena de texto idéntica a como está en Firebase
         registrar(codigoLimpio);
     }
 ).catch(err => {
-    console.error("Error al iniciar la cámara: ", err);
-    document.getElementById("estadoTitulo").innerHTML = "ERROR CÁMARA";
-    document.getElementById("estadoSub").innerHTML = "Revisa los permisos de acceso.";
+    console.error("Error de inicialización: ", err);
+    // Si falla por los formatos, arranca en modo automático para no bloquearse
+    qr.start(
+        { facingMode: "environment" },
+        { fps: 25, qrbox: { width: 200, height: 120 } },
+        async (codigo) => {
+            const codigoLimpio = codigo.toString().trim().replace(/[\n\r\t]/g, "");
+            if (codigoLimpio === ultimoCodigo) return;
+            ultimoCodigo = codigoLimpio;
+            setTimeout(() => { ultimoCodigo = ""; }, 2500);
+            registrar(codigoLimpio);
+        }
+    );
 });
 
 // =====================================
