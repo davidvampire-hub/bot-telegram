@@ -562,7 +562,7 @@ const qr = new Html5Qrcode("reader");
 qr.start(
     { facingMode: "environment" },
     {
-        fps: 24,
+        fps: 80,
         qrbox: function(width, height) {
             // Genera dinámicamente un área de escaneo cuadrada ajustada al contenedor
             return { width: 140, height: 140 };
