@@ -144,27 +144,31 @@ Ejemplo:
       return res.sendStatus(200);
     }
 
-   // =====================================
+    // =====================================
+    // 📋 CONSULTA DE ASISTENCIA
+    // =====================================
+
+    // =====================================
 // 📋 CONSULTA DE ASISTENCIA
 // =====================================
 
 if (text.startsWith("ASISTENCIA")) {
 
+  const partes = text.split(" ");
+
+  const id = partes[1];
+
+  if (!id) {
+
+    await enviar(
+      chatId,
+      "⚠️ Usa:\nASISTENCIA 23318050270088"
+    );
+
+    return res.sendStatus(200);
+  }
+
   try {
-
-    const partes = text.split(" ");
-
-    const id = partes[1];
-
-    if (!id) {
-
-      await enviar(
-        chatId,
-        "⚠️ Usa:\nASISTENCIA 23318050270088"
-      );
-
-      return res.sendStatus(200);
-    }
 
     // 🔥 BUSCAR ALUMNO
     const alumnoRes = await fetch(
@@ -188,7 +192,7 @@ if (text.startsWith("ASISTENCIA")) {
       .toISOString()
       .split("T")[0];
 
-    // 🔥 LEER TODO CONGRESO
+    // 🔥 LEER TODOS LOS TALLERES
     const congresosRes = await fetch(
       `${FIREBASE}/congreso.json`
     );
@@ -211,7 +215,9 @@ if (text.startsWith("ASISTENCIA")) {
       for (const taller in congresos) {
 
         const registrosAlumno =
-          congresos?.[taller]?.[fecha]?.[id];
+          congresos[taller] &&
+          congresos[taller][fecha] &&
+          congresos[taller][fecha][id];
 
         if (registrosAlumno) {
 
@@ -246,7 +252,10 @@ ${r.tipo.toUpperCase()}
 
   } catch (err) {
 
-    console.error("❌ ERROR ASISTENCIA:", err);
+    console.error(
+      "❌ ERROR ASISTENCIA:",
+      err
+    );
 
     await enviar(
       chatId,
@@ -257,69 +266,6 @@ ${r.tipo.toUpperCase()}
   }
 
 }
-      // =====================================
-      // 🔥 BUSCAR REGISTROS
-      // =====================================
-
-      const regRes = await fetch(
-        `${FIREBASE}/congreso.json`
-      );
-
-      const data = await regRes.json();
-
-      let respuesta =
-`🎓 CONGRESO ESCOLAR
-
-👨‍🎓 ${alumno.nombre}
-
-📅 ${fecha}
-
-`;
-
-      let encontrados = 0;
-
-      if (data) {
-
-        Object.keys(data).forEach(taller => {
-
-          if (
-            data[taller] &&
-            data[taller][fecha] &&
-            data[taller][fecha][id]
-          ) {
-
-            const registros =
-              data[taller][fecha][id];
-
-            Object.values(registros)
-            .forEach(r => {
-
-              encontrados++;
-
-              respuesta +=
-`📍 ${r.taller}
-${r.tipo.toUpperCase()} - ${r.hora}
-
-`;
-
-            });
-
-          }
-
-        });
-
-      }
-
-      if (encontrados === 0) {
-
-        respuesta +=
-        "❌ Sin registros hoy";
-      }
-
-      await enviar(chatId, respuesta);
-
-      return res.sendStatus(200);
-    }
 
     // =====================================
     // 💬 MENSAJE DEFAULT
