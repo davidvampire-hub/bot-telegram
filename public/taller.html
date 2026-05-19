@@ -184,18 +184,21 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
-    #reader {
-        width: 100% !important;
-        height: 100% !important;
-        border: none !important;
-    }
+   #reader{
+    width:95vw;
+    max-width:900px;
+    margin:auto;
+}
 
-    /* Control estricto sobre el elemento de video inyectado por la librería */
-    #reader video {
-        width: 100% !important;
-        height: 100% !important;
-        object-fit: cover !important; /* Corta los sobrantes en vez de estirar y achatar las barras */
-    }
+#reader video{
+    border-radius:20px;
+    object-fit:cover !important;
+}
+
+#reader__scan_region{
+    border:4px solid #00ff88 !important;
+    border-radius:20px;
+}
 
     /* Esquinas rojas de guía visual según tu boceto original */
     .corner-guide {
