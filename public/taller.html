@@ -514,8 +514,10 @@ async function notificar(chat_id, nombre, tipo, hora){
 
     try{
 
-        const response = await fetch(
+        const resp = await fetch(
+
             "https://bot-telegram-production-cb3d.up.railway.app/notificar",
+
             {
 
                 method:"POST",
@@ -524,25 +526,30 @@ async function notificar(chat_id, nombre, tipo, hora){
                     "Content-Type":"application/json"
                 },
 
-                body:JSON.stringify({
+                body: JSON.stringify({
 
                     chat_id: chat_id,
                     nombre: nombre,
                     tipo: tipo,
-                    hora: hora
+                    hora: hora,
+                    taller: taller
 
                 })
 
             }
+
         );
 
-        const data = await response.text();
+        const data = await resp.text();
 
-        console.log("✅ Telegram:", data);
+        console.log("📨 TELEGRAM:", data);
 
     }catch(error){
 
-        console.error("❌ Error Telegram:", error);
+        console.error(
+            "❌ ERROR TELEGRAM:",
+            error
+        );
 
     }
 
