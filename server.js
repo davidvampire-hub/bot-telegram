@@ -1,4 +1,6 @@
 const express = require("express");
+
+console.log("🔥 SERVER INICIADO");
 const fetch = require("node-fetch");
 
 const app = express();
@@ -36,7 +38,7 @@ app.get("/", (req, res) => {
 // =====================================
 
 app.post("/webhook", async (req, res) => {
-
+console.log("📩 MENSAJE RECIBIDO");
   try {
 
     console.log("🔥 WEBHOOK:", JSON.stringify(req.body));
