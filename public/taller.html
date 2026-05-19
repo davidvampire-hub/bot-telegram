@@ -558,24 +558,33 @@ let ultimoCodigo = "";
 // =====================================
 // 🔥 INICIALIZACIÓN DE CÁMARA QR (Modo Entorno)
 // =====================================
+// Cambia tu configuración actual de qr.start por esta:
 const qr = new Html5Qrcode("reader");
 qr.start(
     { facingMode: "environment" },
     {
         fps: 80,
-        qrbox: function(width, height) {
-            // Genera dinámicamente un área de escaneo cuadrada ajustada al contenedor
-            return { width: 140, height: 140 };
-        }
+        qrbox: { width: 180, height: 100 }, // Caja más alargada para códigos de barras
+        // 🌟 IMPORTANTE: Permitir todos los formatos de códigos de barras
+        formatsToSupport: [ 
+            Html5QrcodeSupportedFormats.QR_CODE,
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.CODE_128,
+            Html5QrcodeSupportedFormats.CODE_39
+        ]
     },
     async (codigo) => {
-        if(codigo === ultimoCodigo) return;
-        ultimoCodigo = codigo;
+        // 🌟 LIMPIAR EL CÓDIGO: Quita espacios y saltos de línea que añade el código de barras
+        const codigoLimpio = codigo.trim().replace(/[\n\r]/g, "");
+
+        if(codigoLimpio === ultimoCodigo) return;
+        ultimoCodigo = codigoLimpio;
         setTimeout(() => { ultimoCodigo = ""; }, 2500);
-        registrar(codigo);
+        
+        registrar(codigoLimpio);
     }
 ).catch(err => {
-    console.error("No se pudo iniciar el escáner de cámara: ", err);
+    console.error(err);
 });
 
 // =====================================
