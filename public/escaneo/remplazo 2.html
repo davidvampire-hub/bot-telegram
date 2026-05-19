@@ -1,365 +1,360 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Control de Asistencia - CBTis 27</title>
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
-
-<title>Congreso Escolar CBTis 27</title>
-
-<!-- 🔥 QR -->
 <script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-body{
-
-    font-family:Arial;
-    background:
-    linear-gradient(
-        180deg,
-        #3d0008 0%,
-        #6b0010 40%,
-        #7c0013 100%
-    );
-
-    min-height:100vh;
-
-    color:white;
-
-    overflow:hidden;
-}
-
-/* 🔥 FONDO TECNOLOGICO */
-
-body::before{
-
-    content:"";
-
-    position:fixed;
-
-    inset:0;
-
-    background:
-    url("https://www.transparenttextures.com/patterns/circuit-board.png");
-
-    opacity:.12;
-
-    pointer-events:none;
-}
-
-/* 🔥 CONTENEDOR */
-
-.container{
-
-    width:100%;
-
-    max-width:480px;
-
-    margin:auto;
-
-    padding:10px;
-
-}
-
-/* 🔥 HEADER */
-
-.header{
-
-    text-align:center;
-
-    margin-bottom:8px;
-}
-
-.logo{
-
-    width:110px;
-
-    margin:auto;
-
-    display:block;
-
-    margin-bottom:5px;
-}
-
-.titulo{
-
-    font-size:42px;
-
-    font-weight:900;
-
-    letter-spacing:1px;
-}
-
-.subtitulo{
-
-    color:#ffd8d8;
-
-    font-size:17px;
-
-    margin-top:2px;
-}
-
-/* 🔥 TARJETAS */
-
-.card{
-
-    background:white;
-
-    border-radius:18px;
-
-    margin-top:10px;
-
-    overflow:hidden;
-
-    box-shadow:
-    0 8px 25px rgba(0,0,0,.25);
-}
-
-/* 🔥 ENCABEZADO TARJETA */
-
-.card-header{
-
-    background:
-    linear-gradient(
-        90deg,
-        #7a0012,
-        #9f0018
-    );
-
-    color:white;
-
-    padding:8px 15px;
-
-    font-size:18px;
-
-    font-weight:bold;
-}
-
-/* 🔥 TALLER */
-
-.taller-body{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:18px;
-
-    padding:20px;
-}
-
-.icono{
-
-    font-size:60px;
-
-    color:#7a0012;
-}
-
-.taller-texto{
-
-    color:#7a0012;
-}
-
-.taller-texto span{
-
-    display:block;
-
-    font-size:22px;
-}
-
-.taller-texto strong{
-
-    font-size:52px;
-
-    line-height:1;
-}
-
-/* 🔥 CAMARA */
-
-#reader{
-
-    width:100%;
-
-    overflow:hidden;
-
-    border-radius:0 0 18px 18px;
-}
-
-#reader video{
-
-    object-fit:cover !important;
-}
-
-/* 🔥 OCULTAR BOTONES */
-
-.html5-qrcode-element{
-    display:none !important;
-}
-
-#reader__dashboard{
-    display:none !important;
-}
-
-#reader__scan_region{
-    border:none !important;
-}
-
-#reader__scan_region img{
-    display:none !important;
-}
-
-/* 🔥 ESTADO */
-
-.estado{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:18px;
-
-    padding:18px;
-}
-
-.estado-icono{
-
-    width:75px;
-    height:75px;
-
-    border-radius:50%;
-
-    background:#7a0012;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
-    font-size:34px;
-}
-
-.estado-texto{
-
-    flex:1;
-}
-
-.estado-titulo{
-
-    color:#333;
-
-    font-size:34px;
-
-    font-weight:bold;
-}
-
-.estado-sub{
-
-    color:#555;
-
-    font-size:18px;
-}
-
-/* 🔥 INFO */
-
-.info{
-
-    display:grid;
-
-    grid-template-columns:1fr 1fr;
-
-    gap:10px;
-
-    margin-top:10px;
-}
-
-.info-card{
-
-    background:
-    linear-gradient(
-        180deg,
-        rgba(255,255,255,.12),
-        rgba(255,255,255,.05)
-    );
-
-    border:2px solid rgba(255,255,255,.15);
-
-    border-radius:15px;
-
-    padding:12px;
-
-    text-align:center;
-
-    backdrop-filter:blur(5px);
-}
-
-.info-icon{
-
-    font-size:28px;
-
-    margin-bottom:5px;
-}
-
-.info-label{
-
-    font-size:14px;
-
-    color:#ffdede;
-}
-
-.info-value{
-
-    font-size:22px;
-
-    font-weight:bold;
-
-    margin-top:3px;
-}
-
-/* 🔥 FOOTER */
-
-.footer{
-
-    text-align:center;
-
-    margin-top:12px;
-
-    color:#ffd7d7;
-
-    font-size:16px;
-
-    padding-bottom:10px;
-}
-
-/* 📱 MOVIL */
-
-@media(max-height:800px){
-
-    .titulo{
-        font-size:34px;
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
-    .taller-texto strong{
-        font-size:40px;
+    body {
+        background: radial-gradient(circle at center, #500611 0%, #280207 100%);
+        min-height: 100vh;
+        height: 100vh;
+        color: white;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
-    .estado-titulo{
-        font-size:28px;
+    /* Fondo Tecnológico */
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: url("https://www.transparenttextures.com/patterns/circuit-board.png");
+        opacity: 0.08;
+        pointer-events: none;
+        z-index: 1;
     }
 
-    .logo{
-        width:90px;
+    /* Contenedor Principal (Forzado a ocupar el alto de pantalla disponible sin scroll) */
+    .container {
+        width: 100%;
+        max-width: 430px;
+        height: 100vh;
+        padding: 12px 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        z-index: 2;
     }
 
-}
+    /* 🔥 HEADER */
+    .header {
+        text-align: center;
+        margin-bottom: 4px;
+    }
 
+    .logo-container {
+        position: relative;
+        width: 85px;
+        height: 85px;
+        margin: 0 auto 6px auto;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 216, 216, 0.2);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 4px;
+    }
+
+    .logo {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .titulo {
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: #ffffff;
+        line-height: 1.1;
+    }
+
+    .subtitulo {
+        color: #c9a46c; /* Tono Dorado/Crema elegante del diseño */
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        margin-top: 4px;
+        text-transform: uppercase;
+    }
+
+    /* 🔥 CONTENEDOR DE TARJETAS (Estructura de Bloques Limpios) */
+    .card-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        flex-grow: 1;
+        justify-content: center;
+        margin: 6px 0;
+    }
+
+    /* Tarjeta Base */
+    .card {
+        background: rgba(255, 255, 255, 0.94);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+
+    /* Encabezado Pequeño Estilo Boceto */
+    .card-tag {
+        background: #6e1c24;
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 9px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        padding: 3px 10px;
+        text-transform: uppercase;
+        display: inline-block;
+        border-bottom-right-radius: 6px;
+    }
+
+    /* Bloque Taller Activo */
+    .taller-body {
+        display: flex;
+        align-items: center;
+        padding: 8px 16px 14px 16px;
+        gap: 14px;
+    }
+
+    .taller-icon-box {
+        color: #500611;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .taller-texto {
+        color: #1a1a1a;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .taller-texto span {
+        font-size: 11px;
+        color: #777;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .taller-texto strong {
+        font-size: 24px;
+        font-weight: 900;
+        color: #222;
+        line-height: 1.1;
+    }
+
+    /* Bloque Escáner QR */
+    .scanner-container {
+        position: relative;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: #ffffff;
+    }
+
+    .scanner-title {
+        color: #6e1c24;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+    }
+
+    .scanner-viewfinder {
+        position: relative;
+        width: 190px;
+        height: 190px;
+        background: #fafafa;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    /* Capa del visor simulado del boceto */
+    #reader {
+        width: 100% !important;
+        height: 100% !important;
+        border: none !important;
+    }
+
+    #reader video {
+        object-fit: cover !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    /* Guías de las esquinas del boceto */
+    .corner-guide {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #6e1c24;
+        pointer-events: none;
+        z-index: 10;
+    }
+    .top-left { top: 12px; left: 12px; border-right: none; border-bottom: none; border-top-left-radius: 8px; }
+    .top-right { top: 12px; right: 12px; border-left: none; border-bottom: none; border-top-right-radius: 8px; }
+    .bottom-left { bottom: 12px; left: 12px; border-right: none; border-top: none; border-bottom-left-radius: 8px; }
+    .bottom-right { bottom: 12px; right: 12px; border-left: none; border-top: none; border-bottom-right-radius: 8px; }
+
+    .scanner-hint {
+        font-size: 10px;
+        color: #888;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-top: 10px;
+        text-transform: uppercase;
+    }
+
+    /* Bloque Estado */
+    .estado-body {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 10px 16px;
+    }
+
+    .estado-circle {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: #6e1c24;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .estado-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .estado-main {
+        color: #222;
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+    }
+
+    .estado-desc {
+        color: #666;
+        font-size: 11px;
+        font-weight: 500;
+        margin-top: 1px;
+    }
+
+    /* 🔥 GRID DE INFORMACIÓN METADATOS */
+    .metrics-bar {
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+        padding: 6px 10px;
+        display: grid;
+        grid-template-columns: 1.1fr 1.1fr 1fr 0.9fr;
+        gap: 4px;
+        align-items: center;
+    }
+
+    .metric-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        padding-right: 4px;
+    }
+
+    .metric-item:last-child {
+        border-right: none;
+        padding-right: 0;
+    }
+
+    .metric-icon-container {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .metric-texts {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .metric-label {
+        font-size: 7.5px;
+        color: rgba(255, 255, 255, 0.5);
+        font-weight: bold;
+        letter-spacing: 0.5px;
+    }
+
+    .metric-value {
+        font-size: 10px;
+        font-weight: 800;
+        color: #ffffff;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .status-active {
+        color: #e2be5a !important;
+    }
+
+    /* 🔥 SECCIÓN FOOTER */
+    .footer-divider {
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #c9a46c, transparent);
+        margin: 8px 0;
+    }
+
+    .footer-text {
+        text-align: center;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        color: #c9a46c;
+        text-transform: uppercase;
+        padding-bottom: 2px;
+    }
+
+    /* Esconder elementos nativos del script QR */
+    .html5-qrcode-element, #reader__dashboard, #reader__scan_region border {
+        display: none !important;
+    }
+    
+    /* Adaptaciones finas para pantallas muy compactas */
+    @media (max-height: 680px) {
+        .logo-container { width: 70px; height: 70px; }
+        .titulo { font-size: 22px; }
+        .scanner-viewfinder { width: 155px; height: 155px; }
+        .taller-texto strong { font-size: 20px; }
+        .estado-main { font-size: 13px; }
+    }
 </style>
 </head>
 
@@ -367,615 +362,327 @@ body::before{
 
 <div class="container">
 
-    <!-- 🔥 HEADER -->
-    <div class="header">
-
-        <img
-        src="https://scontent.fgdl5-3.fna.fbcdn.net/v/t39.30808-6/473667183_1162920999166773_1954077721713265243_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeE6vFYVzGtrAYx6mu5xSQZ2zkF1KHzPMAnOQXUofM8wCZEd2TzJ_zkdLbq0BahK_r2bLdV-w2rU67x696dRlEZs&_nc_ohc=vj90W0nL-s8Q7kNvwF1SzUA&_nc_oc=Adq9ncx3UN7TvQycg5PnKvR_imdF1qVXPkrt1aUGlkQFWd7TQIaniSweyplR9XZkZGVLWOT-fa_QzmDm-nmptYxx&_nc_zt=23&_nc_ht=scontent.fgdl5-3.fna&_nc_gid=q_iTOr9Q4qkoW9yiq4CZNw&_nc_ss=7b2a8&oh=00_Af4RA6idUZxtx51v156obBGTGB9F0O7X6qiXHbKB1jTVQQ&oe=6A119BE2"
-        class="logo">
-
-        <div class="titulo">
-            CONGRESO ESCOLAR
+    <header class="header">
+        <div class="logo-container">
+            <img src="https://scontent.fgdl5-3.fna.fbcdn.net/v/t39.30808-6/473667183_1162920999166773_1954077721713265243_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeE6vFYVzGtrAYx6mu5xSQZ2zkF1KHzPMAnOQXUofM8wCZEd2TzJ_zkdLbq0BahK_r2bLdV-w2rU67x696dRlEZs&_nc_ohc=vj90W0nL-s8Q7kNvwF1SzUA&_nc_oc=Adq9ncx3UN7TvQycg5PnKvR_imdF1qVXPkrt1aUGlkQFWd7TQIaniSweyplR9XZkZGVLWOT-fa_QzmDm-nmptYxx&_nc_zt=23&_nc_ht=scontent.fgdl5-3.fna&_nc_gid=q_iTOr9Q4qkoW9yiq4CZNw&_nc_ss=7b2a8&oh=00_Af4RA6idUZxtx51v156obBGTGB9F0O7X6qiXHbKB1jTVQQ&oe=6A119BE2" class="logo" alt="Logo">
         </div>
+        <h1 class="titulo">CONGRESO ESCOLAR</h1>
+        <p class="subtitulo">Control de Asistencia</p>
+    </header>
 
-        <div class="subtitulo">
-            CONTROL DE ASISTENCIA
-        </div>
+    <div class="card-stack">
 
-    </div>
-
-    <!-- 🔥 TARJETA TALLER -->
-    <div class="card">
-
-        <div class="card-header">
-            TALLER ACTIVO
-        </div>
-
-        <div class="taller-body">
-
-            <div class="icono">
-                ⚙️
-            </div>
-
-            <div class="taller-texto">
-
-                <span>TALLER:</span>
-
-                <strong id="nombreTaller">
-                    ESCANEO
-                </strong>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- 🔥 TARJETA CAMARA -->
-    <div class="card">
-
-        <div class="card-header">
-            ESCANEA TU CÓDIGO QR
-        </div>
-
-        <div id="reader"></div>
-
-    </div>
-
-    <!-- 🔥 TARJETA ESTADO -->
-    <div class="card">
-
-        <div class="card-header">
-            ESTADO
-        </div>
-
-        <div class="estado">
-
-            <div class="estado-icono">
-                📱
-            </div>
-
-            <div class="estado-texto">
-
-                <div
-                class="estado-titulo"
-                id="estadoTitulo">
-
-                    ESPERANDO ESCANEO...
-
+        <section class="card">
+            <div class="card-tag">Taller Activo</div>
+            <div class="taller-body">
+                <div class="taller-icon-box">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l-.38 2.65c-.03.24.17.42.42.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
                 </div>
-
-                <div
-                class="estado-sub"
-                id="estadoSub">
-
-                    Listo para registrar entrada o salida
-
+                <div class="taller-texto">
+                    <span>TALLER:</span>
+                    <strong id="nombreTaller">ESCANEO</strong>
                 </div>
-
             </div>
+        </section>
 
-        </div>
+        <section class="card" style="position: relative;">
+            <div class="corner-guide top-left"></div>
+            <div class="corner-guide top-right"></div>
+            <div class="corner-guide bottom-left"></div>
+            <div class="corner-guide bottom-right"></div>
+
+            <div class="scanner-container">
+                <span class="scanner-title">Escanea tu código QR</span>
+                <div class="scanner-viewfinder">
+                    <div id="reader"></div>
+                </div>
+                <span class="scanner-hint">Acerca tu código QR al lector</span>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card-tag">Estado</div>
+            <div class="estado-body">
+                <div class="estado-circle">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                </div>
+                <div class="estado-content">
+                    <div class="estado-main" id="estadoTitulo">ESPERANDO ESCANEO...</div>
+                    <div class="estado-desc" id="estadoSub">Listo para registrar tu entrada o salida</div>
+                </div>
+            </div>
+        </section>
 
     </div>
 
-    <!-- 🔥 INFO -->
-    <div class="info">
-
-        <div class="info-card">
-
-            <div class="info-icon">
-                📅
+    <div class="metrics-bar">
+        <div class="metric-item">
+            <div class="metric-icon-container">
+                <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
             </div>
-
-            <div class="info-label">
-                FECHA
+            <div class="metric-texts">
+                <span class="metric-label">FECHA</span>
+                <span class="metric-value" id="fecha">--/--/----</span>
             </div>
-
-            <div
-            class="info-value"
-            id="fecha">
-            </div>
-
         </div>
-
-        <div class="info-card">
-
-            <div class="info-icon">
-                🕒
+        <div class="metric-item">
+            <div class="metric-icon-container">
+                <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
             </div>
-
-            <div class="info-label">
-                HORA
+            <div class="metric-texts">
+                <span class="metric-label">HORA</span>
+                <span class="metric-value" id="hora">00:00:00</span>
             </div>
-
-            <div
-            class="info-value"
-            id="hora">
-            </div>
-
         </div>
-
-        <div class="info-card">
-
-            <div class="info-icon">
-                👥
+        <div class="metric-item">
+            <div class="metric-icon-container">
+                <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 1.34 5 3s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
             </div>
-
-            <div class="info-label">
-                REGISTROS HOY
+            <div class="metric-texts">
+                <span class="metric-label">REGISTROS HOY</span>
+                <span class="metric-value" id="contador">0</span>
             </div>
-
-            <div
-            class="info-value"
-            id="contador">
-
-                0
-
-            </div>
-
         </div>
-
-        <div class="info-card">
-
-            <div class="info-icon">
-                🛡️
+        <div class="metric-item">
+            <div class="metric-icon-container">
+                <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zm0-18.1l5.5 2.06v4.61c0 3.73-4.15 6.64-5.5 7.55-1.35-.91-5.5-3.82-5.5-7.55V5.96L12 3.9z"/></svg>
             </div>
-
-            <div class="info-label">
-                SISTEMA
+            <div class="metric-texts">
+                <span class="metric-label">SISTEMA</span>
+                <span class="metric-value status-active">ACTIVO</span>
             </div>
-
-            <div class="info-value"
-            style="color:#ffe066">
-
-                ACTIVO
-
-            </div>
-
         </div>
-
     </div>
 
-    <!-- 🔥 FOOTER -->
-    <div class="footer">
-
-        CBTis 27 · Ixtlán del Río · Nayarit
-
+    <div>
+        <div class="footer-divider"></div>
+        <div class="footer-text">CBTis 2 · Ixtlán del Río, Nay.</div>
     </div>
 
 </div>
 
-<!-- 🔥 FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-
 // =====================================
-// 🔥 FIREBASE
+// 🔥 CONFIGURACIÓN FIREBASE
 // =====================================
-
 const firebaseConfig = {
-
   apiKey: "AIzaSyCWQAmB9cMI4Y0YBPC_iV6p1YGgZTSNFQ0",
-
   authDomain: "controlasistencia-d236e.firebaseapp.com",
-
   databaseURL: "https://controlasistencia-d236e-default-rtdb.firebaseio.com",
-
   projectId: "controlasistencia-d236e",
-
   storageBucket: "controlasistencia-d236e.firebasestorage.app",
-
   messagingSenderId: "3052247103",
-
   appId: "1:3052247103:web:eaed021913fa765427808a",
-
   measurementId: "G-H9EKB1F7ZW"
-
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const db = firebase.database();
 
 // =====================================
-// 🔥 GOOGLE SHEETS
+// 🔥 GOOGLE SHEETS URL SCRIPT
 // =====================================
-
-const URL_SCRIPT =
-"https://script.google.com/macros/s/AKfycbynZVN1eZ52UsM7x-11k8D6m2l8K0r5n3mtgL15WIjkGW6BnL31Ipu3YkEi9jLLUfgl/exec";
+const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbynZVN1eZ52UsM7x-11k8D6m2l8K0r5n3mtgL15WIjkGW6BnL31Ipu3YkEi9jLLUfgl/exec";
 
 // =====================================
-// 🔥 PARAMETROS
+// 🔥 RECOGIDA DE PARÁMETROS URL
 // =====================================
-
-const params =
-new URLSearchParams(window.location.search);
-
-const taller =
-params.get("taller") || "escaneo";
-
-document.getElementById(
-"nombreTaller"
-).innerHTML =
-taller.toUpperCase();
+const params = new URLSearchParams(window.location.search);
+const taller = params.get("taller") || "escaneo";
+document.getElementById("nombreTaller").innerHTML = taller.toUpperCase();
 
 // =====================================
-// 🔥 FECHA Y HORA
+// 🔥 CONTROL DE TIEMPO (FECHA Y HORA)
 // =====================================
-
 function actualizarHora(){
-
     const ahora = new Date();
-
-    document.getElementById("hora")
-    .innerHTML =
-    ahora.toLocaleTimeString();
-
-    document.getElementById("fecha")
-    .innerHTML =
-    ahora.toLocaleDateString();
-
+    document.getElementById("hora").innerHTML = ahora.toLocaleTimeString();
+    document.getElementById("fecha").innerHTML = ahora.toLocaleDateString();
 }
-
-setInterval(actualizarHora,1000);
-
+setInterval(actualizarHora, 1000);
 actualizarHora();
 
 // =====================================
-// 🔥 CONTADOR
+// 🔥 CONTADOR INTERNO
 // =====================================
-
 let contador = 0;
 
 // =====================================
-// 🔥 SONIDOS
+// 🔥 CONFIGURACIÓN DE AUDIO
 // =====================================
-
-const sonidoEntrada =
-new Audio(
-"https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
-);
-
-const sonidoSalida =
-new Audio(
-"https://actions.google.com/sounds/v1/cartoon/pop.ogg"
-);
-
-const sonidoError =
-new Audio(
-"https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
-);
+const sonidoEntrada = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
+const sonidoSalida  = new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg");
+const sonidoError   = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
 
 // =====================================
-// 🔥 TELEGRAM
+// 🔥 INTEGRACIÓN API TELEGRAM
 // =====================================
-
-function notificar(chat_id,nombre,tipo,hora){
-
-    fetch(
-    "https://bot-telegram-production-cb3d.up.railway.app/notificar",
-    {
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":"application/json"
-        },
-
-        body:JSON.stringify({
-
-            chat_id:chat_id,
-            nombre:nombre,
-            tipo:tipo,
-            hora:hora
-
+function notificar(chat_id, nombre, tipo, hora){
+    fetch("https://bot-telegram-production-cb3d.up.railway.app/notificar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            chat_id: chat_id,
+            nombre: nombre,
+            tipo: tipo,
+            hora: hora
         })
-
     });
-
 }
 
 // =====================================
-// 🔥 SHEETS
+// 🔥 ENVÍO A GOOGLE SHEETS (IFRAME)
 // =====================================
-
-function guardarEnSheets(id,nombre,taller,tipo){
-
-    const url =
-    URL_SCRIPT
+function guardarEnSheets(id, nombre, taller, tipo){
+    const url = URL_SCRIPT
     + "?id=" + encodeURIComponent(id)
     + "&nombre=" + encodeURIComponent(nombre)
     + "&taller=" + encodeURIComponent(taller)
     + "&tipo=" + encodeURIComponent(tipo)
-    + "&dispositivo=" + encodeURIComponent(
-        navigator.platform
-    );
+    + "&dispositivo=" + encodeURIComponent(navigator.platform);
 
-    const iframe =
-    document.createElement("iframe");
-
+    const iframe = document.createElement("iframe");
     iframe.style.display = "none";
-
     iframe.src = url;
-
     document.body.appendChild(iframe);
-
 }
 
 // =====================================
-// 🔥 DOBLE LECTURA
+// 🔥 ANTI-BOUNCE (EVITAR DOBLE LECTURA RAPIDA)
 // =====================================
-
 let ultimoCodigo = "";
 
 // =====================================
-// 🔥 CAMARA
+// 🔥 INICIALIZACIÓN DE CÁMARA QR (Modo Entorno)
 // =====================================
-
-const qr =
-new Html5Qrcode("reader");
-
+const qr = new Html5Qrcode("reader");
 qr.start(
-
-    { facingMode:"environment" },
-
+    { facingMode: "environment" },
     {
-
-        fps:20,
-
-        qrbox:{
-            width:260,
-            height:120
+        fps: 24,
+        qrbox: function(width, height) {
+            // Genera dinámicamente un área de escaneo cuadrada ajustada al contenedor
+            return { width: 140, height: 140 };
         }
-
     },
-
-    async(codigo)=>{
-
+    async (codigo) => {
         if(codigo === ultimoCodigo) return;
-
         ultimoCodigo = codigo;
-
-        setTimeout(()=>{
-            ultimoCodigo = "";
-        },2000);
-
+        setTimeout(() => { ultimoCodigo = ""; }, 2500);
         registrar(codigo);
-
     }
-
-);
+).catch(err => {
+    console.error("No se pudo iniciar el escáner de cámara: ", err);
+});
 
 // =====================================
-// 🔥 REGISTRAR
+// 🔥 LÓGICA DE CONTROL Y REGISTRO TRANSACCIONAL
 // =====================================
-
 async function registrar(id){
+    const estadoTitulo = document.getElementById("estadoTitulo");
+    const estadoSub = document.getElementById("estadoSub");
 
-    const estadoTitulo =
-    document.getElementById("estadoTitulo");
-
-    const estadoSub =
-    document.getElementById("estadoSub");
-
-    estadoTitulo.innerHTML =
-    "BUSCANDO...";
-
-    estadoSub.innerHTML =
-    "Consultando alumno";
+    estadoTitulo.innerHTML = "BUSCANDO...";
+    estadoSub.innerHTML = "Consultando base de alumnos...";
 
     const ahora = new Date();
+    const fecha = ahora.toISOString().split('T')[0];
+    const hora = ahora.toLocaleTimeString();
+    const timestamp = ahora.getTime();
 
-    const fecha =
-    ahora.toISOString().split('T')[0];
+    // 1. Validar existencia del alumno
+    const snap = await db.ref("alumnos/" + id).once("value");
 
-    const hora =
-    ahora.toLocaleTimeString();
-
-    const timestamp =
-    ahora.getTime();
-
-    // 🔥 BUSCAR ALUMNO
-    const snap =
-    await db.ref(
-        "alumnos/" + id
-    ).once("value");
-
-    // ❌ NO EXISTE
     if(!snap.exists()){
-
         sonidoError.play();
-
-        estadoTitulo.innerHTML =
-        "NO REGISTRADO";
-
-        estadoSub.innerHTML =
-        "Alumno no encontrado";
-
+        estadoTitulo.innerHTML = "NO REGISTRADO";
+        estadoSub.innerHTML = "Código erróneo o alumno ausente.";
         return;
     }
 
     const alumno = snap.val();
+    const refActivo = db.ref("activos/" + id);
+    const activoSnap = await refActivo.once("value");
+    const activo = activoSnap.val();
 
-    // 🔥 VALIDAR ACTIVO
-    const refActivo =
-    db.ref("activos/" + id);
-
-    const activoSnap =
-    await refActivo.once("value");
-
-    const activo =
-    activoSnap.val();
-
-    // =====================================
-    // 🔥 YA ACTIVO
-    // =====================================
-
+    // 2. Comprobar si el alumno ya se encuentra activo en algún taller
     if(activo){
-
-        // ✅ MISMO TALLER
         if(activo.taller === taller){
+            const minutos = (timestamp - activo.timestamp) / 60000;
 
-            const minutos =
-            (timestamp - activo.timestamp)
-            / 60000;
-
-            // ⛔ MENOS DE 10 MIN
             if(minutos < 10){
-
                 sonidoError.play();
-
-                estadoTitulo.innerHTML =
-                "ESPERA";
-
-                estadoSub.innerHTML =
-                "Deben pasar 10 minutos";
-
+                estadoTitulo.innerHTML = "ESPERA";
+                estadoSub.innerHTML = "Bloqueo de seguridad dinámico (10 min)";
                 return;
             }
 
-            // 🔥 SALIDA
-            await db.ref(
-
-                "congreso/" +
-                taller + "/" +
-                fecha + "/" +
-                id
-
-            ).push({
-
-                alumno:id,
-                nombre:alumno.nombre,
-                tipo:"salida",
-                hora:hora,
-                fecha:fecha,
-                taller:taller,
-                dispositivo:navigator.userAgent,
-                timestamp:timestamp
-
+            // Registrar marcas de Salida
+            await db.ref("congreso/" + taller + "/" + fecha + "/" + id).push({
+                alumno: id,
+                nombre: alumno.nombre,
+                tipo: "salida",
+                hora: hora,
+                fecha: fecha,
+                taller: taller,
+                dispositivo: navigator.userAgent,
+                timestamp: timestamp
             });
 
             await refActivo.remove();
-
-            guardarEnSheets(
-                id,
-                alumno.nombre,
-                taller,
-                "salida"
-            );
+            guardarEnSheets(id, alumno.nombre, taller, "salida");
 
             if(alumno.chat_id){
-
-                notificar(
-                    alumno.chat_id,
-                    alumno.nombre,
-                    "salida",
-                    hora
-                );
+                notificar(alumno.chat_id, alumno.nombre, "salida", hora);
             }
 
             sonidoSalida.play();
-
             contador++;
-
-            document.getElementById(
-            "contador"
-            ).innerHTML = contador;
-
-            estadoTitulo.innerHTML =
-            "SALIDA";
-
-            estadoSub.innerHTML =
-            alumno.nombre;
-
+            document.getElementById("contador").innerHTML = contador;
+            estadoTitulo.innerHTML = "SALIDA REGISTRADA";
+            estadoSub.innerHTML = alumno.nombre;
             return;
-        }
-
-        // ❌ OTRO TALLER
-        else{
-
+        } else {
             sonidoError.play();
-
-            estadoTitulo.innerHTML =
-            "OCUPADO";
-
-            estadoSub.innerHTML =
-            "Está en " + activo.taller;
-
+            estadoTitulo.innerHTML = "ALUMNO OCUPADO";
+            estadoSub.innerHTML = "Activo en: " + activo.taller.toUpperCase();
             return;
         }
-
     }
 
-    // =====================================
-    // ✅ ENTRADA
-    // =====================================
-
-    await db.ref(
-
-        "congreso/" +
-        taller + "/" +
-        fecha + "/" +
-        id
-
-    ).push({
-
-        alumno:id,
-        nombre:alumno.nombre,
-        tipo:"entrada",
-        hora:hora,
-        fecha:fecha,
-        taller:taller,
-        dispositivo:navigator.userAgent,
-        timestamp:timestamp
-
+    // 3. Flujo común: Entrada Exitosa
+    await db.ref("congreso/" + taller + "/" + fecha + "/" + id).push({
+        alumno: id,
+        nombre: alumno.nombre,
+        tipo: "entrada",
+        hora: hora,
+        fecha: fecha,
+        taller: taller,
+        dispositivo: navigator.userAgent,
+        timestamp: timestamp
     });
 
-    // 🔥 ACTIVO
     await refActivo.set({
-
-        taller:taller,
-        hora:hora,
-        timestamp:timestamp
-
+        taller: taller,
+        hora: hora,
+        timestamp: timestamp
     });
 
-    guardarEnSheets(
-        id,
-        alumno.nombre,
-        taller,
-        "entrada"
-    );
+    guardarEnSheets(id, alumno.nombre, taller, "entrada");
 
     if(alumno.chat_id){
-
-        notificar(
-            alumno.chat_id,
-            alumno.nombre,
-            "entrada",
-            hora
-        );
+        notificar(alumno.chat_id, alumno.nombre, "entrada", hora);
     }
 
     sonidoEntrada.play();
-
     contador++;
-
-    document.getElementById(
-    "contador"
-    ).innerHTML = contador;
-
-    estadoTitulo.innerHTML =
-    "ENTRADA";
-
-    estadoSub.innerHTML =
-    alumno.nombre;
-
+    document.getElementById("contador").innerHTML = contador;
+    estadoTitulo.innerHTML = "ENTRADA REGISTRADA";
+    estadoSub.innerHTML = alumno.nombre;
 }
-
 </script>
 
 </body>
