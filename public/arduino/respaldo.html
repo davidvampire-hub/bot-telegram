@@ -1,158 +1,57 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Congreso Escolar - CBTis 25</title>
+    <title>Congreso Escolar</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style>
 
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-        }
-
         body{
-            font-family:Arial;
+            font-family: Arial;
             text-align:center;
-            background:#f5f5f5;
-            color:#222;
-            min-height:100vh;
-            padding:20px;
-        }
-
-        .contenedor{
-
-            max-width:500px;
-            margin:auto;
-            background:white;
-            border-radius:30px;
-            padding:25px;
-            box-shadow:0 10px 30px rgba(0,0,0,.2);
-
-        }
-
-        .logo{
-
-            width:180px;
-            margin:auto;
-            display:block;
-            margin-bottom:15px;
-
-        }
-
-        h1{
-
-            color:#7a0012;
-            font-size:38px;
-            margin-bottom:10px;
-
-        }
-
-        .subtitulo{
-
-            font-size:18px;
-            color:#555;
-            margin-bottom:20px;
-
-        }
-
-        .taller{
-
-            background:#7a0012;
+            background:#0f172a;
             color:white;
-            font-size:24px;
-            font-weight:bold;
-            padding:15px;
-            border-radius:15px;
-            margin-bottom:20px;
-
+            padding:20px;
         }
 
         #reader{
-
             width:100%;
-            overflow:hidden;
-            border-radius:25px;
-            border:6px solid #7a0012;
-
-        }
-
-        #reader video{
-
-            border-radius:20px;
-            object-fit:cover !important;
-
+            max-width:400px;
+            margin:auto;
         }
 
         #mensaje{
-
-            margin-top:25px;
+            margin-top:30px;
             font-size:28px;
-            font-weight:bold;
-            padding:20px;
+        }
+
+        h1{
+            color:#38bdf8;
+        }
+
+        .taller{
+            font-size:22px;
+            margin-bottom:20px;
+            color:#facc15;
+        }
+
+        #reader video{
             border-radius:20px;
-            background:#f3f4f6;
-            color:#111;
-
-        }
-
-        .html5-qrcode-element{
-            display:none !important;
-        }
-
-        #reader__dashboard{
-            display:none !important;
-        }
-
-        #reader__scan_region{
-            border:none !important;
-        }
-
-        .footer{
-
-            margin-top:20px;
-            color:#666;
-            font-size:14px;
-
         }
 
     </style>
 </head>
 <body>
 
-<div class="contenedor">
+<h1>🎓 Congreso Escolar</h1>
 
-    <!-- 🔥 LOGO -->
-    <img
-        src="https://i.imgur.com/rY5W6Qx.png"
-        class="logo"
-    >
+<div class="taller" id="nombreTaller"></div>
 
-    <h1>Congreso Escolar</h1>
+<div id="reader"></div>
 
-    <div class="subtitulo">
-        CBTis 25 - Nayarit
-    </div>
-
-    <div
-        class="taller"
-        id="nombreTaller">
-    </div>
-
-    <!-- 📷 CAMARA -->
-    <div id="reader"></div>
-
-    <!-- 🔥 MENSAJE -->
-    <div id="mensaje">
-        Esperando escaneo...
-    </div>
-
-    <div class="footer">
-        Sistema de Control de Asistencia
-    </div>
-
+<div id="mensaje">
+    Esperando escaneo...
 </div>
 
 <!-- QR -->
@@ -214,7 +113,7 @@ const params = new URLSearchParams(window.location.search);
 const taller = params.get("taller") || "general";
 
 document.getElementById("nombreTaller").innerHTML =
-"📍 TALLER: " + taller.toUpperCase();
+"📍 Taller: " + taller.toUpperCase();
 
 // =====================================
 // 🔥 EVITAR DOBLE LECTURA
@@ -327,6 +226,7 @@ qr.start(
 
 );
 
+
 // =====================================
 // 🔊 SONIDOS
 // =====================================
@@ -342,6 +242,8 @@ const sonidoSalida = new Audio(
 const sonidoError = new Audio(
     "https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
 );
+
+
 
 // =====================================
 // 🔥 REGISTRAR
@@ -367,14 +269,9 @@ async function registrar(id){
 
     if(!snap.exists()){
 
-        mensaje.style.background = "#fee2e2";
-        mensaje.style.color = "#991b1b";
-
         mensaje.innerHTML = "❌ Alumno no encontrado";
 
         navigator.vibrate(500);
-
-        sonidoError.play();
 
         return;
     }
@@ -403,25 +300,6 @@ async function registrar(id){
 
         if(activo.taller === taller){
 
-            const minutos =
-            (timestamp - activo.timestamp) / 60000;
-
-            if(minutos < 10){
-
-                sonidoError.play();
-
-                mensaje.style.background = "#fef3c7";
-                mensaje.style.color = "#92400e";
-
-                mensaje.innerHTML = `
-                    ⏳ Deben pasar 10 minutos
-                    <br><br>
-                    👨‍🎓 ${alumno.nombre}
-                `;
-
-                return;
-            }
-
             await db.ref(
 
                 "congreso/" +
@@ -441,6 +319,25 @@ async function registrar(id){
                 timestamp:timestamp
 
             });
+
+// 🔥 VALIDAR TIEMPO MÍNIMO
+
+const minutos =
+(timestamp - activo.timestamp) / 60000;
+
+if(minutos < 10){
+
+    sonidoError.play();
+
+    mensaje.innerHTML = `
+        ⏳ Deben pasar 10 minutos
+        <br><br>
+        👨‍🎓 ${alumno.nombre}
+    `;
+
+    return;
+}
+
 
             // ❌ ELIMINAR ACTIVO
             await refActivo.remove();
@@ -464,19 +361,17 @@ async function registrar(id){
                 );
             }
 
+
+
+
             navigator.vibrate(200);
-
-            sonidoSalida.play();
-
-            mensaje.style.background = "#dbeafe";
-            mensaje.style.color = "#1e3a8a";
-
+sonidoSalida.play();
             mensaje.innerHTML = `
                 👋 SALIDA REGISTRADA
                 <br><br>
                 👨‍🎓 ${alumno.nombre}
                 <br>
-                📍 ${taller.toUpperCase()}
+                📍 ${taller}
             `;
 
             return;
@@ -489,16 +384,11 @@ async function registrar(id){
         else{
 
             navigator.vibrate(700);
-
-            sonidoError.play();
-
-            mensaje.style.background = "#fee2e2";
-            mensaje.style.color = "#991b1b";
-
+sonidoError.play();
             mensaje.innerHTML = `
                 ⛔ YA ESTÁ EN:
                 <br><br>
-                📍 ${activo.taller.toUpperCase()}
+                📍 ${activo.taller}
             `;
 
             return;
@@ -559,18 +449,13 @@ async function registrar(id){
     }
 
     navigator.vibrate(200);
-
-    sonidoEntrada.play();
-
-    mensaje.style.background = "#dcfce7";
-    mensaje.style.color = "#166534";
-
+sonidoEntrada.play();
     mensaje.innerHTML = `
         ✅ ENTRADA REGISTRADA
         <br><br>
         👨‍🎓 ${alumno.nombre}
         <br>
-        📍 ${taller.toUpperCase()}
+        📍 ${taller}
     `;
 
 }
