@@ -510,42 +510,12 @@ const sonidoEntrada = new Audio("https://actions.google.com/sounds/v1/cartoon/cl
 const sonidoSalida  = new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg");
 const sonidoError   = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
 
-async function notificar(chat_id, nombre, tipo, hora){
-
-    try{
-
-        const response = await fetch(
-            "https://bot-telegram-production-cb3d.up.railway.app/notificar",
-            {
-
-                method:"POST",
-
-                headers:{
-                    "Content-Type":"application/json"
-                },
-
-                body:JSON.stringify({
-
-                    chat_id: chat_id,
-                    nombre: nombre,
-                    tipo: tipo,
-                    hora: hora
-
-                })
-
-            }
-        );
-
-        const data = await response.text();
-
-        console.log("✅ Telegram:", data);
-
-    }catch(error){
-
-        console.error("❌ Error Telegram:", error);
-
-    }
-
+function notificar(chat_id, nombre, tipo, hora){
+    fetch("https://bot-telegram-production-cb3d.up.railway.app/notificar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id, nombre, tipo, hora })
+    });
 }
 
 function guardarEnSheets(id, nombre, taller, tipo){
