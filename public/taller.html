@@ -530,25 +530,30 @@ let ultimoCodigo = "";
 // 🔥 INICIALIZACIÓN DE CÁMARA (Visor 1:1 Nativo Antidistorsión)
 // =====================================
 function iniciarCamara(){
-    // 🌟 Instanciación correcta pasando la configuración de formatos en el constructor
+    // Instanciación limpia limitando exclusivamente al formato de tus credenciales
     const html5QrCode = new Html5Qrcode("reader", {
         formatsToSupport: [ Html5QrcodeSupportedFormats.CODE_128 ]
     });
 
     html5QrCode.start(
-        { facingMode: "environment" },
+        // Cambiamos la restricción para forzar el uso nativo del sensor trasero sin rotaciones de Chrome
+        { 
+            facingMode: "environment"
+        },
         {
-            fps: 15, // Subimos a 15 para mejorar la velocidad de captura en código de barras
-            // 🌟 Función dinámica: Usa 320x140 en pantallas grandes, o se adapta si el cel es chico
-            qrbox: function(viewfinderWidth, viewfinderHeight) {
-                const anchoBox = Math.min(viewfinderWidth - 40, 320);
-                const altoBox = Math.min(viewfinderHeight - 40, 140);
-                return { width: anchoBox, height: altoBox };
-            },
-            rememberLastUsedCamera: true
+            fps: 20, // Fluidez óptima para el procesador del celular
+            // Forzamos un cuadro de lectura rectangular grande para que no importe si la cámara rota el feed
+            qrbox: { width: 280, height: 160 },
+            rememberLastUsedCamera: true,
+            // 🌟 Atributo experimental para forzar la orientación correcta del sensor en Android
+            videoConstraints: {
+                facingMode: "environment",
+                focusMode: "continuous",
+                whiteBalanceMode: "continuous"
+            }
         },
         (decodedText) => {
-            // Sanitización: Eliminar saltos de línea invisibles que generan los códigos de barras
+            // Sanitización profunda de retornos y espacios que meten los lectores de barras
             const codigoLimpio = decodedText.toString().trim().replace(/[\n\r\t]/g, "");
 
             if(!codigoLimpio) return;
@@ -568,10 +573,22 @@ function iniciarCamara(){
     )
     .catch(err => {
         console.error(err);
-        mensaje.innerHTML = "❌ No se pudo abrir la cámara";
+        // Si el navegador se bloquea por los constraints, arranca en modo plano seguro
+        html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 20, qrbox: { width: 260, height: 150 } },
+            (decodedText) => {
+                const codigoLimpio = decodedText.toString().trim().replace(/[\n\r\t]/g, "");
+                if(codigoLimpio && codigoLimpio !== ultimoCodigo) {
+                    ultimoCodigo = codigoLimpio;
+                    setTimeout(() => { ultimoCodigo = ""; }, 2500);
+                    registrar(codigoLimpio);
+                }
+            },
+            (err) => {}
+        );
     });
 }
-
 // ======================================
 // INICIAR
 // ======================================
