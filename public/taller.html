@@ -175,42 +175,42 @@
     }
 
     .scanner-viewfinder {
-        position: relative;
-        width: 510px;
-        height: 210px;
-        background: #000000;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
+    position: relative;
+    width: 100%;        /* 🌟 Cambiamos 510px por 100% para que se adapte al ancho del celular sin desbordarse */
+    max-width: 510px;   /* Mantiene tu límite máximo original */
+    height: 210px;      /* Tu altura original */
+    background: #000000;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 
-    #reader{
+    /* 🌟 EL TRUCO DE CENTRADO MAESTRO: Fuerza a la capa de la librería a alinearse al centro exacto */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-    width:95vw;
+#reader {
+    width: 100% !important;
+    height: 100% !important;
+    border: none !important;
+}
 
-    max-width:900px;
+#reader video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important; /* Mantiene la cámara fluida sin aplastar la imagen */
+}
 
-    margin:auto;
-
+/* 🌟 Acomoda la región interna de la librería para que respete el rectangulo horizontal */
+#reader__scan_region {
+    background: transparent !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
 }
 
 
-#reader video{
-
-    border-radius:20px;
-
-    object-fit:cover !important;
-
-}
-
-
-#reader__scan_region{
-
-    border:4px solid #00ff88 !important;
-
-    border-radius:20px;
-
-} 
 
     /* Esquinas rojas de guía visual según tu boceto original */
     .corner-guide {
@@ -565,9 +565,9 @@ let ultimoCodigo = "";
 
             qrbox:{
 
-                width:260,
+                width:350,
 
-                height:450
+                height:120
 
             },
 
