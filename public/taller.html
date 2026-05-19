@@ -156,7 +156,7 @@
         line-height: 1.1;
     }
 
-    /* 🔥 CÁMARA (Efecto enmarcado con la esquina blanca abajo) */
+    /* 🔥 CÁMARA (Proporciones corregidas sin estiramiento) */
     .scanner-container {
         padding: 12px;
         display: flex;
@@ -184,17 +184,33 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
-    #reader {
-        width: 100% !important;
-        height: 100% !important;
-        border: none !important;
-    }
+    #reader{
 
-    #reader video {
-        width: 100% !important;
-        height: 100% !important;
-        object-fit: cover !important;
-    }
+    width:95vw;
+
+    max-width:900px;
+
+    margin:auto;
+
+}
+
+
+#reader video{
+
+    border-radius:20px;
+
+    object-fit:cover !important;
+
+}
+
+
+#reader__scan_region{
+
+    border:4px solid #00ff88 !important;
+
+    border-radius:20px;
+
+} 
 
     /* Esquinas rojas de guía visual según tu boceto original */
     .corner-guide {
@@ -508,79 +524,117 @@ function guardarEnSheets(id, nombre, taller, tipo){
 let ultimoCodigo = "";
 
 // =====================================
-// 🔥 CONFIGURACIÓN DE CÁMARA (Visor 1:1 Nativo)
+// 🔥 INICIALIZACIÓN DE CÁMARA (Visor 1:1 Nativo Antidistorsión)
 // =====================================
-function iniciarCamara(){
+ function iniciarCamara(){
+
 
     const html5QrCode = new Html5Qrcode(
 
+
         "reader",
+
 
         {
 
+
             formatsToSupport:[
+
                 Html5QrcodeSupportedFormats.CODE_128
+
             ]
 
+
         }
+
 
     );
 
+
     html5QrCode.start(
+
 
         { facingMode:"environment" },
 
+
         {
+
 
             fps:10,
 
+
             qrbox:{
+
                 width:320,
+
                 height:140
+
             },
+
 
             rememberLastUsedCamera:true
 
+
         },
+
 
         (decodedText)=>{
 
+
             if(decodedText === ultimoCodigo) return;
+
 
             ultimoCodigo = decodedText;
 
+
             setTimeout(()=>{
+
                 ultimoCodigo = "";
+
             },2000);
+
 
             registrar(decodedText);
 
+
         },
 
+
         (errorMessage)=>{
+
             // ignorar
+
         }
+
 
     )
 
+
     .catch(err=>{
+
 
         console.error(err);
 
+
         mensaje.innerHTML =
+
         "❌ No se pudo abrir la cámara";
+
 
     });
 
+
 }
 
+
 // ======================================
+
 // INICIAR
+
 // ======================================
 
-iniciarCamara();
 
-
+iniciarCamara(); 
 // =====================================
 // 🔥 LOGICA CENTRAL DE BASE DE DATOS
 // =====================================
@@ -589,6 +643,7 @@ async function registrar(id){
     const estadoSub = document.getElementById("estadoSub");
 
     estadoTitulo.innerHTML = "BUSCANDO...";
+    estadoSub.innerHTML = "ID detectado: " + id; // Muestra el ID transitoriamente en pantalla para auditarlo
 
     const ahora = new Date();
     const fecha = ahora.toISOString().split('T')[0];
@@ -600,7 +655,7 @@ async function registrar(id){
     if(!snap.exists()){
         sonidoError.play();
         estadoTitulo.innerHTML = "NO REGISTRADO";
-        estadoSub.innerHTML = "Código erróneo o alumno ausente.";
+        estadoSub.innerHTML = "ID " + id + " no existe en base.";
         return;
     }
 

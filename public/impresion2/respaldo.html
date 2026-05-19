@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Congreso Escolar</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+
+        body{
+            font-family: Arial;
+            text-align:center;
+            background:#0f172a;
+            color:white;
+            padding:20px;
+        }
+
+        #reader{
+            width:100%;
+            max-width:400px;
+            margin:auto;
+        }
+
+        #mensaje{
+            margin-top:30px;
+            font-size:28px;
+        }
+
+        h1{
+            color:#38bdf8;
+        }
+
+        .taller{
+            font-size:22px;
+            margin-bottom:20px;
+            color:#facc15;
+        }
+
+        #reader video{
+            border-radius:20px;
+        }
+
+    </style>
+</head>
+<body>
+
+<h1>🎓 Congreso Escolar</h1>
+
+<div class="taller" id="nombreTaller"></div>
+
+<div id="reader"></div>
+
+<div id="mensaje">
+    Esperando escaneo...
+</div>
+
+<!-- QR -->
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+
+// =====================================
+// 🔥 FIREBASE
+// =====================================
+
+const firebaseConfig = {
+
+  apiKey: "AIzaSyCWQAmB9cMI4Y0YBPC_iV6p1YGgZTSNFQ0",
+
+  authDomain: "controlasistencia-d236e.firebaseapp.com",
+
+  databaseURL: "https://controlasistencia-d236e-default-rtdb.firebaseio.com",
+
+  projectId: "controlasistencia-d236e",
+
+  storageBucket: "controlasistencia-d236e.firebasestorage.app",
+
+  messagingSenderId: "3052247103",
+
+  appId: "1:3052247103:web:eaed021913fa765427808a",
+
+  measurementId: "G-H9EKB1F7ZW"
+
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.database();
+
+// =====================================
+// 🔥 GOOGLE SHEETS
+// =====================================
+
+const URL_SCRIPT =
+"https://script.google.com/macros/s/AKfycbynZVN1eZ52UsM7x-11k8D6m2l8K0r5n3mtgL15WIjkGW6BnL31Ipu3YkEi9jLLUfgl/exec";
+
+// =====================================
+// 🔥 ELEMENTOS
+// =====================================
+
+const mensaje = document.getElementById("mensaje");
+
+// =====================================
+// 🔥 OBTENER TALLER
+// =====================================
+
+const params = new URLSearchParams(window.location.search);
+
+const taller = params.get("taller") || "general";
+
+document.getElementById("nombreTaller").innerHTML =
+"📍 Taller: " + taller.toUpperCase();
+
+// =====================================
+// 🔥 EVITAR DOBLE LECTURA
+// =====================================
+
+let ultimoCodigo = "";
+
+// =====================================
+// 🔔 TELEGRAM
+// =====================================
+
+function notificar(chat_id, nombre, tipo, hora){
+
+    fetch(
+        "https://bot-telegram-production-cb3d.up.railway.app/notificar",
+        {
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+
+                chat_id:chat_id,
+                nombre:nombre,
+                tipo:tipo,
+                hora:hora
+
+            })
+
+        }
+    )
+
+    .then(()=>{
+        console.log("✅ Telegram enviado");
+    })
+
+    .catch(err=>{
+        console.error("❌ Telegram:", err);
+    });
+
+}
+
+// =====================================
+// 📄 GOOGLE SHEETS
+// =====================================
+
+function guardarEnSheets(id, nombre, taller, tipo){
+
+    const url =
+    URL_SCRIPT
+    + "?id=" + encodeURIComponent(id)
+    + "&nombre=" + encodeURIComponent(nombre)
+    + "&taller=" + encodeURIComponent(taller)
+    + "&tipo=" + encodeURIComponent(tipo)
+    + "&dispositivo=" + encodeURIComponent(
+        navigator.platform
+      );
+
+    const iframe = document.createElement("iframe");
+
+    iframe.style.display = "none";
+
+    iframe.src = url;
+
+    document.body.appendChild(iframe);
+
+    console.log("✅ Sheets enviado");
+
+}
+
+// =====================================
+// 📷 INICIAR CAMARA
+// =====================================
+
+const qr = new Html5Qrcode("reader");
+
+qr.start(
+
+    { facingMode: "environment" },
+
+    {
+
+        fps: 20,
+
+        qrbox: {
+            width: 280,
+            height: 120
+        }
+
+    },
+
+    async (codigo) => {
+
+        if(codigo === ultimoCodigo) return;
+
+        ultimoCodigo = codigo;
+
+        setTimeout(()=>{
+
+            ultimoCodigo = "";
+
+        },2000);
+
+        registrar(codigo);
+
+    }
+
+);
+
+
+// =====================================
+// 🔊 SONIDOS
+// =====================================
+
+const sonidoEntrada = new Audio(
+    "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
+);
+
+const sonidoSalida = new Audio(
+    "https://actions.google.com/sounds/v1/cartoon/pop.ogg"
+);
+
+const sonidoError = new Audio(
+    "https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
+);
+
+
+
+// =====================================
+// 🔥 REGISTRAR
+// =====================================
+
+async function registrar(id){
+
+    const ahora = new Date();
+
+    const fecha = ahora.toISOString().split('T')[0];
+
+    const hora = ahora.toLocaleTimeString();
+
+    const timestamp = ahora.getTime();
+
+    mensaje.innerHTML = "🔍 Buscando alumno...";
+
+    // =====================================
+    // 🔥 BUSCAR ALUMNO
+    // =====================================
+
+    const snap = await db.ref("alumnos/" + id).once("value");
+
+    if(!snap.exists()){
+
+        mensaje.innerHTML = "❌ Alumno no encontrado";
+
+        navigator.vibrate(500);
+
+        return;
+    }
+
+    const alumno = snap.val();
+
+    // =====================================
+    // 🔥 VALIDAR ACTIVO GLOBAL
+    // =====================================
+
+    const refActivo = db.ref("activos/" + id);
+
+    const activoSnap = await refActivo.once("value");
+
+    const activo = activoSnap.val();
+
+    // =====================================
+    // 🔥 YA EXISTE ACTIVO
+    // =====================================
+
+    if(activo){
+
+        // =====================================
+        // ✅ MISMO TALLER = SALIDA
+        // =====================================
+
+        if(activo.taller === taller){
+
+            await db.ref(
+
+                "congreso/" +
+                taller + "/" +
+                fecha + "/" +
+                id
+
+            ).push({
+
+                alumno:id,
+                nombre:alumno.nombre,
+                tipo:"salida",
+                hora:hora,
+                fecha:fecha,
+                taller:taller,
+                dispositivo:navigator.userAgent,
+                timestamp:timestamp
+
+            });
+
+// 🔥 VALIDAR TIEMPO MÍNIMO
+
+const minutos =
+(timestamp - activo.timestamp) / 60000;
+
+if(minutos < 10){
+
+    sonidoError.play();
+
+    mensaje.innerHTML = `
+        ⏳ Deben pasar 10 minutos
+        <br><br>
+        👨‍🎓 ${alumno.nombre}
+    `;
+
+    return;
+}
+
+
+            // ❌ ELIMINAR ACTIVO
+            await refActivo.remove();
+
+            // 📄 SHEETS
+            guardarEnSheets(
+                id,
+                alumno.nombre,
+                taller,
+                "salida"
+            );
+
+            // 🔔 TELEGRAM
+            if(alumno.chat_id){
+
+                notificar(
+                    alumno.chat_id,
+                    alumno.nombre,
+                    "salida",
+                    hora
+                );
+            }
+
+
+
+
+            navigator.vibrate(200);
+sonidoSalida.play();
+            mensaje.innerHTML = `
+                👋 SALIDA REGISTRADA
+                <br><br>
+                👨‍🎓 ${alumno.nombre}
+                <br>
+                📍 ${taller}
+            `;
+
+            return;
+        }
+
+        // =====================================
+        // ❌ ACTIVO EN OTRO TALLER
+        // =====================================
+
+        else{
+
+            navigator.vibrate(700);
+sonidoError.play();
+            mensaje.innerHTML = `
+                ⛔ YA ESTÁ EN:
+                <br><br>
+                📍 ${activo.taller}
+            `;
+
+            return;
+        }
+
+    }
+
+    // =====================================
+    // ✅ NUEVA ENTRADA
+    // =====================================
+
+    await db.ref(
+
+        "congreso/" +
+        taller + "/" +
+        fecha + "/" +
+        id
+
+    ).push({
+
+        alumno:id,
+        nombre:alumno.nombre,
+        tipo:"entrada",
+        hora:hora,
+        fecha:fecha,
+        taller:taller,
+        dispositivo:navigator.userAgent,
+        timestamp:timestamp
+
+    });
+
+    // ✅ MARCAR ACTIVO
+    await refActivo.set({
+
+        taller:taller,
+        hora:hora,
+        timestamp:timestamp
+
+    });
+
+    // 📄 SHEETS
+    guardarEnSheets(
+        id,
+        alumno.nombre,
+        taller,
+        "entrada"
+    );
+
+    // 🔔 TELEGRAM
+    if(alumno.chat_id){
+
+        notificar(
+            alumno.chat_id,
+            alumno.nombre,
+            "entrada",
+            hora
+        );
+    }
+
+    navigator.vibrate(200);
+sonidoEntrada.play();
+    mensaje.innerHTML = `
+        ✅ ENTRADA REGISTRADA
+        <br><br>
+        👨‍🎓 ${alumno.nombre}
+        <br>
+        📍 ${taller}
+    `;
+
+}
+
+</script>
+
+</body>
+</html>
