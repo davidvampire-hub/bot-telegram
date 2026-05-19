@@ -1,300 +1,128 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
+    <title>Congreso Escolar - CBTis 25</title>
 
-<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+    <style>
 
-<title>Congreso Escolar CBTis 27</title>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
 
-<!-- 🔥 LECTOR QR -->
-<script src="https://unpkg.com/html5-qrcode"></script>
+        body{
+            font-family:Arial;
+            text-align:center;
+            background:#f5f5f5;
+            color:#222;
+            min-height:100vh;
+            padding:20px;
+        }
 
-<style>
+        .contenedor{
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
+            max-width:500px;
+            margin:auto;
+            background:white;
+            border-radius:30px;
+            padding:25px;
+            box-shadow:0 10px 30px rgba(0,0,0,.2);
 
-body{
+        }
 
-    font-family:Arial;
-    background:
-    linear-gradient(
-        180deg,
-        #5e000f 0%,
-        #7b0013 40%,
-        #a4001a 100%
-    );
+        .logo{
 
-    min-height:100vh;
+            width:180px;
+            margin:auto;
+            display:block;
+            margin-bottom:15px;
 
-    display:flex;
-    justify-content:center;
-    align-items:center;
+        }
 
-    padding:20px;
+        h1{
 
-    overflow-x:hidden;
-}
+            color:#7a0012;
+            font-size:38px;
+            margin-bottom:10px;
 
-/* 🔥 TARJETA PRINCIPAL */
+        }
 
-.container{
+        .subtitulo{
 
-    width:100%;
-    max-width:520px;
+            font-size:18px;
+            color:#555;
+            margin-bottom:20px;
 
-    background:white;
+        }
 
-    border-radius:35px;
+        .taller{
 
-    padding:30px 25px;
+            background:#7a0012;
+            color:white;
+            font-size:24px;
+            font-weight:bold;
+            padding:15px;
+            border-radius:15px;
+            margin-bottom:20px;
 
-    box-shadow:
-    0 15px 40px rgba(0,0,0,.35);
+        }
 
-    position:relative;
+        #reader{
 
-    overflow:hidden;
-}
+            width:100%;
+            overflow:hidden;
+            border-radius:25px;
+            border:6px solid #7a0012;
 
-/* 🔥 CÍRCULOS DECORATIVOS */
+        }
 
-.container::before{
+        #reader video{
 
-    content:"";
+            border-radius:20px;
+            object-fit:cover !important;
 
-    position:absolute;
+        }
 
-    width:220px;
-    height:220px;
+        #mensaje{
 
-    background:rgba(122,0,18,.08);
+            margin-top:25px;
+            font-size:28px;
+            font-weight:bold;
+            padding:20px;
+            border-radius:20px;
+            background:#f3f4f6;
+            color:#111;
 
-    border-radius:50%;
+        }
 
-    top:-80px;
-    right:-80px;
-}
+        .html5-qrcode-element{
+            display:none !important;
+        }
 
-.container::after{
+        #reader__dashboard{
+            display:none !important;
+        }
 
-    content:"";
+        #reader__scan_region{
+            border:none !important;
+        }
 
-    position:absolute;
+        .footer{
 
-    width:180px;
-    height:180px;
+            margin-top:20px;
+            color:#666;
+            font-size:14px;
 
-    background:rgba(122,0,18,.05);
+        }
 
-    border-radius:50%;
-
-    bottom:-60px;
-    left:-60px;
-}
-
-/* 🔥 LOGO */
-
-.logo{
-
-    width:170px;
-
-    display:block;
-
-    margin:auto;
-
-    margin-bottom:15px;
-
-    position:relative;
-    z-index:5;
-}
-
-/* 🔥 TITULOS */
-
-h1{
-
-    text-align:center;
-
-    font-size:42px;
-
-    color:#7a0012;
-
-    margin-bottom:8px;
-
-    position:relative;
-    z-index:5;
-}
-
-.subtitulo{
-
-    text-align:center;
-
-    color:#666;
-
-    font-size:18px;
-
-    margin-bottom:25px;
-
-    position:relative;
-    z-index:5;
-}
-
-/* 🔥 TALLER */
-
-.taller{
-
-    background:
-    linear-gradient(
-        90deg,
-        #7a0012,
-        #b3001b
-    );
-
-    color:white;
-
-    padding:16px;
-
-    border-radius:18px;
-
-    font-size:26px;
-
-    font-weight:bold;
-
-    margin-bottom:25px;
-
-    box-shadow:
-    0 8px 20px rgba(122,0,18,.25);
-
-    position:relative;
-    z-index:5;
-}
-
-/* 🔥 CAMARA */
-
-#reader{
-
-    width:100%;
-
-    overflow:hidden;
-
-    border-radius:28px;
-
-    border:8px solid #7a0012;
-
-    background:black;
-
-    box-shadow:
-    0 10px 30px rgba(0,0,0,.25);
-
-    position:relative;
-    z-index:5;
-}
-
-#reader video{
-
-    border-radius:20px;
-
-    object-fit:cover !important;
-}
-
-/* 🔥 OCULTAR BOTONES FEOS */
-
-.html5-qrcode-element{
-    display:none !important;
-}
-
-#reader__dashboard{
-    display:none !important;
-}
-
-#reader__scan_region{
-    border:none !important;
-}
-
-#reader__scan_region img{
-    display:none !important;
-}
-
-/* 🔥 MENSAJES */
-
-#mensaje{
-
-    margin-top:25px;
-
-    padding:20px;
-
-    border-radius:22px;
-
-    background:#f5f5f5;
-
-    color:#111;
-
-    font-size:28px;
-
-    font-weight:bold;
-
-    min-height:120px;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    flex-direction:column;
-
-    box-shadow:
-    inset 0 0 10px rgba(0,0,0,.05);
-
-    transition:.3s;
-
-    position:relative;
-    z-index:5;
-}
-
-/* 🔥 FOOTER */
-
-.footer{
-
-    margin-top:25px;
-
-    text-align:center;
-
-    color:#777;
-
-    font-size:15px;
-
-    position:relative;
-    z-index:5;
-}
-
-/* 📱 RESPONSIVE */
-
-@media(max-width:600px){
-
-    h1{
-        font-size:34px;
-    }
-
-    .taller{
-        font-size:22px;
-    }
-
-    #mensaje{
-        font-size:24px;
-    }
-
-}
-
-</style>
+    </style>
 </head>
-
 <body>
 
-<div class="container">
+<div class="contenedor">
 
     <!-- 🔥 LOGO -->
     <img
@@ -302,20 +130,18 @@ h1{
         class="logo"
     >
 
-    <!-- 🔥 TITULO -->
     <h1>Congreso Escolar</h1>
 
     <div class="subtitulo">
-        CBTis 27 · Nayarit
+        CBTis 25 - Nayarit
     </div>
 
-    <!-- 🔥 TALLER -->
     <div
         class="taller"
         id="nombreTaller">
     </div>
 
-    <!-- 🔥 CAMARA -->
+    <!-- 📷 CAMARA -->
     <div id="reader"></div>
 
     <!-- 🔥 MENSAJE -->
@@ -324,12 +150,15 @@ h1{
     </div>
 
     <div class="footer">
-        Sistema Inteligente de Asistencia
+        Sistema de Control de Asistencia
     </div>
 
 </div>
 
-<!-- 🔥 FIREBASE -->
+<!-- QR -->
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -419,7 +248,15 @@ function notificar(chat_id, nombre, tipo, hora){
             })
 
         }
-    );
+    )
+
+    .then(()=>{
+        console.log("✅ Telegram enviado");
+    })
+
+    .catch(err=>{
+        console.error("❌ Telegram:", err);
+    });
 
 }
 
@@ -447,59 +284,63 @@ function guardarEnSheets(id, nombre, taller, tipo){
 
     document.body.appendChild(iframe);
 
+    console.log("✅ Sheets enviado");
+
 }
 
 // =====================================
-// 🔊 SONIDOS
-// =====================================
-
-const sonidoEntrada = new Audio(
-"https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
-);
-
-const sonidoSalida = new Audio(
-"https://actions.google.com/sounds/v1/cartoon/pop.ogg"
-);
-
-const sonidoError = new Audio(
-"https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
-);
-
-// =====================================
-// 📷 CAMARA RAPIDA
+// 📷 INICIAR CAMARA
 // =====================================
 
 const qr = new Html5Qrcode("reader");
 
 qr.start(
 
-    { facingMode:"environment" },
+    { facingMode: "environment" },
 
     {
 
-        fps:20,
+        fps: 20,
 
-        qrbox:{
-            width:300,
-            height:130
+        qrbox: {
+            width: 280,
+            height: 120
         }
 
     },
 
-    async(codigo)=>{
+    async (codigo) => {
 
         if(codigo === ultimoCodigo) return;
 
         ultimoCodigo = codigo;
 
         setTimeout(()=>{
+
             ultimoCodigo = "";
+
         },2000);
 
         registrar(codigo);
 
     }
 
+);
+
+// =====================================
+// 🔊 SONIDOS
+// =====================================
+
+const sonidoEntrada = new Audio(
+    "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
+);
+
+const sonidoSalida = new Audio(
+    "https://actions.google.com/sounds/v1/cartoon/pop.ogg"
+);
+
+const sonidoError = new Audio(
+    "https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
 );
 
 // =====================================
@@ -516,39 +357,37 @@ async function registrar(id){
 
     const timestamp = ahora.getTime();
 
-    mensaje.innerHTML =
-    "🔍 Buscando alumno...";
+    mensaje.innerHTML = "🔍 Buscando alumno...";
 
-    // 🔥 BUSCAR
-    const snap =
-    await db.ref("alumnos/" + id).once("value");
+    // =====================================
+    // 🔥 BUSCAR ALUMNO
+    // =====================================
+
+    const snap = await db.ref("alumnos/" + id).once("value");
 
     if(!snap.exists()){
 
-        sonidoError.play();
+        mensaje.style.background = "#fee2e2";
+        mensaje.style.color = "#991b1b";
+
+        mensaje.innerHTML = "❌ Alumno no encontrado";
 
         navigator.vibrate(500);
 
-        mensaje.style.background =
-        "#fee2e2";
-
-        mensaje.style.color =
-        "#991b1b";
-
-        mensaje.innerHTML =
-        "❌ Alumno no encontrado";
+        sonidoError.play();
 
         return;
     }
 
     const alumno = snap.val();
 
-    // 🔥 VALIDAR ACTIVO
-    const refActivo =
-    db.ref("activos/" + id);
+    // =====================================
+    // 🔥 VALIDAR ACTIVO GLOBAL
+    // =====================================
 
-    const activoSnap =
-    await refActivo.once("value");
+    const refActivo = db.ref("activos/" + id);
+
+    const activoSnap = await refActivo.once("value");
 
     const activo = activoSnap.val();
 
@@ -558,34 +397,31 @@ async function registrar(id){
 
     if(activo){
 
-        // ✅ MISMO TALLER
+        // =====================================
+        // ✅ MISMO TALLER = SALIDA
+        // =====================================
+
         if(activo.taller === taller){
 
             const minutos =
-            (timestamp - activo.timestamp)
-            / 60000;
+            (timestamp - activo.timestamp) / 60000;
 
-            // ⛔ MENOS DE 10 MIN
             if(minutos < 10){
 
                 sonidoError.play();
 
-                mensaje.style.background =
-                "#fff7ed";
-
-                mensaje.style.color =
-                "#9a3412";
+                mensaje.style.background = "#fef3c7";
+                mensaje.style.color = "#92400e";
 
                 mensaje.innerHTML = `
-                ⏳ Deben pasar 10 minutos
-                <br><br>
-                👨‍🎓 ${alumno.nombre}
+                    ⏳ Deben pasar 10 minutos
+                    <br><br>
+                    👨‍🎓 ${alumno.nombre}
                 `;
 
                 return;
             }
 
-            // 🔥 GUARDAR SALIDA
             await db.ref(
 
                 "congreso/" +
@@ -606,8 +442,10 @@ async function registrar(id){
 
             });
 
+            // ❌ ELIMINAR ACTIVO
             await refActivo.remove();
 
+            // 📄 SHEETS
             guardarEnSheets(
                 id,
                 alumno.nombre,
@@ -615,44 +453,52 @@ async function registrar(id){
                 "salida"
             );
 
-            sonidoSalida.play();
+            // 🔔 TELEGRAM
+            if(alumno.chat_id){
+
+                notificar(
+                    alumno.chat_id,
+                    alumno.nombre,
+                    "salida",
+                    hora
+                );
+            }
 
             navigator.vibrate(200);
 
-            mensaje.style.background =
-            "#dbeafe";
+            sonidoSalida.play();
 
-            mensaje.style.color =
-            "#1e3a8a";
+            mensaje.style.background = "#dbeafe";
+            mensaje.style.color = "#1e3a8a";
 
             mensaje.innerHTML = `
-            👋 SALIDA REGISTRADA
-            <br><br>
-            👨‍🎓 ${alumno.nombre}
-            <br>
-            📍 ${taller.toUpperCase()}
+                👋 SALIDA REGISTRADA
+                <br><br>
+                👨‍🎓 ${alumno.nombre}
+                <br>
+                📍 ${taller.toUpperCase()}
             `;
 
             return;
         }
 
-        // ❌ OTRO TALLER
-        else{
+        // =====================================
+        // ❌ ACTIVO EN OTRO TALLER
+        // =====================================
 
-            sonidoError.play();
+        else{
 
             navigator.vibrate(700);
 
-            mensaje.style.background =
-            "#fee2e2";
+            sonidoError.play();
 
-            mensaje.style.color =
-            "#991b1b";
+            mensaje.style.background = "#fee2e2";
+            mensaje.style.color = "#991b1b";
 
             mensaje.innerHTML = `
-            ⛔ YA ESTÁ EN:
-            <br><br>
-            📍 ${activo.taller.toUpperCase()}
+                ⛔ YA ESTÁ EN:
+                <br><br>
+                📍 ${activo.taller.toUpperCase()}
             `;
 
             return;
@@ -684,7 +530,7 @@ async function registrar(id){
 
     });
 
-    // 🔥 MARCAR ACTIVO
+    // ✅ MARCAR ACTIVO
     await refActivo.set({
 
         taller:taller,
@@ -693,6 +539,7 @@ async function registrar(id){
 
     });
 
+    // 📄 SHEETS
     guardarEnSheets(
         id,
         alumno.nombre,
@@ -700,22 +547,30 @@ async function registrar(id){
         "entrada"
     );
 
-    sonidoEntrada.play();
+    // 🔔 TELEGRAM
+    if(alumno.chat_id){
+
+        notificar(
+            alumno.chat_id,
+            alumno.nombre,
+            "entrada",
+            hora
+        );
+    }
 
     navigator.vibrate(200);
 
-    mensaje.style.background =
-    "#dcfce7";
+    sonidoEntrada.play();
 
-    mensaje.style.color =
-    "#166534";
+    mensaje.style.background = "#dcfce7";
+    mensaje.style.color = "#166534";
 
     mensaje.innerHTML = `
-    ✅ ENTRADA REGISTRADA
-    <br><br>
-    👨‍🎓 ${alumno.nombre}
-    <br>
-    📍 ${taller.toUpperCase()}
+        ✅ ENTRADA REGISTRADA
+        <br><br>
+        👨‍🎓 ${alumno.nombre}
+        <br>
+        📍 ${taller.toUpperCase()}
     `;
 
 }
