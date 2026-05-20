@@ -754,7 +754,12 @@ carrera: alumno.carrera || "", hora, fecha, taller,
             contador++;
             document.getElementById("contador").innerHTML = contador;
             estadoTitulo.innerHTML = "SALIDA REGISTRADA";
-            estadoSub.innerHTML = alumno.nombre;
+           estadoSub.innerHTML =
+alumno.nombre +
+" | " +
+(alumno.grupo || "SIN GRUPO") +
+" | " +
+(alumno.carrera || "SIN CARRERA");
             return;
         } else {
             sonidoError.play();
@@ -799,7 +804,12 @@ carrera: alumno.carrera || "", hora, fecha, taller,
     contador++;
     document.getElementById("contador").innerHTML = contador;
     estadoTitulo.innerHTML = "ENTRADA REGISTRADA";
-    estadoSub.innerHTML = alumno.nombre;
+   estadoSub.innerHTML =
+alumno.nombre +
+" | " +
+(alumno.grupo || "SIN GRUPO") +
+" | " +
+(alumno.carrera || "SIN CARRERA");
 }
 </script>
 
