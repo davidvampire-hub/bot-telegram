@@ -555,10 +555,19 @@ async function notificar(chat_id, nombre, tipo, hora){
 
 }
 
-function guardarEnSheets(id, nombre, taller, tipo){
+function guardarEnSheets(
+    id,
+    nombre,
+    grupo,
+    carrera,
+    taller,
+    tipo
+){
     const url = URL_SCRIPT
     + "?id=" + encodeURIComponent(id)
     + "&nombre=" + encodeURIComponent(nombre)
+    + "&grupo=" + encodeURIComponent(grupo)
+    + "&carrera=" + encodeURIComponent(carrera)
     + "&taller=" + encodeURIComponent(taller)
     + "&tipo=" + encodeURIComponent(tipo)
     + "&dispositivo=" + encodeURIComponent(navigator.platform);
@@ -724,12 +733,20 @@ async function registrar(id){
             }
 
             await db.ref("congreso/" + taller + "/" + fecha + "/" + id).push({
-                alumno: id, nombre: alumno.nombre, tipo: "salida", hora, fecha, taller,
+                alumno: id, nombre: alumno.nombre, tipo: "salida",grupo: alumno.grupo || "",
+carrera: alumno.carrera || "", hora, fecha, taller,
                 dispositivo: navigator.userAgent, timestamp
             });
 
             await refActivo.remove();
-            guardarEnSheets(id, alumno.nombre, taller, "salida");
+           guardarEnSheets(
+    id,
+    alumno.nombre,
+    alumno.grupo || "",
+    alumno.carrera || "",
+    taller,
+    "salida"
+);
 
             if(alumno.chat_id) notificar(alumno.chat_id, alumno.nombre, "salida", hora);
 
@@ -747,13 +764,34 @@ async function registrar(id){
         }
     }
 
-    await db.ref("congreso/" + taller + "/" + fecha + "/" + id).push({
-        alumno: id, nombre: alumno.nombre, tipo: "entrada", hora, fecha, taller,
-        dispositivo: navigator.userAgent, timestamp
-    });
+   await db.ref("congreso/" + taller + "/" + fecha + "/" + id).push({
+
+    alumno: id,
+    nombre: alumno.nombre,
+
+    grupo: alumno.grupo || "",
+    carrera: alumno.carrera || "",
+
+    tipo: "entrada",
+    hora,
+    fecha,
+    taller,
+
+    dispositivo: navigator.userAgent,
+
+    timestamp
+
+});
 
     await refActivo.set({ taller, hora, timestamp });
-    guardarEnSheets(id, alumno.nombre, taller, "entrada");
+  guardarEnSheets(
+    id,
+    alumno.nombre,
+    alumno.grupo || "",
+    alumno.carrera || "",
+    taller,
+    "entrada"
+);
 
     if(alumno.chat_id) notificar(alumno.chat_id, alumno.nombre, "entrada", hora);
 
