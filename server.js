@@ -139,7 +139,8 @@ app.post("/webhook", async (req, res) => {
 
         await enviar(
           chatId,
-          "⚠️ Usa:\nASISTENCIA 23318050270088"
+          "⚠️ Ejemplo:\nASISTENCIA 12345678900001\n",
+          "El número de control lo puedes encontrar al reverso de la credencial de tu hijo o en una boleta de calificaciones 😀"
         );
 
         return res.sendStatus(200);
