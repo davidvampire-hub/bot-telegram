@@ -372,6 +372,18 @@
 
 <body>
 
+    <input
+    type="text"
+    id="lector"
+    autofocus
+    autocomplete="off"
+    style="
+        position:absolute;
+        opacity:0;
+        pointer-events:none;
+    "
+>
+
 <div class="container">
 
     <header class="header">
@@ -692,6 +704,41 @@ let ultimoCodigo = "";
 
 
 iniciarCamara(); 
+
+// =====================================
+// 🔫 SOPORTE PISTOLA LECTORA
+// =====================================
+
+const lector = document.getElementById("lector");
+
+// mantener foco siempre
+setInterval(() => {
+    lector.focus();
+}, 500);
+
+// detectar ENTER de la pistola
+lector.addEventListener("keydown", function(e){
+
+    if(e.key === "Enter"){
+
+        const codigo = this.value.trim();
+
+        if(codigo){
+
+            registrar(codigo);
+
+        }
+
+        this.value = "";
+
+    }
+
+});
+
+document.addEventListener("click", () => {
+    lector.focus();
+});
+
 // =====================================
 // 🔥 LOGICA CENTRAL DE BASE DE DATOS
 // =====================================
